@@ -1,18 +1,18 @@
 import express, { Application, Request, Response } from 'express';
-import routesDepartment from '../routes/department.route';
+import routesDepartment from './routes/department.route';
 import cors from 'cors';
-import db from '../db/connection';
+import db from './db/connection';
 
 class Server {
-    private app: Application;
+    private app = express();
     private port: number;
     private host: string;
 
     constructor() {
-        this.app = express();
         this.port = (process.env.PORT || 8888) as number;
         this.host = process.env.HOST || 'localhost'
         this.listen();
+        this.middlewares();
         this.routes();
         this.dbConnect();
     }
@@ -34,7 +34,7 @@ class Server {
         this.app.use('/api/departments', routesDepartment);
     }
 
-    midlewares(): void {
+    middlewares(): void {
         // Parse the body
         this.app.use(express.json());
 
