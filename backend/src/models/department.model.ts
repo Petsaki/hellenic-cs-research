@@ -1,6 +1,8 @@
 import db from "../db/connection";
 import { DataTypes } from "sequelize";
 
+// I can put type on define but i am not using it on department controller
+// const Departments: departmentsModelDefined = db.define('departments', {
 const Departments = db.define('departments', {
     id: {
         field: 'id',
