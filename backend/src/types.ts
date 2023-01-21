@@ -9,6 +9,11 @@ export interface ResponseData<T> {
     success: boolean;
 }
 
+export interface ErrorData {
+    code: number;
+    description: string;
+}
+
 // Request Typed interface with body and query
 export interface omeaCitationsReq<T extends Query, U> extends Express.Request {
     body: U,
