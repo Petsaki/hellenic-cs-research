@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import routesDepartment from './routes/department.route';
+import routesPublications from './routes/publications.route';
 import cors from 'cors';
 import db from './db/connection';
 import errorHandler from './middlewares/errorHandler';
@@ -28,21 +29,23 @@ class Server {
 
     // Handles all endpoints
     routes(): void {
+        // Parse the body
+        this.app.use(express.json());
+
+        // Cors must be before any route
+        // Cors
+        this.app.use(cors());
+
         this.app.get('/', (req: Request, res: Response): void => {
             res.json({
                 msg: "It's all good man!"
             });
         });
         this.app.use('/api/departments', routesDepartment);
+        this.app.use('/api/publications', routesPublications);
     }
 
     middlewares(): void {
-        // Parse the body
-        this.app.use(express.json());
-        
-        // Cors
-        this.app.use(cors());
-
         // Handle errors
         // Must be at the end of middlewares
         this.app.use(errorHandler);

@@ -71,9 +71,9 @@ export type departmentsCreationAttributes = {};
 
 // departmentsModelDefined not using somewhere but i keeping it for the future
 export interface departmentsModelDefined extends ModelDefined<departmentsBaseModel,departmentsCreationAttributes> {}
-export interface departmentsModel extends Model<departmentsBaseModel,departmentsCreationAttributes> {}
+export interface departmentsModel extends Model<departmentsBaseModel,departmentsBaseModel> {}
 
-
+export interface publicationsModel extends Model<publicationsBaseModel,publicationsBaseModel> {}
 
 export interface notingsdepModel {
     name: string;
@@ -81,7 +81,7 @@ export interface notingsdepModel {
     inst: string;
 }
 
-export interface publicationsModel {
+export interface publicationsBaseModel {
     id: string;
     year: number;
     counter: number;
