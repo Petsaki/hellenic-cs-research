@@ -3,6 +3,8 @@ import { Apis } from '../models/api/apis.enum';
 import { DepartmentsData } from '../models/api/response/departments/departments.data';
 import { ResponseData } from '../models/api/response/response.data';
 
+// Δεν έχω βάλει invalidatesTags, οπότε κάνει caching, δηλαδή ότι πρέπει για αυτήν την εφαρμογή γιατί
+// τα δεδομένα στην βάση δεν πρόκειτε να αλλάξουν
 export const departmentApi = createApi({
     reducerPath: 'departmentApi',
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),

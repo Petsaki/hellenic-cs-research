@@ -1,6 +1,6 @@
 export interface ResponseData<T> {
     code: number;
-    data?: T;
+    data: T;
     description: string;
     success: boolean;
 }

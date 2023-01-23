@@ -2,12 +2,19 @@ export const Apis: IGeneralApis = {
     // Departments
     GetDepartments: '/departments',
     GetDeparmentById: (id: string) => `/departments/${id}`,
+
+    // Publications
+    getPublications: '/publications',
+    getPublicationsYears: '/publications/yearsRange',
 };
 
 export interface IGeneralApis extends IApis {
     // Departments
     GetDepartments: string;
     GetDeparmentById: ApiResolverFn;
+    // Publications
+    getPublications: string;
+    getPublicationsYears: string;
 }
 
 export interface IApis {
