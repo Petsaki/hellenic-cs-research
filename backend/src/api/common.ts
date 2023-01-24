@@ -3,9 +3,9 @@ import { ResponseData } from "../types";
 export function sendResponse<T>(code: number, description: string, data?: T): ResponseData<T> {
 
     let response: ResponseData<T> = {
-        code: code,
-        data: data,
-        description: description,
+        code,
+        data,
+        description,
         success: setSuccess(code),
     }
 

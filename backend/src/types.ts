@@ -14,6 +14,21 @@ export interface ErrorData {
     description: string;
 }
 
+// Δεν θυμάμαι τι ήθελα να κάνω με αυτά(τα είχα κάνει στην δουλειά)
+// interface test extends Query {
+//     test: string
+//     test2: string
+// }
+
+// interface myParams {
+//     id: string
+// }
+
+// // A request that gets an id for params and test,test2 for query!
+// // Query can be many things and doing extends to Query adds many types that can that be
+// export interface omeaCitationsReqQueryFilter extends omeaCitationsReqQuery<myParams,test> {}
+
+
 // Request Typed interface with body and query
 export interface omeaCitationsReq<T extends Query, U> extends Express.Request {
     body: U,
