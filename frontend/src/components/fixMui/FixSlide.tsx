@@ -13,6 +13,10 @@ function valuetext(value: number) {
     return `${value}°C`;
 }
 
+const unaryOp = (value: string): number => {
+    return +value;
+};
+
 export const testRange = (years: PublicationsYear[] | undefined): any => {
     console.log(years);
     const marks: any = [];
@@ -41,6 +45,10 @@ const FixSlide: React.FC<FixSlideProp> = ({
     const yearsDataTestSlice = useSelector(
         (state: RootState) => state.testSlice.yearsRange
     );
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const yearsRange = searchParams.get('yearsRange');
+
     console.log('KANW RERENDER!!');
 
     // const { data, isFetching, isError } = useGetPublicationsYearsQuery();
@@ -99,9 +107,63 @@ const FixSlide: React.FC<FixSlideProp> = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
-    const [searchParams, setSearchParams] = useSearchParams();
+    useEffect(() => {
+        console.log(yearsRange);
+        if (yearsRange) {
+            const yearsRangeArray = yearsRange.split('-').map(unaryOp);
+            if (
+                yearsRangeArray.length === 2 &&
+                !Number.isNaN(yearsRangeArray[0]) &&
+                !Number.isNaN(yearsRangeArray[1])
+            ) {
+                console.log(!Number.isNaN(yearsRangeArray[0]));
+                console.log(!Number.isNaN(yearsRangeArray[1]));
 
-    const yearsRange = searchParams.get('yearsRange');
+                dispatch(setYearsRange(yearsRangeArray));
+            }
+
+            if (
+                yearsRangeArray.length !== 2 ||
+                Number.isNaN(yearsRangeArray[0]) ||
+                Number.isNaN(yearsRangeArray[1]) ||
+                yearsRangeArray[0] < data[0].year ||
+                yearsRangeArray[0] > data[data.length - 1].year ||
+                yearsRangeArray[1] < data[0].year ||
+                yearsRangeArray[1] > data[data.length - 1].year ||
+                yearsRangeArray[0] > yearsRangeArray[1]
+            ) {
+                console.log('MPHKA EDW POTE ARAGE?!?!');
+                console.log(yearsRangeArray.length !== 2);
+                console.log(Number.isNaN(yearsRangeArray[0]));
+                console.log(Number.isNaN(yearsRangeArray[1]));
+                console.log(yearsRangeArray[0] < data[0].year);
+                console.log(yearsRangeArray[0] > data[data.length - 1].year);
+                console.log(yearsRangeArray[1] < data[0].year);
+                console.log(yearsRangeArray[1] > data[data.length - 1].year);
+
+                console.log('yearsRangeArray[1]', yearsRangeArray[1]);
+                console.log(
+                    'data[data.length - 1].year',
+                    data[data.length - 1].year
+                );
+                console.log('data[0].year', data[0].year);
+
+                console.log(yearsRangeArray[0] > yearsRangeArray[1]);
+
+                dispatch(
+                    setYearsRange([data[0].year, data[data.length - 1].year])
+                );
+                setSearchParams((prevSearchParams) => {
+                    prevSearchParams.set(
+                        'yearsRange',
+                        `${data[0].year}-${data[data.length - 1].year}`
+                    );
+                    return prevSearchParams;
+                });
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [yearsRange, data]);
 
     useEffect(() => {
         console.log('PROSEXE POSES FORES THA MPEI TWRA EDW');
@@ -120,6 +182,8 @@ const FixSlide: React.FC<FixSlideProp> = ({
         testTimeout = setTimeout(function () {
             console.log('hello world!');
             if (Array.isArray(newValue)) {
+                console.log(newValue);
+
                 setSearchParams((prevSearchParams) => {
                     prevSearchParams.set(
                         'yearsRange',

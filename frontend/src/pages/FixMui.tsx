@@ -60,15 +60,21 @@ export const FixMui = () => {
     }, []);
 
     useEffect(() => {
-        if (firstRenderRef.current) {
-            firstRenderRef.current = false;
-            return;
-        }
-        console.log(yearsRange);
-        if (yearsRange) {
-            const yearsRangeArray = yearsRange.split('-').map(unaryOp);
-            dispatch(setYearsRange(yearsRangeArray));
-        }
+        // if (firstRenderRef.current) {
+        //     firstRenderRef.current = false;
+        //     return;
+        // }
+        // console.log(yearsRange);
+        // if (yearsRange) {
+        //     const yearsRangeArray = yearsRange.split('-').map(unaryOp);
+        //     if (
+        //         yearsRangeArray.length === 2 &&
+        //         !Number.isNaN(yearsRangeArray[0]) &&
+        //         !Number.isNaN(yearsRangeArray[1])
+        //     ) {
+        //         dispatch(setYearsRange(yearsRangeArray));
+        //     }
+        // }
         if (academicPositions) {
             console.log(academicPositions.split(','));
             const academicPos: AcademicStaffPosition[] = academicPositions
@@ -85,7 +91,7 @@ export const FixMui = () => {
             dispatch(setAcademicPos([]));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [yearsRange, academicPositions]);
+    }, [academicPositions]);
 
     return (
         <>
