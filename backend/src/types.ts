@@ -1,5 +1,6 @@
 import { Query, Send, Params } from 'express-serve-static-core';
-import { Model, ModelDefined, Optional } from "sequelize";
+import { InferAttributes, InferCreationAttributes, Model, ModelDefined, Optional } from "sequelize";
+import { z } from "zod";
 
 // Response Data interface
 export interface ResponseData<T> {
@@ -14,15 +15,41 @@ export interface ErrorData {
     description: string;
 }
 
+
+export enum cacheKeysEnum {
+    Position = 'position',
+    YearsRange = 'yearsRange',
+    DepartmentsID = 'departmentsID'
+}
+
+export interface cacheData {
+    position: IDep[],
+    yearsRange: IPublications[],
+    departmentsID: IDepartments[]
+}
+
+/* This code is declaring a global namespace for the Express library in TypeScript. It is adding a new
+property called `cache` to the `Request` interface of the Express library. This allows developers to
+attach a `cache` object to the `Request` object in their code, which can be used to store and
+retrieve cached data for the request. */
+declare global {
+    namespace Express {
+      interface Request {
+        cache: cacheData;
+      }
+    }
+}
+
 // Request Typed interface with body and query
 export interface omeaCitationsReq<T extends Query, U> extends Express.Request {
     body: U,
     query: T
 }
 
-
+// Request Typed interface with params and query
+// params is from the url dynamic variables
 export interface omeaCitationsReqQuery<Params,T extends Query> extends Express.Request {
-    params: Params
+    params: Params,
     query: T
 }
 
@@ -31,19 +58,48 @@ export interface omeaCitationsReqBody<T> extends Express.Request {
     body: T
 }
 
+
+// THEY HAVE MOVED TO request.types.ts file!
+// // REQUEST BODY INTERFACES
+
+// // Filter interface
+// export interface IFilter {
+//     filter: string;
+// }
+
+// // Filter interface
+// export interface IDepartments {
+//     departments: string[];
+// }
+
+// // Enum for dep
+// const deparmentFilterEnum = z.enum(["id"]);
+
+// export const FilterSchema = z.object({
+//     filter: z.string()
+// })
+
+// export type Filter = z.infer<typeof FilterSchema>;
+
 // Response Typed interface
 export interface omeaCitationsRes<D> extends Express.Response {
     json: Send<ResponseData<D>, this>;
  }
 
 // All table's interfaces
-export interface citationModel {
+
+// All citation models
+export interface citationBaseModel {
     id: string;
     year: number;
     counter: number;
 }
 
-export interface depModel {
+export interface ICitation extends citationBaseModel, Model<InferAttributes<ICitation>, InferCreationAttributes<ICitation>> {}
+
+
+// All dep models
+export interface depBaseModel {
     id: string;
     name: string;
     position: string;
@@ -56,6 +112,12 @@ export interface depModel {
     publications5: number;
 }
 
+export interface depModel extends Model<depBaseModel,depBaseModel> {}
+
+
+export interface IDep extends depBaseModel, Model<InferAttributes<IDep>, InferCreationAttributes<IDep>> {}
+
+// All department models
 export interface departmentsBaseModel {
     id: string;
     deptname: string;
@@ -65,6 +127,9 @@ export interface departmentsBaseModel {
     url: string;
 }
 
+export interface IDepartments extends departmentsBaseModel, Model<InferAttributes<IDepartments>, InferCreationAttributes<IDepartments>> {}
+
+
 // I can create optional field for deparments, like for the filter i want only the id and the name of deparment
 // export type departmentsCreationAttributes = Optional<departmentsBaseModel, 'id'>;
 export type departmentsCreationAttributes = {};
@@ -73,16 +138,24 @@ export type departmentsCreationAttributes = {};
 export interface departmentsModelDefined extends ModelDefined<departmentsBaseModel,departmentsCreationAttributes> {}
 export interface departmentsModel extends Model<departmentsBaseModel,departmentsBaseModel> {}
 
-export interface publicationsModel extends Model<publicationsBaseModel,publicationsBaseModel> {}
 
-export interface notingsdepModel {
+// All notings models
+export interface notingsdepBaseModel {
     name: string;
     position: string;
     inst: string;
 }
 
+export interface INotingsdep extends notingsdepBaseModel, Model<InferAttributes<INotingsdep>, InferCreationAttributes<INotingsdep>> {}
+
+
+// All publications models
 export interface publicationsBaseModel {
     id: string;
     year: number;
     counter: number;
 }
+
+export interface publicationsModel extends Model<publicationsBaseModel,publicationsBaseModel> {}
+
+export interface IPublications extends publicationsBaseModel, Model<InferAttributes<IPublications>, InferCreationAttributes<IPublications>> {}

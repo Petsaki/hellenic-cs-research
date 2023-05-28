@@ -1,9 +1,27 @@
-import { AccessDeniedError, BaseError, ConnectionError, ConnectionRefusedError } from "sequelize";
+import { AccessDeniedError, BaseError, ConnectionError, ConnectionRefusedError, DatabaseError } from "sequelize";
 import { ErrorData } from "../types";
 
 const sequelizeErrorHandle = (error: BaseError): ErrorData => {
+
+    // Handle bad request errors
+    if (error instanceof DatabaseError) {
+        let responseData: ErrorData = {code: 400, description: error.message};
+
+        const regex = /no: (\d+)/;
+        const match = (error as DatabaseError).message.match(regex);
+        const sqlError = match ? match[1] : null;
+
+        if (sqlError === '1054') {
+            return {...responseData, description: 'Wrong value at Filter field.'};
+        } else {
+            return responseData;
+        }
+    }
+
+    // Handle Internal Server Error
     // Default error code 500 and the code that sequelize provided
     let responseData: ErrorData = {code: 500, description: error.message};
+    
     // Generic connection error
     if (error instanceof ConnectionError) {
         const errorMessage = "Server can't handle your request. Try again later!";

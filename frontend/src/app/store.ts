@@ -1,19 +1,24 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
+import { academicStaffApi } from '../services/academicStaffApi';
 import { departmentApi } from '../services/departmentApi';
 import { publicationApi } from '../services/publicationApi';
 import testSliceReducer from './slices/testSlice';
+import rtkQueryErrorLogger from './slices/error-handler.middleware';
 
 const store = configureStore({
     reducer: {
         [departmentApi.reducerPath]: departmentApi.reducer,
         [publicationApi.reducerPath]: publicationApi.reducer,
+        [academicStaffApi.reducerPath]: academicStaffApi.reducer,
         testSlice: testSliceReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(
             departmentApi.middleware,
-            publicationApi.middleware
+            publicationApi.middleware,
+            academicStaffApi.middleware,
+            rtkQueryErrorLogger
         ),
 });
 // It will fetch after on internet reconnect or on mount

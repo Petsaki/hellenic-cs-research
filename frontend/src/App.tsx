@@ -1,15 +1,22 @@
 import { createContext, useMemo, useState } from 'react';
 import './App.css';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import {
+    createTheme,
+    CssBaseline,
+    ThemeProvider,
+    useTheme,
+} from '@mui/material';
 import { amber, deepOrange, grey } from '@mui/material/colors';
 import Paths from './routes';
+import TheAlert from './components/TheAlert';
 
 export const ColorModeContext = createContext({
     toggleColorMode: () => {},
 });
 
 function App() {
+    const muiTheme = useTheme();
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const [mode, setMode] = useState<'light' | 'dark'>(
         prefersDarkMode ? 'dark' : 'light'
@@ -31,6 +38,13 @@ function App() {
             createTheme({
                 palette: {
                     mode,
+                    ...(mode === 'light'
+                        ? {
+                              background: {
+                                  default: '#f1f1f1',
+                              },
+                          }
+                        : {}),
                     // ...(mode === 'light'
                     //     ? {
                     //           // palette values for light mode
@@ -55,7 +69,69 @@ function App() {
                     //           },
                     //       }),
                 },
+                components: {
+                    // This is a example to how to customize components. At the end i didnt want it but is a good example for the feature
+                    MuiSnackbar: {
+                        styleOverrides: {
+                            root: {
+                                '& .MuiPaper-root': {
+                                    // backgroundColor:
+                                    //     muiTheme.palette.error.main,
+                                    // color: '#fff',
+                                    // add your custom styles here
+                                    // [muiTheme.breakpoints.down('md')]: {
+                                    //     backgroundColor:
+                                    //         muiTheme.palette.error.main,
+                                    // },
+                                    // [muiTheme.breakpoints.up('md')]: {
+                                    //     backgroundColor:
+                                    //         muiTheme.palette.primary.main,
+                                    //     top: '82px',
+                                    // },
+                                    '& .MuiAlert-icon': {
+                                        alignItems: 'center',
+                                        // color: '#fff',
+                                    },
+                                },
+                                // [muiTheme.breakpoints.down('md')]: {
+                                //     top: 'auto',
+
+                                // },
+                                [muiTheme.breakpoints.up('sm')]: {
+                                    top: '82px',
+                                    maxWidth: '500px',
+                                },
+                                [muiTheme.breakpoints.down('sm')]: {
+                                    bottom: '84px',
+                                },
+                            },
+                        },
+                    },
+                    MuiCssBaseline: {
+                        styleOverrides: `
+                            ::-webkit-scrollbar {
+                            width: 8px;
+                            height: 8px;
+                            }
+                            ::-webkit-scrollbar-thumb {
+                            background-color: rgba(128, 128, 128, 0.3);
+                            border-radius: 2px;
+                            }
+                            ::-webkit-scrollbar-thumb:hover {
+                            background-color: rgba(128, 128, 128, 0.5);
+                            }
+                        `,
+                    },
+                    MuiAlert: {
+                        styleOverrides: {
+                            root: {
+                                // add your custom styles here
+                            },
+                        },
+                    },
+                },
             }),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [mode]
     );
     return (
@@ -63,6 +139,7 @@ function App() {
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <Paths />
+                <TheAlert />
             </ThemeProvider>
         </ColorModeContext.Provider>
     );

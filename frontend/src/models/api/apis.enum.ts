@@ -6,6 +6,9 @@ export const Apis: IGeneralApis = {
     // Publications
     getPublications: '/publications',
     getPublicationsYears: '/publications/yearsRange',
+
+    // Academic Staff
+    getAcademicPositions: '/academic-staff/positions',
 };
 
 export interface IGeneralApis extends IApis {
@@ -15,6 +18,8 @@ export interface IGeneralApis extends IApis {
     // Publications
     getPublications: string;
     getPublicationsYears: string;
+    // Academic Staff
+    getAcademicPositions: string;
 }
 
 export interface IApis {

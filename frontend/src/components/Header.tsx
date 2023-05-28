@@ -1,4 +1,11 @@
-import React, { useContext } from 'react';
+import React, {
+    ForwardRefRenderFunction,
+    ForwardedRef,
+    forwardRef,
+    useContext,
+    useEffect,
+    useState,
+} from 'react';
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -10,9 +17,20 @@ import SearchIcon from '@mui/icons-material/Search';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Box from '@mui/material/Box';
-import { Container, Icon } from '@mui/material';
+import {
+    Alert,
+    Autocomplete,
+    CircularProgress,
+    Container,
+    Icon,
+    Snackbar,
+    TextField,
+    useMediaQuery,
+} from '@mui/material';
 import omeaLogo from '../assets/omea_logo.png';
 import { ColorModeContext } from '../App';
+import { useGetJesusQuery } from '../services/departmentApi';
+import { DepartmentsData } from '../models/api/response/departments/departments.data';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -51,11 +69,37 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-function Header() {
+export interface HeaderProps {
+    onChangeDrawer: () => void;
+}
+
+const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
+    { onChangeDrawer }: HeaderProps,
+    ref: ForwardedRef<HTMLDivElement>
+) => {
     const theme = useTheme();
     const colorMode = useContext(ColorModeContext);
+    const [open, setOpen] = React.useState(false);
+    const [options, setOptions] = React.useState<readonly DepartmentsData[]>(
+        []
+    );
+
+    const {
+        data: departmenentData,
+        isLoading: isDepartmenentDataFetching,
+        isError: isDepartmenentDataError,
+    } = useGetJesusQuery({
+        filter: 'id',
+    });
+
+    useEffect(() => {
+        if (departmenentData?.data) {
+            setOptions([...departmenentData.data]);
+        }
+    }, [departmenentData?.data]);
+
     return (
-        <AppBar position="static">
+        <AppBar ref={ref} sx={{ position: { xs: 'relative', md: 'fixed' } }}>
             <Container maxWidth="xl" disableGutters>
                 <Toolbar>
                     <Box
@@ -65,6 +109,15 @@ function Header() {
                             flexGrow: 1,
                         }}
                     >
+                        {/* <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="start"
+                            onClick={() => onChangeDrawer()}
+                            sx={{ mr: 2, display: { md: 'none' } }}
+                        >
+                            <MenuIcon />
+                        </IconButton> */}
                         <IconButton
                             size="large"
                             edge="start"
@@ -94,19 +147,46 @@ function Header() {
                             OMEA Citations
                         </Typography>
                     </Box>
-                    <Search
-                        sx={{
-                            flexGrow: 5,
+                    <Autocomplete
+                        disableClearable
+                        sx={{ width: 300 }}
+                        open={open}
+                        onOpen={() => {
+                            setOpen(true);
                         }}
-                    >
-                        <SearchIconWrapper>
-                            <SearchIcon />
-                        </SearchIconWrapper>
-                        <StyledInputBase
-                            placeholder="Search for departments"
-                            inputProps={{ 'aria-label': 'search' }}
-                        />
-                    </Search>
+                        onClose={() => {
+                            setOpen(false);
+                        }}
+                        isOptionEqualToValue={(
+                            option: DepartmentsData,
+                            value: DepartmentsData
+                        ) => option.id === value.id}
+                        getOptionLabel={(option: DepartmentsData) => option.id}
+                        options={options}
+                        loading={isDepartmenentDataFetching}
+                        renderInput={(params) => (
+                            <TextField
+                                hiddenLabel
+                                variant="filled"
+                                {...params}
+                                placeholder="Search for Department"
+                                InputProps={{
+                                    ...params.InputProps,
+                                    endAdornment: (
+                                        <>
+                                            {isDepartmenentDataFetching ? (
+                                                <CircularProgress
+                                                    color="inherit"
+                                                    size={20}
+                                                />
+                                            ) : null}
+                                            {params.InputProps.endAdornment}
+                                        </>
+                                    ),
+                                }}
+                            />
+                        )}
+                    />
                     <Box
                         sx={{
                             display: 'flex',
@@ -131,6 +211,6 @@ function Header() {
             </Container>
         </AppBar>
     );
-}
+};
 
-export default Header;
+export default forwardRef(Header);

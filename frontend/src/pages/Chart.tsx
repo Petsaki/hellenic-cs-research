@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -11,7 +11,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { DepartmentsData } from '../models/api/response/departments/departments.data';
-import { useGetDeparmentQuery } from '../services/departmentApi';
+import { useGetDeparmentMutation } from '../services/departmentApi';
 
 ChartJS.register(
     CategoryScale,
@@ -70,13 +70,18 @@ export const options = {
 };
 
 function Chart() {
-    const { data, isFetching } = useGetDeparmentQuery();
+    // eslint-disable-next-line no-empty-pattern
+    const [filter, { data, isLoading: isFetching }] = useGetDeparmentMutation();
     const labelTest = data?.data;
     const testData = useMemo((): ChartData<'bar'> => {
         return dataTest(labelTest);
     }, [labelTest]);
 
-    if (isFetching) return <>Loading...</>;
+    useEffect(() => {
+        filter({ filter: 'id' });
+    }, [filter]);
+
+    if (isFetching && !data) return <>Loading...</>;
     console.log(data);
 
     return (

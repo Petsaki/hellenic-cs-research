@@ -1,9 +1,13 @@
 import express, { Application, Request, Response } from 'express';
 import routesDepartment from './routes/department.route';
 import routesPublications from './routes/publications.route';
+import routesAcademicStaff from './routes/academic-staff.route';
 import cors from 'cors';
 import db from './db/connection';
 import errorHandler from './middlewares/errorHandler';
+import { runAssociations } from './models/associations';
+import { tryCatch } from './utils/tryCatch';
+import { cacheData } from './types';
 
 class Server {
     private app = express();
@@ -18,6 +22,7 @@ class Server {
         this.dbConnect();
         // IMPORTANT: middlewares must be after routes!! Routes are middlewares too.
         this.middlewares();
+        runAssociations();
     }
 
     // Listens for a connection
@@ -43,6 +48,7 @@ class Server {
         });
         this.app.use('/api/departments', routesDepartment);
         this.app.use('/api/publications', routesPublications);
+        this.app.use('/api/academic-staff', routesAcademicStaff);
     }
 
     middlewares(): void {
@@ -64,3 +70,12 @@ class Server {
 }
 
 export default Server;
+
+// Cache
+export const cacheTime = 1_800_000 // cache for 30 minutes
+
+export const reqCache: cacheData = {
+    position: [],
+    yearsRange: [],
+    departmentsID: []
+};

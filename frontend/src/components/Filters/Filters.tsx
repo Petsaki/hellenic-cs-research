@@ -1,7 +1,32 @@
-import { Slider, Typography, Box } from '@mui/material';
-import { useMemo, useState } from 'react';
+import {
+    Slider,
+    Typography,
+    Box,
+    Drawer,
+    Button,
+    TextField,
+    FormGroup,
+    FormHelperText,
+    FormLabel,
+    FormControl,
+    Checkbox,
+    FormControlLabel,
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery/useMediaQuery';
+import { useEffect, useMemo, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
+import { reset, setYearsRange } from '../../app/slices/testSlice';
+import store, { RootState } from '../../app/store';
+import { DepartmentsData } from '../../models/api/response/departments/departments.data';
 import { PublicationsYear } from '../../models/api/response/publications/publications.data';
+import {
+    useGetDeparmentMutation,
+    useGetJesusQuery,
+} from '../../services/departmentApi';
 import { useGetPublicationsYearsQuery } from '../../services/publicationApi';
+import ChipTag from '../ChipTag';
 
 function valuetext(value: number) {
     return `${value}°C`;
@@ -38,41 +63,158 @@ export const testRange = (years: PublicationsYear[] | undefined): any => {
 //     },
 // ];
 
-function Filters() {
+export interface FiltersProp {
+    drawerStatus: boolean;
+}
+let testTimeout: any;
+
+const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
+    const theme = useTheme();
+    const large = useMediaQuery(theme.breakpoints.up('md'));
     const [value, setValue] = useState<number[]>([0, 100]);
+    const [filteredDeps, setFilteredDeps] = useState<DepartmentsData[]>([]);
     const { data, isFetching, isError } = useGetPublicationsYearsQuery();
+    // const [
+    //     filter,
+    //     { data: departmenentData, isLoading: isDepartmenentFetching },
+    // ] = useGetDeparmentMutation({
+    //     fixedCacheKey: 'shared-update-post',
+    // });
+
+    const { data: departmenentData, isLoading: isDepartmenentFetching } =
+        useGetJesusQuery({
+            filter: 'id',
+        });
+
+    const dispatch = useDispatch();
+    // TODO: Fix the problem with drawer that starts opens
+    const [mobileOpen, setMobileOpen] = useState(drawerStatus);
+
+    if (large) {
+        console.log('omg is sooo big uwu');
+        if (mobileOpen) {
+            setMobileOpen(false);
+        }
+    } else {
+        console.log('haha small pp');
+    }
+
+    const filterStore = useSelector(
+        (state: RootState) => state.testSlice.yearsRange
+    );
 
     const testData = useMemo((): any => {
-        if (data) {
+        return testRange(data?.data);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data?.data]);
+
+    useEffect(() => {
+        console.log(
+            'XXXXXXXXXXMMMMMMMMMMM TI KANEIS RE REACT POULAKI MOU POUPOULA'
+        );
+        if (data?.data) {
+            console.log('exw data kai prepei na treksw');
+            console.log(data?.data);
             setValue([
                 data.data[0].year,
                 data.data[data.data.length - 1].year,
             ] as number[]);
-        }
 
-        return testRange(data?.data);
-    }, [data]);
+            dispatch(
+                setYearsRange([
+                    data.data[0].year,
+                    data.data[data.data.length - 1].year,
+                ])
+            );
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data?.data]);
 
     const handleChange = (event: Event, newValue: number | number[]) => {
-        console.log(newValue);
+        // console.log(newValue);
         setValue(newValue as number[]);
+        clearTimeout(testTimeout);
+        testTimeout = setTimeout(function () {
+            console.log('hello world!');
+
+            dispatch(setYearsRange(newValue as number[]));
+        }, 450);
     };
 
-    return (
+    useEffect(() => {
+        console.log('WHAT ARE YOU WAITING FOR?!?!?!');
+        setMobileOpen((currentDrawerStatus) => !currentDrawerStatus);
+    }, [drawerStatus]);
+
+    useEffect(() => {
+        console.log(mobileOpen);
+    }, [mobileOpen]);
+
+    // useEffect(() => {
+    //     filter({ filter: 'id' });
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
+
+    useEffect(() => {
+        if (departmenentData?.data) {
+            setFilteredDeps(departmenentData?.data);
+        }
+    }, [departmenentData?.data]);
+
+    const drawer = (
         <>
-            <Typography
-                variant="h5"
-                noWrap
-                component="div"
+            <Box
                 sx={{
-                    fontWeight: 'light',
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    gap: '12px',
                     mb: 4,
                 }}
             >
-                Filters
-            </Typography>
+                <Typography
+                    variant="h5"
+                    noWrap
+                    component="div"
+                    sx={{
+                        fontWeight: 'light',
+                    }}
+                >
+                    Filters
+                </Typography>
+                <Button
+                    disableElevation
+                    disableRipple
+                    variant="text"
+                    sx={{
+                        color: 'blue',
+                        fontSize: '12px',
+                        p: 0,
+                        '&.MuiButtonBase-root:hover': {
+                            bgcolor: 'transparent',
+                            textDecoration: 'underline',
+                            filter: 'brightness(85%)',
+                        },
+                    }}
+                    onClick={() => {
+                        if (data?.data) {
+                            setValue([
+                                data.data[0].year,
+                                data.data[data.data.length - 1].year,
+                            ]);
+                            dispatch(
+                                reset([
+                                    data.data[0].year,
+                                    data.data[data.data.length - 1].year,
+                                ])
+                            );
+                        }
+                    }}
+                >
+                    Clear
+                </Button>
+            </Box>
             {data && (
-                <Box sx={{ width: 300 }}>
+                <Box sx={{ width: 240 }}>
                     <Slider
                         getAriaLabel={() => 'Years range'}
                         value={value}
@@ -118,36 +260,114 @@ function Filters() {
                     {value[1]}
                 </Typography>
             </Box>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
-            <p>aaaaaaaa</p>
+            <ChipTag />
+
+            <TextField
+                hiddenLabel
+                id="filled-hidden-label-small"
+                variant="outlined"
+                size="small"
+                placeholder="Search for Department"
+                onChange={(
+                    event: React.ChangeEvent<
+                        HTMLTextAreaElement | HTMLInputElement
+                    >
+                ) => {
+                    if (departmenentData?.data) {
+                        const tempFilteredDeps = departmenentData?.data.filter(
+                            (depID) => {
+                                return depID.id.includes(event.target.value);
+                            }
+                        );
+                        console.log(event.target.value);
+                        console.log(tempFilteredDeps);
+                        setFilteredDeps(tempFilteredDeps);
+                    }
+                }}
+            />
+            <Box
+                sx={{
+                    maxHeight: '350px',
+                    overflow: 'auto',
+                    // color: (theme) =>
+                    //     theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800',
+                    // border: '1px solid',
+                    // borderColor: (theme) =>
+                    //     theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
+                    // borderRadius: 2,
+                    display: 'block',
+                }}
+            >
+                <FormControl
+                    sx={{ width: '100%' }}
+                    component="fieldset"
+                    variant="standard"
+                >
+                    <FormLabel component="legend">Departments</FormLabel>
+                    <FormGroup>
+                        {filteredDeps.map((depID) => (
+                            <FormControlLabel
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    mr: '0',
+                                }}
+                                labelPlacement="start"
+                                key={depID.id}
+                                control={
+                                    <Checkbox
+                                        name={depID.id}
+                                        onChange={(
+                                            event: React.ChangeEvent<HTMLInputElement>
+                                        ) => {
+                                            console.log(event.target.checked);
+
+                                            console.log(depID.id);
+                                        }}
+                                    />
+                                }
+                                label={depID.id}
+                            />
+                            // <p key={depID.id}>{depID.id}</p>
+                        ))}
+                    </FormGroup>
+                </FormControl>
+            </Box>
         </>
     );
-}
+
+    return (
+        <>
+            <Box
+                sx={{
+                    display: { xs: 'none', md: 'block' },
+                }}
+            >
+                {drawer}
+            </Box>
+            <Drawer
+                // container={container}
+                variant="temporary"
+                open={mobileOpen}
+                onClose={() =>
+                    setMobileOpen((currentMobileOpen) => !currentMobileOpen)
+                }
+                ModalProps={{
+                    keepMounted: true, // Better open performance on mobile.
+                }}
+                sx={{
+                    display: { xs: 'block', md: 'none' },
+                    '& .MuiDrawer-paper': {
+                        boxSizing: 'border-box',
+                        width: 290,
+                        display: 'block',
+                    },
+                }}
+            >
+                {drawer}
+            </Drawer>
+        </>
+    );
+};
 
 export default Filters;
