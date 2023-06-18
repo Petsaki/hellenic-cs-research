@@ -7,6 +7,7 @@ import { FixMui } from '../pages/FixMui';
 import Home from '../pages/Home';
 import TestMui from '../pages/TestMui';
 import TheSlide from '../components/TheSlide';
+import Rewrite from '../pages/Rewrite';
 
 function Paths() {
     return (
@@ -19,6 +20,7 @@ function Paths() {
                 <Route path="/fixfilters" element={<FixFilters />} />
                 <Route path="/drawer" element={<DrawerTest />} />
                 <Route path="/slide" element={<TestSlide />} />
+                <Route path="/rewrite" element={<Rewrite />} />
                 {/* <Route path="/slide2" element={<TheSlide />} /> */}
             </Routes>
         </BrowserRouter>

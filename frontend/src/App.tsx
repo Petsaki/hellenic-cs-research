@@ -18,16 +18,28 @@ export const ColorModeContext = createContext({
 function App() {
     const muiTheme = useTheme();
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+
+    const isDarkMode = () => {
+        const localTheme = localStorage.getItem('theme');
+        if (localTheme) {
+            return localTheme === 'dark';
+        }
+        return prefersDarkMode;
+    };
+
     const [mode, setMode] = useState<'light' | 'dark'>(
-        prefersDarkMode ? 'dark' : 'light'
+        isDarkMode() ? 'dark' : 'light'
     );
 
     const colorMode = useMemo(
         () => ({
             toggleColorMode: () => {
-                setMode((prevMode) =>
-                    prevMode === 'light' ? 'dark' : 'light'
-                );
+                setMode((prevMode) => {
+                    const currentTheme =
+                        prevMode === 'light' ? 'dark' : 'light';
+                    localStorage.setItem('theme', currentTheme);
+                    return currentTheme;
+                });
             },
         }),
         []
@@ -40,6 +52,9 @@ function App() {
                     mode,
                     ...(mode === 'light'
                         ? {
+                              primary: {
+                                  main: '#007cbb',
+                              },
                               background: {
                                   default: '#f1f1f1',
                               },

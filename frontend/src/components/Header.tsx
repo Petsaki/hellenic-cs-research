@@ -78,6 +78,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
     ref: ForwardedRef<HTMLDivElement>
 ) => {
     const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
     const colorMode = useContext(ColorModeContext);
     const [open, setOpen] = React.useState(false);
     const [options, setOptions] = React.useState<readonly DepartmentsData[]>(
@@ -99,7 +100,20 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
     }, [departmenentData?.data]);
 
     return (
-        <AppBar ref={ref} sx={{ position: { xs: 'relative', md: 'fixed' } }}>
+        <AppBar
+            ref={ref}
+            sx={{
+                position: { xs: 'relative', md: 'fixed' },
+                ...(isDarkMode
+                    ? {}
+                    : {
+                          background:
+                              'linear-gradient(126deg,#007cbb,#7096d6 30%,#7096d6 70%,#007cbb)',
+                      }),
+                // background:
+                //     'linear-gradient(126deg,#007cbb,#5383d6 30%,#5383d6 70%,#007cbb)',
+            }}
+        >
             <Container maxWidth="xl" disableGutters>
                 <Toolbar>
                     <Box
@@ -149,7 +163,9 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                     </Box>
                     <Autocomplete
                         disableClearable
-                        sx={{ width: 300 }}
+                        sx={{
+                            width: 300,
+                        }}
                         open={open}
                         onOpen={() => {
                             setOpen(true);
@@ -166,6 +182,14 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                         loading={isDepartmenentDataFetching}
                         renderInput={(params) => (
                             <TextField
+                                sx={{
+                                    '& .MuiInputBase-root': {
+                                        borderRadius: '8px',
+                                        '& .MuiInputBase-input': {
+                                            color: 'white',
+                                        },
+                                    },
+                                }}
                                 hiddenLabel
                                 variant="filled"
                                 {...params}
@@ -183,6 +207,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                                             {params.InputProps.endAdornment}
                                         </>
                                     ),
+                                    disableUnderline: true,
                                 }}
                             />
                         )}
