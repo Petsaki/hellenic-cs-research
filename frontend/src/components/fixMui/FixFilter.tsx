@@ -94,13 +94,13 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
     const [filteredDeps, setFilteredDeps] = useState<DepartmentsData[]>([]);
     const {
         data: yearsData,
-        isFetching: isYearsDataLoading,
+        isLoading: isYearsDataLoading,
         isError: isYearsDataError,
     } = useGetPublicationsYearsQuery();
 
     const {
         data: positionsData,
-        isFetching: isPositionsDataLoading,
+        isLoading: isPositionsDataLoading,
         isError: isPositionsDataError,
     } = useGetAcademicStaffPositionsQuery();
 
@@ -243,7 +243,7 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                     sx={{
                         display: 'flex',
                         alignItems: 'baseline',
-                        gap: '12px',
+                        gap: '4px',
                         mb: 4,
                     }}
                 >

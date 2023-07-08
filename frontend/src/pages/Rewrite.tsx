@@ -67,7 +67,7 @@ const Rewrite = () => {
                         <Grid2
                             sx={{
                                 width: '100%',
-                                p: 0,
+                                pt: 0,
                             }}
                         >
                             <TheChipArray />

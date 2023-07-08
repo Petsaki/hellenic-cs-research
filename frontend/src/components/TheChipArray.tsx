@@ -1,12 +1,16 @@
 import Box from '@mui/material/Box/Box';
 import Chip from '@mui/material/Chip/Chip';
 import Paper from '@mui/material/Paper/Paper';
+import Skeleton from '@mui/material/Skeleton/Skeleton';
 import { styled } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { RootState } from '../app/store';
 import { setYearsRange } from '../app/slices/testSlice';
+import { useGetPublicationsYearsQuery } from '../services/publicationApi';
+import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
+import { useGetJesusQuery } from '../services/departmentApi';
 
 interface ChipData {
     key: string;
@@ -28,6 +32,15 @@ const TheChipArray = () => {
         { key: '4', label: 'Vue.js' },
     ]);
     const [searchParams, setSearchParams] = useSearchParams();
+
+    const { isLoading: isYearsDataLoading } = useGetPublicationsYearsQuery();
+
+    const { isLoading: isPositionsDataLoading } =
+        useGetAcademicStaffPositionsQuery();
+
+    const { isLoading: isDepartmenentDataFetching } = useGetJesusQuery({
+        filter: 'id',
+    });
 
     useEffect(() => {
         console.log('ESPASE!');
@@ -58,19 +71,8 @@ const TheChipArray = () => {
             chips.filter((chip) => chip.key !== chipToDelete.key)
         );
         if (chipToDelete.key === '1') {
-            // dispatch(
-            //     setYearsRange([
-            //         testSliceData.maxYearsRange[0],
-            //         testSliceData.maxYearsRange[1],
-            //     ])
-            // );
-            setSearchParams((prevSearchParams) => {
-                prevSearchParams.set(
-                    'yearsRange',
-                    `${testSliceData.maxYearsRange[0]}-${testSliceData.maxYearsRange[1]}`
-                );
-                return prevSearchParams;
-            });
+            searchParams.delete('yearsRange');
+            setSearchParams(searchParams);
         } else if (chipToDelete.key.startsWith('pos-')) {
             const newAcademicPositions = testSliceData.academicPos
                 .filter((pos) => pos.position !== chipToDelete.label)
@@ -92,6 +94,20 @@ const TheChipArray = () => {
             }
         }
     };
+
+    if (
+        isYearsDataLoading &&
+        isPositionsDataLoading &&
+        isDepartmenentDataFetching
+    )
+        return (
+            <Skeleton
+                animation="wave"
+                variant="rounded"
+                width="100%"
+                height={44}
+            />
+        );
 
     return (
         <Box

@@ -1,25 +1,38 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box/Box';
 import Slider from '@mui/material/Slider/Slider';
 import Typography from '@mui/material/Typography/Typography';
-import { useDispatch, useSelector } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
-import { setMaxYearsRange, setYearsRange } from '../../app/slices/testSlice';
-import { useGetPublicationsYearsQuery } from '../../services/publicationApi';
+import { SxProps, useTheme, Theme } from '@mui/material';
 import { PublicationsYear } from '../../models/api/response/publications/publications.data';
-import { RootState } from '../../app/store';
+import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
+import { stringToYearArray } from '../../app/untils/yearsRange';
 
-function valuetext(value: number) {
-    return `${value}°C`;
-}
-
-const unaryOp = (value: string): number => {
-    return +value;
+// Style
+const slider: SxProps = {
+    '& .MuiSlider-mark': {
+        display: 'none',
+    },
 };
 
-export const testRange = (years: PublicationsYear[] | undefined): any => {
+const sliderLabel: SxProps<Theme> = (theme) => ({
+    fontWeight: 'light',
+    mb: 4,
+    bgcolor: theme.palette.mode === 'dark' ? '#272727' : '#7096d6',
+    p: 1.5,
+    borderRadius: 1,
+    color: 'white',
+});
+
+interface ISliderMark {
+    label?: number;
+    value: number;
+}
+
+export const createMarks = (
+    years: PublicationsYear[] | undefined
+): Array<ISliderMark> => {
     console.log(years);
-    const marks: any = [];
+    const marks: Array<ISliderMark> = [];
     years?.map((year, index) => {
         if (index === 0 || years.length - 1 === index) {
             return marks.push({ value: year.year, label: year.year });
@@ -31,167 +44,59 @@ export const testRange = (years: PublicationsYear[] | undefined): any => {
     return marks;
 };
 
-let testTimeout: any;
+let sliderTimeout: NodeJS.Timeout;
 
-export interface FixSlideProp {
+export interface FixSliderProp {
     resetFilters: boolean;
     data: PublicationsYear[];
 }
-const FixSlide: React.FC<FixSlideProp> = ({
+const FixSlide: React.FC<FixSliderProp> = ({
     resetFilters,
     data,
-}: FixSlideProp) => {
-    const dispatch = useDispatch();
-    const yearsDataTestSlice = useSelector(
-        (state: RootState) => state.testSlice.yearsRange
-    );
-    const [searchParams, setSearchParams] = useSearchParams();
+}: FixSliderProp) => {
+    const theme = useTheme();
+    const [paramValue, resetValue, handleInputChange] = useUrlParams({
+        name: ParamNames.YearsRange,
+        data,
+    });
 
-    const yearsRange = searchParams.get('yearsRange');
-
-    console.log('KANW RERENDER!!');
-
-    // const { data, isFetching, isError } = useGetPublicationsYearsQuery();
-    const [value, setValue] = useState<number[]>([
-        yearsDataTestSlice[0],
-        yearsDataTestSlice[1],
-    ]);
+    const [value, setValue] = useState<number[]>([0, 0]);
+    const isFirstRender = useRef(true);
 
     useEffect(() => {
-        console.log('poses fores mphka edw?');
-
-        if (yearsDataTestSlice.length) {
-            setValue([yearsDataTestSlice[0], yearsDataTestSlice[1]]);
+        console.log('Parameter value:', paramValue);
+        if (paramValue) {
+            const yearsRangeArray = stringToYearArray(paramValue);
+            console.log(yearsRangeArray);
+            setValue(yearsRangeArray);
+            console.log('DO I HAVE DATA??? ', data);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [paramValue, resetValue]);
+
+    useEffect(() => {
+        console.log('clear slider value');
+
+        if (data && !isFirstRender.current) {
+            setValue([data[0].year, data[data.length - 1].year]);
+            handleInputChange(`${data[0].year}-${data[data.length - 1].year}`);
+        }
+        isFirstRender.current = false;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resetFilters]);
 
-    // useEffect(() => {
-    //     console.log('EGW TREXW OTAN KANEI RE-RENDER MONO STO ONMOUNT');
-    //     console.log(yearsDataTestSlice);
-
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, []);
-
-    const testData = useMemo((): any => {
-        return testRange(data);
+    const sliderMarks = useMemo((): Array<ISliderMark> => {
+        return createMarks(data);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
-
-    useEffect(() => {
-        console.log(
-            'XXXXXXXXXXMMMMMMMMMMM TI KANEIS RE REACT POULAKI MOU POUPOULA'
-        );
-        if (data) {
-            console.log('exw data kai prepei na treksw');
-            console.log(data);
-            if (yearsDataTestSlice.length) {
-                setValue([yearsDataTestSlice[0], yearsDataTestSlice[1]]);
-                console.log(
-                    'TO yearsDataTestSlice EXEI DATA OPOTE MHN KANEIS RESET GMTX'
-                );
-            } else {
-                setValue([
-                    data[0].year,
-                    data[data.length - 1].year,
-                ] as number[]);
-
-                dispatch(
-                    setYearsRange([data[0].year, data[data.length - 1].year])
-                );
-                dispatch(
-                    setMaxYearsRange([data[0].year, data[data.length - 1].year])
-                );
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data]);
-
-    useEffect(() => {
-        console.log(yearsRange);
-        if (yearsRange) {
-            const yearsRangeArray = yearsRange.split('-').map(unaryOp);
-            if (
-                yearsRangeArray.length === 2 &&
-                !Number.isNaN(yearsRangeArray[0]) &&
-                !Number.isNaN(yearsRangeArray[1])
-            ) {
-                console.log(!Number.isNaN(yearsRangeArray[0]));
-                console.log(!Number.isNaN(yearsRangeArray[1]));
-
-                dispatch(setYearsRange(yearsRangeArray));
-            }
-
-            if (
-                yearsRangeArray.length !== 2 ||
-                Number.isNaN(yearsRangeArray[0]) ||
-                Number.isNaN(yearsRangeArray[1]) ||
-                yearsRangeArray[0] < data[0].year ||
-                yearsRangeArray[0] > data[data.length - 1].year ||
-                yearsRangeArray[1] < data[0].year ||
-                yearsRangeArray[1] > data[data.length - 1].year ||
-                yearsRangeArray[0] > yearsRangeArray[1]
-            ) {
-                console.log('MPHKA EDW POTE ARAGE?!?!');
-                console.log(yearsRangeArray.length !== 2);
-                console.log(Number.isNaN(yearsRangeArray[0]));
-                console.log(Number.isNaN(yearsRangeArray[1]));
-                console.log(yearsRangeArray[0] < data[0].year);
-                console.log(yearsRangeArray[0] > data[data.length - 1].year);
-                console.log(yearsRangeArray[1] < data[0].year);
-                console.log(yearsRangeArray[1] > data[data.length - 1].year);
-
-                console.log('yearsRangeArray[1]', yearsRangeArray[1]);
-                console.log(
-                    'data[data.length - 1].year',
-                    data[data.length - 1].year
-                );
-                console.log('data[0].year', data[0].year);
-
-                console.log(yearsRangeArray[0] > yearsRangeArray[1]);
-
-                dispatch(
-                    setYearsRange([data[0].year, data[data.length - 1].year])
-                );
-                setSearchParams((prevSearchParams) => {
-                    prevSearchParams.set(
-                        'yearsRange',
-                        `${data[0].year}-${data[data.length - 1].year}`
-                    );
-                    return prevSearchParams;
-                });
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [yearsRange, data]);
-
-    useEffect(() => {
-        console.log('PROSEXE POSES FORES THA MPEI TWRA EDW');
-
-        setValue(yearsDataTestSlice);
-    }, [yearsDataTestSlice]);
-
-    // const handleUrlParams = () => {
-    //     setSearchParams({ test: Math.floor(Math.random() * 1000) });
-    // };
 
     const handleChange = (event: Event, newValue: number | number[]) => {
-        console.log(newValue);
         setValue(newValue as number[]);
-        clearTimeout(testTimeout);
-        testTimeout = setTimeout(function () {
+        clearTimeout(sliderTimeout);
+        sliderTimeout = setTimeout(() => {
             console.log('hello world!');
             if (Array.isArray(newValue)) {
-                console.log(newValue);
-
-                setSearchParams((prevSearchParams) => {
-                    prevSearchParams.set(
-                        'yearsRange',
-                        `${newValue[0]}-${newValue[1]}`
-                    );
-                    return prevSearchParams;
-                });
-                // dispatch(setYearsRange(newValue));
+                handleInputChange(`${newValue[0]}-${newValue[1]}`);
             }
         }, 450);
     };
@@ -209,12 +114,12 @@ const FixSlide: React.FC<FixSlideProp> = ({
             {data && (
                 <Box sx={{ padding: '0 28px' }}>
                     <Slider
+                        sx={slider}
                         getAriaLabel={() => 'Years range'}
                         value={value}
                         onChange={handleChange}
                         valueLabelDisplay="auto"
-                        getAriaValueText={valuetext}
-                        marks={testData}
+                        marks={sliderMarks}
                         step={null}
                         min={data[0].year}
                         max={data[data.length - 1].year}
@@ -226,14 +131,7 @@ const FixSlide: React.FC<FixSlideProp> = ({
                     variant="body2"
                     noWrap
                     component="div"
-                    sx={{
-                        fontWeight: 'light',
-                        mb: 4,
-                        bgcolor: 'blue',
-                        border: 1,
-                        p: 1.5,
-                        borderRadius: 1,
-                    }}
+                    sx={sliderLabel(theme)}
                 >
                     {value[0]}
                 </Typography>
@@ -241,14 +139,7 @@ const FixSlide: React.FC<FixSlideProp> = ({
                     variant="body2"
                     noWrap
                     component="div"
-                    sx={{
-                        fontWeight: 'light',
-                        mb: 4,
-                        bgcolor: 'blue',
-                        border: 1,
-                        p: 1.5,
-                        borderRadius: 1,
-                    }}
+                    sx={sliderLabel(theme)}
                 >
                     {value[1]}
                 </Typography>

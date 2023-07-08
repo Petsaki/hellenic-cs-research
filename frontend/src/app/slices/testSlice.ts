@@ -10,10 +10,6 @@ export interface IUser {
     maxYearsRange: number[];
 }
 
-interface AuthState {
-    user?: IUser | null;
-}
-
 interface IAddDepartment {
     deps: string | string[];
     removeDeps?: boolean;
