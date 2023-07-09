@@ -7,10 +7,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useRef, useState } from 'react';
 import TextField from '@mui/material/TextField/TextField';
 import Box from '@mui/material/Box/Box';
-import { useGetJesusQuery } from '../../services/departmentApi';
 import { addDepartment, deleteDepartment } from '../../app/slices/testSlice';
 import { RootState } from '../../app/store';
 import { DepartmentsData } from '../../models/api/response/departments/departments.data';
+import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 
 export interface FixAcademicStaffProp {
     resetFilters: boolean;
@@ -22,16 +22,14 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
     data,
 }: FixAcademicStaffProp) => {
     const dispatch = useDispatch();
-    // const { data: departmenentData, isLoading: isDepartmenentFetching } =
-    //     useGetJesusQuery({
-    //         filter: 'id',
-    //     });
-    const departmentsDataTestSlice = useSelector(
-        (state: RootState) => state.testSlice.departments
-    );
+
+    const [paramValue, handleInputChange] = useUrlParams({
+        name: ParamNames.Departments,
+        data,
+    });
     const [searchQuery, setSearchQuery] = useState('');
     const [checked, setChecked] = useState<Array<string>>([]);
-    const firstRenderRef = useRef(true);
+    const isFirstRender = useRef(true);
 
     const filteredDepsArray = data
         ? data.filter((dep) =>
@@ -45,63 +43,52 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
         const depId = event.target.name;
 
         if (event.target.checked) {
-            console.log(checked.length);
-
-            if (checked.length) {
-                setChecked([...checked, depId]);
-                dispatch(addDepartment({ deps: depId }));
-            } else {
-                setChecked([...checked, depId]);
-                dispatch(addDepartment({ deps: depId, removeDeps: true }));
-            }
+            setChecked([...checked, depId]);
         } else {
-            console.log(checked.length);
-            if (checked.length !== 1) {
-                setChecked(checked.filter((id) => id !== depId));
-                dispatch(deleteDepartment(depId));
-            } else {
-                setChecked([]);
-                if (data) {
-                    console.log(data);
-                    const depsId: string[] = data.map((dep) => dep.id);
-                    dispatch(addDepartment({ deps: depsId }));
-                }
-            }
+            setChecked(checked.filter((id) => id !== depId));
         }
+
+        handleInputChange({
+            checkbox: {
+                id: depId,
+                checked: event.target.checked,
+            },
+        });
     };
 
     useEffect(() => {
-        if (departmentsDataTestSlice.length) {
-            setChecked(departmentsDataTestSlice);
+        console.log('Parameter value Academic Pos:', paramValue);
+        if (paramValue) {
+            setChecked(paramValue.split(','));
+        } else {
+            setChecked([]);
         }
-        console.log('EFAGA RESET GAMW ALLA DES TI EXW APO TO STORE');
-        console.log(checked);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [paramValue]);
 
     useEffect(() => {
-        if (firstRenderRef.current) {
-            firstRenderRef.current = false;
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
             return;
         }
         console.log('poses fores mphka edw?');
         if (data) {
             console.log(data);
             const depsId: string[] = data.map((dep) => dep.id);
-            dispatch(addDepartment({ deps: depsId }));
+            // dispatch(addDepartment({ deps: depsId }));
         }
         setChecked([]);
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resetFilters]);
 
-    // useEffect(() => {
-    //     console.log('THE CURRENT VALUE OF CHECKED IS: ', checked);
-    //     if (!checked.length) dispatch(addDepartment({ deps: depId }));
-    // }, [checked]);
-
     return (
-        <>
+        <FormControl
+            sx={{ width: '100%' }}
+            component="fieldset"
+            variant="standard"
+        >
+            <FormLabel>Departments</FormLabel>
             <TextField
                 hiddenLabel
                 id="filled-hidden-label-small"
@@ -143,39 +130,32 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
                     display: 'block',
                 }}
             >
-                <FormControl
-                    sx={{ width: '100%' }}
-                    component="fieldset"
-                    variant="standard"
-                >
-                    <FormLabel component="legend">Departments</FormLabel>
-                    {data && (
-                        <FormGroup>
-                            {filteredDepsArray.map((depID) => (
-                                <FormControlLabel
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        mr: '0',
-                                    }}
-                                    labelPlacement="start"
-                                    key={depID.id}
-                                    control={
-                                        <Checkbox
-                                            name={depID.id}
-                                            onChange={handleCheckboxChange}
-                                            checked={checked.includes(depID.id)}
-                                        />
-                                    }
-                                    label={depID.id}
-                                />
-                                // <p key={depID.id}>{depID.id}</p>
-                            ))}
-                        </FormGroup>
-                    )}
-                </FormControl>
+                {data && (
+                    <FormGroup>
+                        {filteredDepsArray.map((depID) => (
+                            <FormControlLabel
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    mr: '0',
+                                }}
+                                labelPlacement="start"
+                                key={depID.id}
+                                control={
+                                    <Checkbox
+                                        name={depID.id}
+                                        onChange={handleCheckboxChange}
+                                        checked={checked.includes(depID.id)}
+                                    />
+                                }
+                                label={depID.id}
+                            />
+                            // <p key={depID.id}>{depID.id}</p>
+                        ))}
+                    </FormGroup>
+                )}
             </Box>
-        </>
+        </FormControl>
     );
 };
 

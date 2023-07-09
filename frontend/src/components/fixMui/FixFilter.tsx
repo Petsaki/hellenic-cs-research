@@ -238,13 +238,19 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
     const drawer = yearsData?.data &&
         positionsData?.data &&
         departmenentData?.data && (
-            <>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '32px',
+                }}
+            >
                 <Box
                     sx={{
                         display: 'flex',
                         alignItems: 'baseline',
                         gap: '4px',
-                        mb: 4,
+                        mb: 2,
                     }}
                 >
                     <Typography
@@ -337,13 +343,13 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                     {value[1]}
                 </Typography>
             </Box> */}
-                <ChipTag data={positionsData.data} />
+                {/* <ChipTag data={positionsData.data} /> */}
                 <NewAcademicStaff
                     resetFilters={resetFilters}
                     data={positionsData.data}
                 />
                 {/* COMPARE BY CODE --------------------------------------------------------- */}
-                <Box>
+                {/* <Box>
                     <Typography
                         variant="h5"
                         noWrap
@@ -376,12 +382,12 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                             />
                         </RadioGroup>
                     </FormControl>
-                </Box>
+                </Box> */}
                 {/* COMPARE BY CODE --------------------------------------------------------- */}
-                <FixCheckBox
+                {/* <FixCheckBox
                     resetFilters={resetFilters}
                     data={departmenentData.data}
-                />
+                /> */}
                 <FixAcademicStaff
                     resetFilters={resetFilters}
                     data={departmenentData.data}
@@ -462,7 +468,7 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                     )}
                 </FormControl>
             </Box> */}
-            </>
+            </Box>
         );
 
     if (

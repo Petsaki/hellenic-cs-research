@@ -3,6 +3,8 @@ import Box from '@mui/material/Box/Box';
 import Slider from '@mui/material/Slider/Slider';
 import Typography from '@mui/material/Typography/Typography';
 import { SxProps, useTheme, Theme } from '@mui/material';
+import FormLabel from '@mui/material/FormLabel/FormLabel';
+import FormControl from '@mui/material/FormControl/FormControl';
 import { PublicationsYear } from '../../models/api/response/publications/publications.data';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 import { stringToYearArray } from '../../app/untils/yearsRange';
@@ -16,7 +18,6 @@ const slider: SxProps = {
 
 const sliderLabel: SxProps<Theme> = (theme) => ({
     fontWeight: 'light',
-    mb: 4,
     bgcolor: theme.palette.mode === 'dark' ? '#272727' : '#7096d6',
     p: 1.5,
     borderRadius: 1,
@@ -55,7 +56,7 @@ const FixSlide: React.FC<FixSliderProp> = ({
     data,
 }: FixSliderProp) => {
     const theme = useTheme();
-    const [paramValue, resetValue, handleInputChange] = useUrlParams({
+    const [paramValue, handleInputChange] = useUrlParams({
         name: ParamNames.YearsRange,
         data,
     });
@@ -70,16 +71,20 @@ const FixSlide: React.FC<FixSliderProp> = ({
             console.log(yearsRangeArray);
             setValue(yearsRangeArray);
             console.log('DO I HAVE DATA??? ', data);
+        } else {
+            setValue([data[0].year, data[data.length - 1].year]);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [paramValue, resetValue]);
+    }, [paramValue]);
 
     useEffect(() => {
         console.log('clear slider value');
 
         if (data && !isFirstRender.current) {
             setValue([data[0].year, data[data.length - 1].year]);
-            handleInputChange(`${data[0].year}-${data[data.length - 1].year}`);
+            handleInputChange({
+                years: `${data[0].year}-${data[data.length - 1].year}`,
+            });
         }
         isFirstRender.current = false;
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,7 +101,7 @@ const FixSlide: React.FC<FixSliderProp> = ({
         sliderTimeout = setTimeout(() => {
             console.log('hello world!');
             if (Array.isArray(newValue)) {
-                handleInputChange(`${newValue[0]}-${newValue[1]}`);
+                handleInputChange({ years: `${newValue[0]}-${newValue[1]}` });
             }
         }, 450);
     };
@@ -111,39 +116,47 @@ const FixSlide: React.FC<FixSliderProp> = ({
                 alignSelf: 'center',
             }}
         >
-            {data && (
-                <Box sx={{ padding: '0 28px' }}>
-                    <Slider
-                        sx={slider}
-                        getAriaLabel={() => 'Years range'}
-                        value={value}
-                        onChange={handleChange}
-                        valueLabelDisplay="auto"
-                        marks={sliderMarks}
-                        step={null}
-                        min={data[0].year}
-                        max={data[data.length - 1].year}
-                    />
+            <FormControl
+                sx={{ width: '100%' }}
+                component="fieldset"
+                variant="standard"
+            >
+                <FormLabel component="legend">Years Range</FormLabel>
+
+                {data && (
+                    <Box sx={{ padding: '0 28px' }}>
+                        <Slider
+                            sx={slider}
+                            getAriaLabel={() => 'Years range'}
+                            value={value}
+                            onChange={handleChange}
+                            valueLabelDisplay="auto"
+                            marks={sliderMarks}
+                            step={null}
+                            min={data[0].year}
+                            max={data[data.length - 1].year}
+                        />
+                    </Box>
+                )}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography
+                        variant="body2"
+                        noWrap
+                        component="div"
+                        sx={sliderLabel(theme)}
+                    >
+                        {value[0]}
+                    </Typography>
+                    <Typography
+                        variant="body2"
+                        noWrap
+                        component="div"
+                        sx={sliderLabel(theme)}
+                    >
+                        {value[1]}
+                    </Typography>
                 </Box>
-            )}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography
-                    variant="body2"
-                    noWrap
-                    component="div"
-                    sx={sliderLabel(theme)}
-                >
-                    {value[0]}
-                </Typography>
-                <Typography
-                    variant="body2"
-                    noWrap
-                    component="div"
-                    sx={sliderLabel(theme)}
-                >
-                    {value[1]}
-                </Typography>
-            </Box>
+            </FormControl>
         </Box>
     );
 };

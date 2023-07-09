@@ -11,6 +11,7 @@ import { setYearsRange } from '../app/slices/testSlice';
 import { useGetPublicationsYearsQuery } from '../services/publicationApi';
 import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
 import { useGetJesusQuery } from '../services/departmentApi';
+import { ParamNames } from '../app/hooks/useUrlParams';
 
 interface ChipData {
     key: string;
@@ -38,7 +39,7 @@ const TheChipArray = () => {
     const { isLoading: isPositionsDataLoading } =
         useGetAcademicStaffPositionsQuery();
 
-    const { isLoading: isDepartmenentDataFetching } = useGetJesusQuery({
+    const { isLoading: isDepartmenentDataLoading } = useGetJesusQuery({
         filter: 'id',
     });
 
@@ -58,8 +59,8 @@ const TheChipArray = () => {
         if (testSliceData.academicPos.length) {
             testSliceData.academicPos.forEach((pos) => {
                 chipDataTemp.push({
-                    key: `pos-${pos.position}`,
-                    label: pos.position,
+                    key: `pos-${pos}`,
+                    label: pos,
                 });
             });
         }
@@ -71,26 +72,30 @@ const TheChipArray = () => {
             chips.filter((chip) => chip.key !== chipToDelete.key)
         );
         if (chipToDelete.key === '1') {
-            searchParams.delete('yearsRange');
+            searchParams.delete(ParamNames.YearsRange);
             setSearchParams(searchParams);
         } else if (chipToDelete.key.startsWith('pos-')) {
-            const newAcademicPositions = testSliceData.academicPos
-                .filter((pos) => pos.position !== chipToDelete.label)
-                .map((pos) => pos.position)
-                .toString();
-            console.log(newAcademicPositions);
-
-            if (newAcademicPositions) {
-                setSearchParams((prevSearchParams) => {
-                    prevSearchParams.set(
-                        'academicPositions',
-                        newAcademicPositions
-                    );
-                    return prevSearchParams;
-                });
-            } else if (searchParams.has('academicPositions')) {
-                searchParams.delete('academicPositions');
-                setSearchParams(searchParams);
+            const academicPosURL = searchParams
+                .get(ParamNames.AcademicPos)
+                ?.split(',');
+            console.log(academicPosURL);
+            if (academicPosURL?.length) {
+                const newAcademicPositions = academicPosURL
+                    .filter((pos) => pos !== chipToDelete.label)
+                    .join(',');
+                console.log(newAcademicPositions);
+                if (newAcademicPositions) {
+                    setSearchParams((prevSearchParams) => {
+                        prevSearchParams.set(
+                            ParamNames.AcademicPos,
+                            newAcademicPositions
+                        );
+                        return prevSearchParams;
+                    });
+                } else {
+                    searchParams.delete(ParamNames.AcademicPos);
+                    setSearchParams(searchParams);
+                }
             }
         }
     };
@@ -98,7 +103,7 @@ const TheChipArray = () => {
     if (
         isYearsDataLoading &&
         isPositionsDataLoading &&
-        isDepartmenentDataFetching
+        isDepartmenentDataLoading
     )
         return (
             <Skeleton

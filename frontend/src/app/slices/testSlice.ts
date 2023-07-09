@@ -4,7 +4,7 @@ import { IAlert } from '../../models/api/model';
 
 export interface IUser {
     yearsRange: number[];
-    academicPos: AcademicStaffPosition[];
+    academicPos: string[];
     departments: string[];
     alert: IAlert;
     maxYearsRange: number[];
@@ -63,14 +63,7 @@ export const testSlice = createSlice({
             state.maxYearsRange = maxYearsRange.payload;
             // getStatistics();
         },
-        setAcademicPos: (
-            state,
-            academicPos: PayloadAction<AcademicStaffPosition[]>
-        ) => {
-            const positions = academicPos.payload.map(
-                ({ position }) => position
-            );
-            // state.academicPos = positions;
+        setAcademicPos: (state, academicPos: PayloadAction<Array<string>>) => {
             console.log(academicPos.payload);
 
             state.academicPos = academicPos.payload;
