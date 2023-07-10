@@ -243,7 +243,7 @@ const useUrlParams = ({
                     !(!param && !paraSlice.join(',')) &&
                     paraSlice.join(',') !== param
                 ) {
-                    setParamValue(param);
+                    setParamValue(param || (paramValue === null ? '' : null));
                 }
                 updateAcademicPosSlice(param);
                 break;

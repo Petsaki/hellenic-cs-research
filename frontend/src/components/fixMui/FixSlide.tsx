@@ -48,13 +48,9 @@ export const createMarks = (
 let sliderTimeout: NodeJS.Timeout;
 
 export interface FixSliderProp {
-    resetFilters: boolean;
     data: PublicationsYear[];
 }
-const FixSlide: React.FC<FixSliderProp> = ({
-    resetFilters,
-    data,
-}: FixSliderProp) => {
+const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
     const theme = useTheme();
     const [paramValue, handleInputChange] = useUrlParams({
         name: ParamNames.YearsRange,
@@ -62,7 +58,6 @@ const FixSlide: React.FC<FixSliderProp> = ({
     });
 
     const [value, setValue] = useState<number[]>([0, 0]);
-    const isFirstRender = useRef(true);
 
     useEffect(() => {
         console.log('Parameter value:', paramValue);
@@ -76,19 +71,6 @@ const FixSlide: React.FC<FixSliderProp> = ({
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [paramValue]);
-
-    useEffect(() => {
-        console.log('clear slider value');
-
-        if (data && !isFirstRender.current) {
-            setValue([data[0].year, data[data.length - 1].year]);
-            handleInputChange({
-                years: `${data[0].year}-${data[data.length - 1].year}`,
-            });
-        }
-        isFirstRender.current = false;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [resetFilters]);
 
     const sliderMarks = useMemo((): Array<ISliderMark> => {
         return createMarks(data);

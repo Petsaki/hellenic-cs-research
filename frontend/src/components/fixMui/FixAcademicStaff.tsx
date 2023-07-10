@@ -13,12 +13,10 @@ import { DepartmentsData } from '../../models/api/response/departments/departmen
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 
 export interface FixAcademicStaffProp {
-    resetFilters: boolean;
     data: DepartmentsData[];
 }
 
 const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
-    resetFilters,
     data,
 }: FixAcademicStaffProp) => {
     const dispatch = useDispatch();
@@ -29,7 +27,6 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
     });
     const [searchQuery, setSearchQuery] = useState('');
     const [checked, setChecked] = useState<Array<string>>([]);
-    const isFirstRender = useRef(true);
 
     const filteredDepsArray = data
         ? data.filter((dep) =>
@@ -65,22 +62,6 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [paramValue]);
-
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-        console.log('poses fores mphka edw?');
-        if (data) {
-            console.log(data);
-            const depsId: string[] = data.map((dep) => dep.id);
-            // dispatch(addDepartment({ deps: depsId }));
-        }
-        setChecked([]);
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [resetFilters]);
 
     return (
         <FormControl

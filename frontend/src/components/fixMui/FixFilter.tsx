@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import {
     addDepartment,
     deleteDepartment,
@@ -84,12 +85,12 @@ let testTimeout: any;
 const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
     const theme = useTheme();
     const large = useMediaQuery(theme.breakpoints.up('md'));
+    const [searchParams, setSearchParams] = useSearchParams();
     const dispatch = useDispatch();
     // const { data: departmenentData, isLoading: isDepartmenentFetching } =
     //     useGetJesusQuery({
     //         filter: 'id',
     //     });
-    const [resetFilters, setResetFilters] = useState<boolean>(false);
     const [value, setValue] = useState<number[]>([0, 100]);
     const [filteredDeps, setFilteredDeps] = useState<DepartmentsData[]>([]);
     const {
@@ -171,10 +172,6 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [large]);
-
-    useEffect(() => {
-        console.log(resetFilters);
-    }, [resetFilters]);
 
     useEffect(() => {
         console.log('WHAT ARE YOU WAITING FOR?!?!?!');
@@ -278,24 +275,13 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                             },
                         }}
                         onClick={() => {
-                            // setValue([
-                            //     data.data[0].year,
-                            //     data.data[data.data.length - 1].year,
-                            // ]);
-                            setResetFilters((currentValue) => !currentValue);
-                            dispatch(
-                                reset([
-                                    yearsData.data[0].year,
-                                    yearsData.data[yearsData.data.length - 1]
-                                        .year,
-                                ])
-                            );
+                            setSearchParams({});
                         }}
                     >
                         Clear
                     </Button>
                 </Box>
-                <FixSlide resetFilters={resetFilters} data={yearsData.data} />
+                <FixSlide data={yearsData.data} />
                 {/* {data && (
                 <Box sx={{ width: 240 }}>
                     <Slider
@@ -344,10 +330,7 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                 </Typography>
             </Box> */}
                 {/* <ChipTag data={positionsData.data} /> */}
-                <NewAcademicStaff
-                    resetFilters={resetFilters}
-                    data={positionsData.data}
-                />
+                <NewAcademicStaff data={positionsData.data} />
                 {/* COMPARE BY CODE --------------------------------------------------------- */}
                 {/* <Box>
                     <Typography
@@ -388,10 +371,7 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                     resetFilters={resetFilters}
                     data={departmenentData.data}
                 /> */}
-                <FixAcademicStaff
-                    resetFilters={resetFilters}
-                    data={departmenentData.data}
-                />
+                <FixAcademicStaff data={departmenentData.data} />
                 {/* TODO: A checkbox that has parents and children.
                 https://mui.com/joy-ui/react-checkbox/
             */}

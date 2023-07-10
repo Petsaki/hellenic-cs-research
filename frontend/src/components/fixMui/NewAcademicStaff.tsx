@@ -9,12 +9,10 @@ import { AcademicStaffPosition } from '../../models/api/response/academicStaff/a
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 
 export interface FixCheckBoxProp {
-    resetFilters: boolean;
     data: AcademicStaffPosition[];
 }
 
 const NewAcademicStaff: React.FC<FixCheckBoxProp> = ({
-    resetFilters,
     data,
 }: FixCheckBoxProp) => {
     const [paramValue, handleInputChange] = useUrlParams({
@@ -22,7 +20,6 @@ const NewAcademicStaff: React.FC<FixCheckBoxProp> = ({
         data,
     });
     const [checked, setChecked] = useState<Array<string>>([]);
-    const isFirstRender = useRef(true);
 
     const handleCheckboxChange = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -55,22 +52,6 @@ const NewAcademicStaff: React.FC<FixCheckBoxProp> = ({
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [paramValue]);
-
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-        console.log('poses fores mphka edw?');
-        if (data) {
-            console.log(data);
-            const depsId: string[] = data.map((dep) => dep.position);
-            // dispatch(addDepartment({ deps: depsId }));
-        }
-        setChecked([]);
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [resetFilters]);
 
     return (
         <Box
