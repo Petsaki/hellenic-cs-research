@@ -9,6 +9,7 @@ export const Apis: IGeneralApis = {
 
     // Academic Staff
     getAcademicPositions: '/academic-staff/positions',
+    getPositionsByDepartments: '/academic-staff/positionsSumByDepartment',
 };
 
 export interface IGeneralApis extends IApis {
@@ -20,6 +21,7 @@ export interface IGeneralApis extends IApis {
     getPublicationsYears: string;
     // Academic Staff
     getAcademicPositions: string;
+    getPositionsByDepartments: string;
 }
 
 export interface IApis {

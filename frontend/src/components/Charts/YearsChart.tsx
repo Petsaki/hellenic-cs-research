@@ -75,18 +75,21 @@ const YearsChart = () => {
     );
 
     const testData = useMemo(() => {
-        return dataTest(selectedDeps.length ? selectedDeps : labelTest);
-    }, [labelTest, selectedDeps]);
+        return dataTest(labelTest);
+    }, [labelTest]);
 
     useEffect(() => {
         // When the 'data' changes, update 'labelTest' state with the transformed data
-        if (data && data.data) {
+        if (selectedDeps.length) {
+            setLabelTest(selectedDeps);
+        } else if (data && data.data) {
             const transformedData = data.data.map(
                 (department) => department.id
             );
             setLabelTest(transformedData);
         }
-    }, [data]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data, selectedDeps]);
 
     if (isFetching)
         return (

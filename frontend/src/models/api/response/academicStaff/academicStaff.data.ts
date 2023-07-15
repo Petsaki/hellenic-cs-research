@@ -14,3 +14,8 @@ export interface AcademicStaffData {
 export interface AcademicStaffPosition {
     position: string;
 }
+
+export interface PositionsByDepartment {
+    inst: string;
+    positions: Record<string, number>;
+}

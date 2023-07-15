@@ -16,6 +16,7 @@ import {
     Skeleton,
     Radio,
     RadioGroup,
+    Divider,
 } from '@mui/material';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -239,7 +240,7 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '32px',
+                    gap: '22px',
                 }}
             >
                 <Box
@@ -265,8 +266,8 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                         disableRipple
                         variant="text"
                         sx={{
-                            color: 'blue',
-                            fontSize: '12px',
+                            color: '#7096d6',
+                            fontSize: '0.8rem',
                             p: 0,
                             '&.MuiButtonBase-root:hover': {
                                 bgcolor: 'transparent',
@@ -282,90 +283,10 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                     </Button>
                 </Box>
                 <FixSlide data={yearsData.data} />
-                {/* {data && (
-                <Box sx={{ width: 240 }}>
-                    <Slider
-                        getAriaLabel={() => 'Years range'}
-                        value={value}
-                        onChange={handleChange}
-                        valueLabelDisplay="auto"
-                        getAriaValueText={valuetext}
-                        marks={testData}
-                        step={null}
-                        min={data.data[0].year}
-                        max={data.data[data.data.length - 1].year}
-                    />
-                </Box>
-            )}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography
-                    variant="body2"
-                    noWrap
-                    component="div"
-                    sx={{
-                        fontWeight: 'light',
-                        mb: 4,
-                        bgcolor: 'blue',
-                        border: 1,
-                        p: 1.5,
-                        borderRadius: 1,
-                    }}
-                >
-                    {value[0]}
-                </Typography>
-                <Typography
-                    variant="body2"
-                    noWrap
-                    component="div"
-                    sx={{
-                        fontWeight: 'light',
-                        mb: 4,
-                        bgcolor: 'blue',
-                        border: 1,
-                        p: 1.5,
-                        borderRadius: 1,
-                    }}
-                >
-                    {value[1]}
-                </Typography>
-            </Box> */}
+                <Divider />
                 {/* <ChipTag data={positionsData.data} /> */}
                 <NewAcademicStaff data={positionsData.data} />
-                {/* COMPARE BY CODE --------------------------------------------------------- */}
-                {/* <Box>
-                    <Typography
-                        variant="h5"
-                        noWrap
-                        component="div"
-                        sx={{
-                            fontWeight: 'light',
-                        }}
-                    >
-                        Compare by:
-                    </Typography>
-                    <FormControl>
-                        <FormLabel id="demo-radio-buttons-group-label">
-                            Compare by:
-                        </FormLabel>
-                        <RadioGroup
-                            aria-labelledby="demo-radio-buttons-group-label"
-                            defaultValue={compareBy}
-                            name="radio-buttons-group"
-                            onChange={handleCompareByRadioGroup}
-                        >
-                            <FormControlLabel
-                                value="department"
-                                control={<Radio />}
-                                label="Department"
-                            />
-                            <FormControlLabel
-                                value="academicStaff"
-                                control={<Radio />}
-                                label="Academic Staff"
-                            />
-                        </RadioGroup>
-                    </FormControl>
-                </Box> */}
+                <Divider />
                 {/* COMPARE BY CODE --------------------------------------------------------- */}
                 {/* <FixCheckBox
                     resetFilters={resetFilters}
@@ -375,79 +296,6 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                 {/* TODO: A checkbox that has parents and children.
                 https://mui.com/joy-ui/react-checkbox/
             */}
-                {/* <TextField
-                hiddenLabel
-                id="filled-hidden-label-small"
-                variant="outlined"
-                size="small"
-                value={searchQuery}
-                placeholder="Search for Department"
-                onChange={(
-                    event: React.ChangeEvent<
-                        HTMLTextAreaElement | HTMLInputElement
-                    >
-                ) => {
-                    if (departmenentData?.data) {
-                        // const tempFilteredDeps = departmenentData?.data.filter(
-                        //     (depID) => {
-                        //         return depID.id.includes(event.target.value);
-                        //     }
-                        // );
-                        // console.log(event.target.value);
-                        // console.log(tempFilteredDeps);
-                        // setFilteredDeps(tempFilteredDeps);
-                        setSearchQuery(event.target.value);
-                        console.log(searchQuery);
-                        console.log(checked);
-                    }
-                }}
-            />
-            <Box
-                sx={{
-                    maxHeight: '350px',
-                    minHeight: '350px',
-                    overflow: 'auto',
-                    // color: (theme) =>
-                    //     theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800',
-                    // border: '1px solid',
-                    // borderColor: (theme) =>
-                    //     theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
-                    // borderRadius: 2,
-                    display: 'block',
-                }}
-            >
-                <FormControl
-                    sx={{ width: '100%' }}
-                    component="fieldset"
-                    variant="standard"
-                >
-                    <FormLabel component="legend">Departments</FormLabel>
-                    {departmenentData?.data && (
-                        <FormGroup>
-                            {filteredDepsArray.map((depID) => (
-                                <FormControlLabel
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        mr: '0',
-                                    }}
-                                    labelPlacement="start"
-                                    key={depID.id}
-                                    control={
-                                        <Checkbox
-                                            name={depID.id}
-                                            onChange={handleCheckboxChange}
-                                            checked={checked.includes(depID.id)}
-                                        />
-                                    }
-                                    label={depID.id}
-                                />
-                                // <p key={depID.id}>{depID.id}</p>
-                            ))}
-                        </FormGroup>
-                    )}
-                </FormControl>
-            </Box> */}
             </Box>
         );
 
@@ -493,7 +341,7 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                         boxSizing: 'border-box',
                         width: { xs: '80%', sm: '55%', md: '100%' },
                         display: 'flex',
-                        padding: { xs: '20px 15px', md: '0' },
+                        padding: { xs: '22px 15px', md: '0' },
                         backgroundColor: { md: 'transparent' },
                     },
                     '& .MuiPaper-root': {
@@ -511,33 +359,7 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                 isDepartmenentDataError ? (
                     <h1>ERROR</h1>
                 ) : (
-                    <>
-                        {drawer}
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                        <p>aaaaaaaaa</p>
-                    </>
+                    drawer
                 )}
             </Drawer>
         </>

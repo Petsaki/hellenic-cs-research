@@ -105,6 +105,7 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
                     //     theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
                     // borderRadius: 2,
                     display: 'block',
+                    mt: '0.5rem',
                 }}
             >
                 {data && (

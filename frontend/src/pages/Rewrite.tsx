@@ -9,6 +9,7 @@ import Header from '../components/Header';
 import YearsChart from '../components/Charts/YearsChart';
 import TheChipArray from '../components/TheChipArray';
 import FixFilters from '../components/fixMui/FixFilter';
+import DepartmentStaff from '../components/Charts/DepartmentStaff';
 
 const toolbar: SxProps = {
     display: { xs: 'none', md: 'flex' },
@@ -72,8 +73,31 @@ const Rewrite = () => {
                         >
                             <TheChipArray />
                         </Grid2>
-                        <Grid2 xs>
-                            <YearsChart />
+                        <Grid2
+                            container
+                            direction="column"
+                            rowSpacing={2}
+                            sx={{
+                                width: '100%',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Grid2
+                                xs
+                                sx={{
+                                    width: '100%',
+                                }}
+                            >
+                                <YearsChart />
+                            </Grid2>
+                            <Grid2
+                                xs
+                                sx={{
+                                    width: '100%',
+                                }}
+                            >
+                                <DepartmentStaff />
+                            </Grid2>
                         </Grid2>
                     </Grid2>
                 </Grid2>

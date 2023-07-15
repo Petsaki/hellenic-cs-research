@@ -148,6 +148,8 @@ function App() {
                         styleOverrides: {
                             // Name of the component ⚛️ / style sheet
                             root: {
+                                paddingBottom: '0.5rem',
+                                paddingTop: '0.8rem',
                                 '&.Mui-focused': {
                                     // increase the specificity for the pseudo class
                                     color:
