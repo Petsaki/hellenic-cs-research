@@ -145,9 +145,13 @@ const useUrlParams = ({
         if (isDepartment(data) && department?.id) {
             let updatedValue = '';
             if (department.checked) {
-                updatedValue = param
-                    ? `${param},${department.id}`
-                    : department.id;
+                if (!paraSlice.some((dep) => dep === department?.id)) {
+                    updatedValue = param
+                        ? `${param},${department.id}`
+                        : department.id;
+                } else {
+                    updatedValue = param || '';
+                }
             } else {
                 if (!param) return;
                 updatedValue = removeDepartmentForUrlParam(

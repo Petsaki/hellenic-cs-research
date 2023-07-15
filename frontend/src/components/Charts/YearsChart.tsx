@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -13,34 +13,24 @@ import { Bar } from 'react-chartjs-2';
 import Paper from '@mui/material/Paper';
 import { useSelector } from 'react-redux';
 import Skeleton from '@mui/material/Skeleton/Skeleton';
-import { DepartmentsData } from '../../models/api/response/departments/departments.data';
-import {
-    useGetDeparmentMutation,
-    useGetJesusQuery,
-} from '../../services/departmentApi';
+import { useGetJesusQuery } from '../../services/departmentApi';
 import { RootState } from '../../app/store';
 
-export const dataTest = (
-    labels: DepartmentsData[] | undefined
-): ChartData<'bar'> => {
-    const result: string[] | undefined = labels?.map(
-        (a: DepartmentsData) => a.id
-    );
-
+export const dataTest = (labels: string[] | undefined): ChartData<'bar'> => {
     return {
-        labels: result || [],
+        labels: labels || [],
         datasets: [
             {
                 label: 'Dataset 1',
-                data: result
-                    ? result?.map(() => Math.floor(Math.random() * 1000))
+                data: labels
+                    ? labels?.map(() => Math.floor(Math.random() * 1000))
                     : [],
                 backgroundColor: 'rgba(255, 99, 132, 0.5)',
             },
             {
                 label: 'Dataset 2',
-                data: result
-                    ? result?.map(() => Math.floor(Math.random() * 1000))
+                data: labels
+                    ? labels?.map(() => Math.floor(Math.random() * 1000))
                     : [],
                 backgroundColor: 'rgba(53, 162, 235, 0.5)',
             },
@@ -73,34 +63,30 @@ export const options = {
 
 const YearsChart = () => {
     // eslint-disable-next-line no-empty-pattern
-    // const [filter, { data, isLoading: isFetching }] = useGetDeparmentMutation({
-    //     fixedCacheKey: 'shared-update-post',
-    // });
 
     // AMA deis na kanei loading ksana auto to component. na ksereis ftaiei to FixCheckBox epeidh kaloun to idio endpoint kai auto to blepei
     const { data, isLoading: isFetching } = useGetJesusQuery({
         filter: 'id',
     });
-    const labelTest = data?.data;
-    const testData = useMemo((): ChartData<'bar'> => {
-        return dataTest(labelTest);
-    }, [labelTest]);
+    const [labelTest, setLabelTest] = useState<string[]>([]);
 
     const selectedDeps = useSelector(
-        (state: RootState) => state.testSlice.academicPos
+        (state: RootState) => state.testSlice.departments
     );
 
+    const testData = useMemo(() => {
+        return dataTest(selectedDeps.length ? selectedDeps : labelTest);
+    }, [labelTest, selectedDeps]);
+
     useEffect(() => {
-        console.log('NANI? DATA HAS CHANGED?!?!?!?!');
-        // fetch only when yearsRange has value, is not empty array
-        console.log(selectedDeps);
-    }, [selectedDeps]);
-
-    // useEffect(() => {
-    //     console.log('poses fores trexei auto re??!?');
-
-    //     filter({ filter: 'id' });
-    // }, [filter]);
+        // When the 'data' changes, update 'labelTest' state with the transformed data
+        if (data && data.data) {
+            const transformedData = data.data.map(
+                (department) => department.id
+            );
+            setLabelTest(transformedData);
+        }
+    }, [data]);
 
     if (isFetching)
         return (
@@ -111,7 +97,6 @@ const YearsChart = () => {
                 height={700}
             />
         );
-    // console.log(data);
 
     return (
         <Paper

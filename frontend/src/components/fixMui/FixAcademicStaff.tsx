@@ -13,6 +13,8 @@ export interface FixAcademicStaffProp {
     data: DepartmentId[];
 }
 
+let departmentTimeout: NodeJS.Timeout;
+
 const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
     data,
 }: FixAcademicStaffProp) => {
@@ -33,20 +35,26 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         const depId = event.target.name;
+        console.log('depId', depId);
+        console.log('checked', checked);
 
         if (event.target.checked) {
-            setChecked([...checked, depId]);
+            if (!checked.some((id) => id === depId)) {
+                setChecked([...checked, depId]);
+            }
         } else {
             setChecked(checked.filter((id) => id !== depId));
         }
         console.log(data);
-
-        handleInputChange({
-            checkbox: {
-                id: depId,
-                checked: event.target.checked,
-            },
-        });
+        clearTimeout(departmentTimeout);
+        departmentTimeout = setTimeout(() => {
+            handleInputChange({
+                checkbox: {
+                    id: depId,
+                    checked: event.target.checked,
+                },
+            });
+        }, 200);
     };
 
     useEffect(() => {
