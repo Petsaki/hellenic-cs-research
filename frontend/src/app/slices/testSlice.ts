@@ -1,5 +1,4 @@
 import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
-import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
 import { IAlert } from '../../models/api/model';
 
 export interface IUser {
@@ -69,19 +68,9 @@ export const testSlice = createSlice({
             state.academicPos = academicPos.payload;
             // getStatistics();
         },
-        addDepartment: (state, action: PayloadAction<IAddDepartment>) => {
-            if (Array.isArray(action.payload.deps)) {
-                state.departments = action.payload.deps;
-                console.log(state.departments);
-            } else if (action.payload.removeDeps) {
-                state.departments = [action.payload.deps];
-                console.log(state.departments);
-            } else {
-                state.departments.push(action.payload.deps);
-                console.log(current(state.departments));
-            }
-            // state.departments.push(action.payload);
-            getStatistics();
+        addDepartment: (state, departments: PayloadAction<Array<string>>) => {
+            state.departments = departments.payload;
+            // getStatistics();
         },
         deleteDepartment: (state, action: PayloadAction<string>) => {
             state.departments = state.departments.filter(

@@ -3,24 +3,19 @@ import FormControl from '@mui/material/FormControl/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup/FormGroup';
 import FormLabel from '@mui/material/FormLabel/FormLabel';
-import { useDispatch, useSelector } from 'react-redux';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TextField from '@mui/material/TextField/TextField';
 import Box from '@mui/material/Box/Box';
-import { addDepartment, deleteDepartment } from '../../app/slices/testSlice';
-import { RootState } from '../../app/store';
-import { DepartmentsData } from '../../models/api/response/departments/departments.data';
+import { DepartmentId } from '../../models/api/response/departments/departments.data';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 
 export interface FixAcademicStaffProp {
-    data: DepartmentsData[];
+    data: DepartmentId[];
 }
 
 const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
     data,
 }: FixAcademicStaffProp) => {
-    const dispatch = useDispatch();
-
     const [paramValue, handleInputChange] = useUrlParams({
         name: ParamNames.Departments,
         data,
@@ -44,6 +39,7 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
         } else {
             setChecked(checked.filter((id) => id !== depId));
         }
+        console.log(data);
 
         handleInputChange({
             checkbox: {
@@ -54,7 +50,7 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
     };
 
     useEffect(() => {
-        console.log('Parameter value Academic Pos:', paramValue);
+        console.log('Parameter value Department:', paramValue);
         if (paramValue) {
             setChecked(paramValue.split(','));
         } else {
@@ -69,7 +65,7 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
             component="fieldset"
             variant="standard"
         >
-            <FormLabel>Departments</FormLabel>
+            <FormLabel component="legend">Departments</FormLabel>
             <TextField
                 hiddenLabel
                 id="filled-hidden-label-small"
@@ -83,14 +79,6 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
                     >
                 ) => {
                     if (data) {
-                        // const tempFilteredDeps = data.filter(
-                        //     (depID) => {
-                        //         return depID.id.includes(event.target.value);
-                        //     }
-                        // );
-                        // console.log(event.target.value);
-                        // console.log(tempFilteredDeps);
-                        // setFilteredDeps(tempFilteredDeps);
                         setSearchQuery(event.target.value);
                         console.log(searchQuery);
                         console.log(checked);
@@ -131,7 +119,6 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
                                 }
                                 label={depID.id}
                             />
-                            // <p key={depID.id}>{depID.id}</p>
                         ))}
                     </FormGroup>
                 )}

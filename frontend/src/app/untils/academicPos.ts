@@ -13,7 +13,7 @@ export const removeAcademicPosForUrlParam = (
     return updatedValue;
 };
 
-export const AcademicPosValidation = (
+export const academicPosValidation = (
     param: string | null,
     data: AcademicStaffPosition[]
 ): string[] => {

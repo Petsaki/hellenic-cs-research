@@ -6,6 +6,7 @@ import { PublicationsYear } from '../../models/api/response/publications/publica
 import { RootState } from '../store';
 import {
     IUser,
+    addDepartment,
     setAcademicPos,
     setMaxYearsRange,
     setYearsRange,
@@ -18,11 +19,16 @@ import {
 } from '../untils/yearsRange';
 import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
 import {
-    AcademicPosValidation,
+    academicPosValidation,
     isAcademicPos,
     removeAcademicPosForUrlParam,
 } from '../untils/academicPos';
-import { DepartmentsData } from '../../models/api/response/departments/departments.data';
+import { DepartmentId } from '../../models/api/response/departments/departments.data';
+import {
+    departmentValidation,
+    isDepartment,
+    removeDepartmentForUrlParam,
+} from '../untils/departments';
 
 export enum ParamNames {
     YearsRange = 'yearsRange',
@@ -33,7 +39,7 @@ export enum ParamNames {
 export type FilterData =
     | PublicationsYear[]
     | AcademicStaffPosition[]
-    | DepartmentsData[]
+    | DepartmentId[]
     | ParamNames;
 
 export interface ICheckBoxValue {
@@ -130,6 +136,38 @@ const useUrlParams = ({
         }
     };
 
+    // UPDATE - DEPARTMENTS
+    const updateDepartmentSlice = (value: string | null) => {
+        dispatch(addDepartment(value ? value.split(',') : []));
+    };
+
+    const updateDepartmentsURL = (department?: ICheckBoxValue): void => {
+        if (isDepartment(data) && department?.id) {
+            let updatedValue = '';
+            if (department.checked) {
+                updatedValue = param
+                    ? `${param},${department.id}`
+                    : department.id;
+            } else {
+                if (!param) return;
+                updatedValue = removeDepartmentForUrlParam(
+                    param,
+                    department?.id
+                );
+            }
+            if (updatedValue) {
+                setSearchParams((prevSearchParams) => {
+                    prevSearchParams.set(name, updatedValue);
+                    return prevSearchParams;
+                });
+            } else {
+                searchParams.delete(name);
+                setSearchParams(searchParams);
+            }
+            updateDepartmentSlice(updatedValue);
+        }
+    };
+
     const handleInputChange = (value: IInputValue) => {
         console.log(value);
         console.log(paraSlice);
@@ -139,6 +177,9 @@ const useUrlParams = ({
                 break;
             case ParamNames.AcademicPos:
                 updateAcademicPosURL(value.checkbox);
+                break;
+            case ParamNames.Departments:
+                updateDepartmentsURL(value.checkbox);
                 break;
             default:
                 break;
@@ -178,7 +219,7 @@ const useUrlParams = ({
     const initAcademicPos = (): void => {
         if (isAcademicPos(data)) {
             if (param) {
-                const validAcademicPosData = AcademicPosValidation(param, data);
+                const validAcademicPosData = academicPosValidation(param, data);
                 console.log('initAcademicPos', validAcademicPosData);
                 if (validAcademicPosData.length) {
                     setSearchParams((prevSearchParams) => {
@@ -201,6 +242,33 @@ const useUrlParams = ({
         }
     };
 
+    // INIT/RESET - DEPARTMENTS
+    const initDepartments = (): void => {
+        if (isDepartment(data)) {
+            if (param) {
+                const validDepartmentData = departmentValidation(param, data);
+                console.log('initDepartments', validDepartmentData);
+                if (validDepartmentData.length) {
+                    setSearchParams((prevSearchParams) => {
+                        prevSearchParams.set(
+                            name,
+                            validDepartmentData.join(',')
+                        );
+                        return prevSearchParams;
+                    });
+                    setParamValue(validDepartmentData.join(','));
+                    dispatch(addDepartment(validDepartmentData));
+                } else {
+                    searchParams.delete(name);
+                    setSearchParams(searchParams);
+                }
+            } else {
+                searchParams.delete(name);
+                setSearchParams(searchParams);
+            }
+        }
+    };
+
     useEffect(() => {
         console.log(param);
         console.log(data);
@@ -211,6 +279,9 @@ const useUrlParams = ({
                 break;
             case ParamNames.AcademicPos:
                 initAcademicPos();
+                break;
+            case ParamNames.Departments:
+                initDepartments();
                 break;
             default:
                 break;
@@ -247,7 +318,22 @@ const useUrlParams = ({
                 }
                 updateAcademicPosSlice(param);
                 break;
+            case ParamNames.Departments:
+                console.log(
+                    'USEEFFECT THAT WILL RUN EVERY FCKING TIME. AGAIN AND AGAIN'
+                );
 
+                /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
+                or `paraSlice` is not empty.
+                A NAND LOGIC GATE */
+                if (
+                    !(!param && !paraSlice.join(',')) &&
+                    paraSlice.join(',') !== param
+                ) {
+                    setParamValue(param || (paramValue === null ? '' : null));
+                }
+                updateDepartmentSlice(param);
+                break;
             default:
                 break;
         }

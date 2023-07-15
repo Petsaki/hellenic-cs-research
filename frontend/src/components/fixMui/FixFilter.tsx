@@ -461,7 +461,7 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                 animation="wave"
                 variant="rounded"
                 width="100%"
-                height={700}
+                height={900}
             />
         );
 

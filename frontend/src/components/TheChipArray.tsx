@@ -64,6 +64,16 @@ const TheChipArray = () => {
                 });
             });
         }
+        if (testSliceData.departments.length) {
+            console.log(testSliceData.departments.length);
+
+            testSliceData.departments.forEach((department) => {
+                chipDataTemp.push({
+                    key: `dep-${department}`,
+                    label: department,
+                });
+            });
+        }
         setChipData([...chipDataTemp]);
     }, [testSliceData]);
 
@@ -94,6 +104,29 @@ const TheChipArray = () => {
                     });
                 } else {
                     searchParams.delete(ParamNames.AcademicPos);
+                    setSearchParams(searchParams);
+                }
+            }
+        } else if (chipToDelete.key.startsWith('dep-')) {
+            const departmentURL = searchParams
+                .get(ParamNames.Departments)
+                ?.split(',');
+            console.log(departmentURL);
+            if (departmentURL?.length) {
+                const newDepartments = departmentURL
+                    .filter((pos) => pos !== chipToDelete.label)
+                    .join(',');
+                console.log(newDepartments);
+                if (newDepartments) {
+                    setSearchParams((prevSearchParams) => {
+                        prevSearchParams.set(
+                            ParamNames.Departments,
+                            newDepartments
+                        );
+                        return prevSearchParams;
+                    });
+                } else {
+                    searchParams.delete(ParamNames.Departments);
                     setSearchParams(searchParams);
                 }
             }

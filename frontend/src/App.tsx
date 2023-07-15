@@ -144,6 +144,20 @@ function App() {
                             },
                         },
                     },
+                    MuiFormLabel: {
+                        styleOverrides: {
+                            // Name of the component ⚛️ / style sheet
+                            root: {
+                                '&.Mui-focused': {
+                                    // increase the specificity for the pseudo class
+                                    color:
+                                        mode === 'light'
+                                            ? '#00000099'
+                                            : '#ffffffb3',
+                                },
+                            },
+                        },
+                    },
                 },
             }),
         // eslint-disable-next-line react-hooks/exhaustive-deps

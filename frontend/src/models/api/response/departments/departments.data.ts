@@ -6,3 +6,7 @@ export interface DepartmentsData {
     urledip: string;
     url: string;
 }
+
+export interface DepartmentId {
+    id: string;
+}

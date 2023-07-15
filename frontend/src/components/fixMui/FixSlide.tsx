@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography/Typography';
 import { SxProps, useTheme, Theme } from '@mui/material';
 import FormLabel from '@mui/material/FormLabel/FormLabel';
 import FormControl from '@mui/material/FormControl/FormControl';
+import FormGroup from '@mui/material/FormGroup/FormGroup';
 import { PublicationsYear } from '../../models/api/response/publications/publications.data';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 import { stringToYearArray } from '../../app/untils/yearsRange';
@@ -106,19 +107,21 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
                 <FormLabel component="legend">Years Range</FormLabel>
 
                 {data && (
-                    <Box sx={{ padding: '0 28px' }}>
-                        <Slider
-                            sx={slider}
-                            getAriaLabel={() => 'Years range'}
-                            value={value}
-                            onChange={handleChange}
-                            valueLabelDisplay="auto"
-                            marks={sliderMarks}
-                            step={null}
-                            min={data[0].year}
-                            max={data[data.length - 1].year}
-                        />
-                    </Box>
+                    <FormGroup>
+                        <Box sx={{ padding: '0 28px' }}>
+                            <Slider
+                                sx={slider}
+                                getAriaLabel={() => 'Years range'}
+                                value={value}
+                                onChange={handleChange}
+                                valueLabelDisplay="auto"
+                                marks={sliderMarks}
+                                step={null}
+                                min={data[0].year}
+                                max={data[data.length - 1].year}
+                            />
+                        </Box>
+                    </FormGroup>
                 )}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography
