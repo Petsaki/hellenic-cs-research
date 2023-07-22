@@ -49,6 +49,8 @@ export interface ICheckBoxValue {
 export interface IInputValue {
     years?: string;
     checkbox?: ICheckBoxValue;
+    checkboxList2?: Array<DepartmentId | AcademicStaffPosition>;
+    checkboxList?: Array<string>;
 }
 type UserPropertyType<T> = T extends keyof IUser ? IUser[T] : never;
 
@@ -105,70 +107,52 @@ const useUrlParams = ({
     };
 
     // UPDATE - ACADEMIC POSITIONS
-    const updateAcademicPosSlice = (value: string | null) => {
-        dispatch(setAcademicPos(value ? value.split(',') : []));
+    const updateAcademicPosSlice = (value: string[]) => {
+        dispatch(setAcademicPos(value));
     };
 
-    const updateAcademicPosURL = (academicPos?: ICheckBoxValue): void => {
-        if (isAcademicPos(data) && academicPos?.id) {
-            let updatedValue = '';
-            if (academicPos.checked) {
-                updatedValue = param
-                    ? `${param},${academicPos.id}`
-                    : academicPos.id;
-            } else {
-                if (!param) return;
-                updatedValue = removeAcademicPosForUrlParam(
-                    param,
-                    academicPos?.id
-                );
-            }
-            if (updatedValue) {
+    const updateAcademicPosURL = (academicPos?: string[]): void => {
+        if (isAcademicPos(data) && academicPos) {
+            if (
+                academicPos.toString() === param ||
+                (!param && !academicPos.toString())
+            )
+                return;
+            if (academicPos.length) {
                 setSearchParams((prevSearchParams) => {
-                    prevSearchParams.set(name, updatedValue);
+                    prevSearchParams.set(name, academicPos.toString());
                     return prevSearchParams;
                 });
             } else {
                 searchParams.delete(name);
                 setSearchParams(searchParams);
             }
-            updateAcademicPosSlice(updatedValue);
+            updateAcademicPosSlice(academicPos);
         }
     };
 
     // UPDATE - DEPARTMENTS
-    const updateDepartmentSlice = (value: string | null) => {
-        dispatch(addDepartment(value ? value.split(',') : []));
+    const updateDepartmentSlice = (value: string[]) => {
+        dispatch(addDepartment(value));
     };
 
-    const updateDepartmentsURL = (department?: ICheckBoxValue): void => {
-        if (isDepartment(data) && department?.id) {
-            let updatedValue = '';
-            if (department.checked) {
-                if (!paraSlice.some((dep) => dep === department?.id)) {
-                    updatedValue = param
-                        ? `${param},${department.id}`
-                        : department.id;
-                } else {
-                    updatedValue = param || '';
-                }
-            } else {
-                if (!param) return;
-                updatedValue = removeDepartmentForUrlParam(
-                    param,
-                    department?.id
-                );
-            }
-            if (updatedValue) {
+    const updateDepartmentsURL = (department?: string[]): void => {
+        if (isDepartment(data) && department) {
+            if (
+                department.toString() === param ||
+                (!param && !department.toString())
+            )
+                return;
+            if (department.length) {
                 setSearchParams((prevSearchParams) => {
-                    prevSearchParams.set(name, updatedValue);
+                    prevSearchParams.set(name, department.toString());
                     return prevSearchParams;
                 });
             } else {
                 searchParams.delete(name);
                 setSearchParams(searchParams);
             }
-            updateDepartmentSlice(updatedValue);
+            updateDepartmentSlice(department);
         }
     };
 
@@ -180,10 +164,10 @@ const useUrlParams = ({
                 updateYearsRangeURL(value.years);
                 break;
             case ParamNames.AcademicPos:
-                updateAcademicPosURL(value.checkbox);
+                updateAcademicPosURL(value.checkboxList);
                 break;
             case ParamNames.Departments:
-                updateDepartmentsURL(value.checkbox);
+                updateDepartmentsURL(value.checkboxList);
                 break;
             default:
                 break;
@@ -320,7 +304,7 @@ const useUrlParams = ({
                 ) {
                     setParamValue(param || (paramValue === null ? '' : null));
                 }
-                updateAcademicPosSlice(param);
+                updateAcademicPosSlice(param ? param.split(',') : []);
                 break;
             case ParamNames.Departments:
                 console.log(
@@ -336,7 +320,7 @@ const useUrlParams = ({
                 ) {
                     setParamValue(param || (paramValue === null ? '' : null));
                 }
-                updateDepartmentSlice(param);
+                updateDepartmentSlice(param ? param.split(',') : []);
                 break;
             default:
                 break;

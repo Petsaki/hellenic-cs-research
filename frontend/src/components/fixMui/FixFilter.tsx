@@ -17,6 +17,7 @@ import {
     Radio,
     RadioGroup,
     Divider,
+    SxProps,
 } from '@mui/material';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -42,6 +43,10 @@ import { useGetAcademicStaffPositionsQuery } from '../../services/academicStaffA
 import FixAcademicStaff from './FixAcademicStaff';
 import { CompareByType } from '../../models/api/model';
 import NewAcademicStaff from './NewAcademicStaff';
+
+const filterDivider: SxProps = {
+    marginX: '24px',
+};
 
 function valuetext(value: number) {
     return `${value}°C`;
@@ -283,10 +288,10 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                     </Button>
                 </Box>
                 <FixSlide data={yearsData.data} />
-                <Divider />
+                <Divider sx={filterDivider} />
                 {/* <ChipTag data={positionsData.data} /> */}
                 <NewAcademicStaff data={positionsData.data} />
-                <Divider />
+                <Divider sx={filterDivider} />
                 {/* COMPARE BY CODE --------------------------------------------------------- */}
                 {/* <FixCheckBox
                     resetFilters={resetFilters}

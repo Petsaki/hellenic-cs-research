@@ -1,3 +1,4 @@
+import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
 import { DepartmentId } from '../../models/api/response/departments/departments.data';
 import { FilterData } from '../hooks/useUrlParams';
 

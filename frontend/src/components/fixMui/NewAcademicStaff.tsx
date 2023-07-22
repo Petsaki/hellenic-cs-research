@@ -8,6 +8,9 @@ import Box from '@mui/material/Box/Box';
 import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 
+// TODO - Maybe it will broke when deploy
+let academicPosTimeout: NodeJS.Timeout;
+
 export interface FixCheckBoxProp {
     data: AcademicStaffPosition[];
 }
@@ -34,14 +37,17 @@ const NewAcademicStaff: React.FC<FixCheckBoxProp> = ({
         } else {
             setChecked(checked.filter((id) => id !== academicPosID));
         }
-
-        handleInputChange({
-            checkbox: {
-                id: academicPosID,
-                checked: event.target.checked,
-            },
-        });
     };
+
+    useEffect(() => {
+        clearTimeout(academicPosTimeout);
+        academicPosTimeout = setTimeout(() => {
+            handleInputChange({
+                checkboxList: checked,
+            });
+        }, 500);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [checked]);
 
     useEffect(() => {
         console.log('Parameter value Academic Pos:', paramValue);

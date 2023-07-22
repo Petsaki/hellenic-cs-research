@@ -9,11 +9,12 @@ import Box from '@mui/material/Box/Box';
 import { DepartmentId } from '../../models/api/response/departments/departments.data';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 
+// TODO - Maybe it will broke when deploy
+let departmentTimeout: NodeJS.Timeout;
+
 export interface FixAcademicStaffProp {
     data: DepartmentId[];
 }
-
-let departmentTimeout: NodeJS.Timeout;
 
 const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
     data,
@@ -46,16 +47,17 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
             setChecked(checked.filter((id) => id !== depId));
         }
         console.log(data);
+    };
+
+    useEffect(() => {
         clearTimeout(departmentTimeout);
         departmentTimeout = setTimeout(() => {
             handleInputChange({
-                checkbox: {
-                    id: depId,
-                    checked: event.target.checked,
-                },
+                checkboxList: checked,
             });
-        }, 200);
-    };
+        }, 500);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [checked]);
 
     useEffect(() => {
         console.log('Parameter value Department:', paramValue);
