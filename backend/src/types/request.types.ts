@@ -19,3 +19,21 @@ export const DepartmentsSchema = z.object({
 })
 
 export type Departments = z.infer<typeof DepartmentsSchema>;
+
+// Statistics required value Array
+export const DepartmentsRequiredSchema = z.object({
+    departments: z
+        .union([z.string(), z.array(z.string())])
+        .refine((value) => {
+            if (Array.isArray(value)) {
+                return value.length > 0;
+            } else {
+                return value.trim().length > 0
+            }
+        }, {
+            message: "departments can't be empty.",
+        }),
+    positions: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+export type DepartmentsRequired = z.infer<typeof DepartmentsRequiredSchema>;
