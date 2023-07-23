@@ -5,3 +5,8 @@ export interface IFilter {
 export interface IFDepartment {
     departments: string[] | string;
 }
+
+export interface IFStatistics {
+    departments: string[] | string;
+    positions?: string[] | string;
+}

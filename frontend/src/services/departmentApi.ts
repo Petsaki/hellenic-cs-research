@@ -1,8 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Apis } from '../models/api/apis.enum';
-import { DepartmentsData } from '../models/api/response/departments/departments.data';
+import {
+    DepartmentsData,
+    IStatistics,
+} from '../models/api/response/departments/departments.data';
 import { ResponseData } from '../models/api/response/response.data';
-import { IFilter } from '../models/api/request/filters.data';
+import { IFStatistics, IFilter } from '../models/api/request/filters.data';
 
 // Δεν έχω βάλει invalidatesTags, οπότε κάνει caching, δηλαδή ότι πρέπει για αυτήν την εφαρμογή γιατί
 // τα δεδομένα στην βάση δεν πρόκειτε να αλλάξουν
@@ -37,6 +40,16 @@ export const departmentApi = createApi({
                 body,
             }),
         }),
+        getStatistics: builder.mutation<
+            ResponseData<IStatistics>,
+            Partial<IFStatistics>
+        >({
+            query: (body) => ({
+                url: Apis.GetStatistics,
+                method: 'POST',
+                body,
+            }),
+        }),
     }),
 });
 
@@ -50,4 +63,5 @@ export const {
     useGetDeparmentMutation,
     useGetDeparmentIdQuery,
     useGetJesusQuery,
+    useGetStatisticsMutation,
 } = departmentApi;

@@ -10,6 +10,7 @@ import YearsChart from '../components/Charts/YearsChart';
 import TheChipArray from '../components/TheChipArray';
 import FixFilters from '../components/fixMui/FixFilter';
 import DepartmentStaff from '../components/Charts/DepartmentStaff';
+import Statistics from '../components/Statistics';
 
 const toolbar: SxProps = {
     display: { xs: 'none', md: 'flex' },
@@ -80,8 +81,18 @@ const Rewrite = () => {
                             sx={{
                                 width: '100%',
                                 justifyContent: 'center',
+                                margin: '0',
+                                padding: '0',
                             }}
                         >
+                            <Grid2
+                                xs
+                                sx={{
+                                    width: '100%',
+                                }}
+                            >
+                                <Statistics />
+                            </Grid2>
                             <Grid2
                                 xs
                                 sx={{
