@@ -30,6 +30,13 @@ import {
     removeDepartmentForUrlParam,
 } from '../untils/departments';
 
+const compareTwoArrays = (
+    array1: Array<string | number>,
+    array2: Array<string | number>
+) => {
+    return JSON.stringify(array1) === JSON.stringify(array2);
+};
+
 export enum ParamNames {
     YearsRange = 'yearsRange',
     AcademicPos = 'academicPos',
@@ -112,7 +119,11 @@ const useUrlParams = ({
     };
 
     const updateAcademicPosURL = (academicPos?: string[]): void => {
-        if (isAcademicPos(data) && academicPos) {
+        if (
+            isAcademicPos(data) &&
+            academicPos &&
+            !compareTwoArrays(paraSlice, academicPos)
+        ) {
             if (
                 academicPos.toString() === param ||
                 (!param && !academicPos.toString())
@@ -137,7 +148,11 @@ const useUrlParams = ({
     };
 
     const updateDepartmentsURL = (department?: string[]): void => {
-        if (isDepartment(data) && department) {
+        if (
+            isDepartment(data) &&
+            department &&
+            !compareTwoArrays(paraSlice, department)
+        ) {
             if (
                 department.toString() === param ||
                 (!param && !department.toString())
@@ -218,7 +233,9 @@ const useUrlParams = ({
                         return prevSearchParams;
                     });
                     setParamValue(validAcademicPosData.join(','));
-                    dispatch(setAcademicPos(validAcademicPosData));
+                    if (!compareTwoArrays(paraSlice, validAcademicPosData)) {
+                        dispatch(setAcademicPos(validAcademicPosData));
+                    }
                 } else {
                     searchParams.delete(name);
                     setSearchParams(searchParams);
@@ -245,7 +262,9 @@ const useUrlParams = ({
                         return prevSearchParams;
                     });
                     setParamValue(validDepartmentData.join(','));
-                    dispatch(addDepartment(validDepartmentData));
+                    if (!compareTwoArrays(paraSlice, validDepartmentData)) {
+                        dispatch(addDepartment(validDepartmentData));
+                    }
                 } else {
                     searchParams.delete(name);
                     setSearchParams(searchParams);
@@ -303,8 +322,9 @@ const useUrlParams = ({
                     paraSlice.join(',') !== param
                 ) {
                     setParamValue(param || (paramValue === null ? '' : null));
+                    updateAcademicPosSlice(param ? param.split(',') : []);
                 }
-                updateAcademicPosSlice(param ? param.split(',') : []);
+
                 break;
             case ParamNames.Departments:
                 console.log(
@@ -319,8 +339,9 @@ const useUrlParams = ({
                     paraSlice.join(',') !== param
                 ) {
                     setParamValue(param || (paramValue === null ? '' : null));
+                    updateDepartmentSlice(param ? param.split(',') : []);
                 }
-                updateDepartmentSlice(param ? param.split(',') : []);
+
                 break;
             default:
                 break;

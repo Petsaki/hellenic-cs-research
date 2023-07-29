@@ -25,13 +25,7 @@ const ListItem = styled('li')(({ theme }) => ({
 const TheChipArray = () => {
     const dispatch = useDispatch();
     const testSliceData = useSelector((state: RootState) => state.testSlice);
-    const [chipData, setChipData] = React.useState<readonly ChipData[]>([
-        { key: '0', label: 'Angular' },
-        { key: '1', label: 'jQuery' },
-        { key: '2', label: 'Polymer' },
-        { key: '3', label: 'React' },
-        { key: '4', label: 'Vue.js' },
-    ]);
+    const [chipData, setChipData] = React.useState<readonly ChipData[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
 
     const { isLoading: isYearsDataLoading } = useGetPublicationsYearsQuery();
@@ -133,20 +127,6 @@ const TheChipArray = () => {
         }
     };
 
-    if (
-        isYearsDataLoading &&
-        isPositionsDataLoading &&
-        isDepartmenentDataLoading
-    )
-        return (
-            <Skeleton
-                animation="wave"
-                variant="rounded"
-                width="100%"
-                height={44}
-            />
-        );
-
     return (
         <Box
             sx={{
@@ -161,19 +141,46 @@ const TheChipArray = () => {
             }}
             component="ul"
         >
-            {chipData.map((data) => {
-                let icon;
-
-                return (
-                    <ListItem key={data.key}>
-                        <Chip
-                            icon={icon}
-                            label={data.label}
-                            onDelete={handleDelete(data)}
-                        />
-                    </ListItem>
-                );
-            })}
+            {isYearsDataLoading &&
+                isPositionsDataLoading &&
+                isDepartmenentDataLoading && (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-start',
+                            listStyle: 'none',
+                            p: 0.5,
+                            pt: 0,
+                            m: 0,
+                            flexWrap: { xs: 'nowrap', sm: 'wrap' },
+                            overflowX: 'auto',
+                        }}
+                        component="ul"
+                    >
+                        {[...Array(5).keys()].map((key) => (
+                            <ListItem key={key}>
+                                <Skeleton
+                                    animation="wave"
+                                    variant="rounded"
+                                    width={120}
+                                    height={28}
+                                    sx={{ borderRadius: '9999px' }}
+                                />
+                            </ListItem>
+                        ))}
+                    </Box>
+                )}
+            {chipData &&
+                chipData.map((data) => {
+                    return (
+                        <ListItem key={data.key}>
+                            <Chip
+                                label={data.label}
+                                onDelete={handleDelete(data)}
+                            />
+                        </ListItem>
+                    );
+                })}
         </Box>
     );
 };

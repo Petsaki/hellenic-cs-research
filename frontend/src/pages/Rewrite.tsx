@@ -70,6 +70,7 @@ const Rewrite = () => {
                             sx={{
                                 width: '100%',
                                 pt: 0,
+                                minHeight: '52px',
                             }}
                         >
                             <TheChipArray />
@@ -99,7 +100,7 @@ const Rewrite = () => {
                                     width: '100%',
                                 }}
                             >
-                                <YearsChart />
+                                <DepartmentStaff />
                             </Grid2>
                             <Grid2
                                 xs
@@ -107,7 +108,7 @@ const Rewrite = () => {
                                     width: '100%',
                                 }}
                             >
-                                <DepartmentStaff />
+                                {/* <YearsChart /> */}
                             </Grid2>
                         </Grid2>
                     </Grid2>

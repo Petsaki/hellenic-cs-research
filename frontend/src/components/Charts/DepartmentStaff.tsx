@@ -134,7 +134,11 @@ const DepartmentStaff = () => {
         }
     }, [departmentsPositionData]);
 
-    if (isFetching)
+    if (
+        isdepartmentsPositionLoading &&
+        !labelTest.length &&
+        !!selectedDeps.length
+    )
         return (
             <Skeleton
                 animation="wave"
@@ -144,16 +148,19 @@ const DepartmentStaff = () => {
             />
         );
 
-    return (
-        <Paper
-            sx={{
-                height: '700px',
-                p: '20px',
-            }}
-        >
-            <Bar options={options} data={testData} />
-        </Paper>
-    );
+    if (!!selectedDeps.length && !!labelTest.length)
+        return (
+            <Paper
+                sx={{
+                    height: '700px',
+                    p: '20px',
+                }}
+            >
+                <Bar options={options} data={testData} />
+            </Paper>
+        );
+
+    return null;
 };
 
 export default DepartmentStaff;

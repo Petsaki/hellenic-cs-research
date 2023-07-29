@@ -176,7 +176,7 @@ const StatisticCard: React.FC<StatisticCardProp> = ({
                                 align="center"
                                 sx={{ fontWeight: 'bold' }}
                             >
-                                {value}
+                                {value || 0}
                             </Typography>
                             <Typography
                                 variant={
