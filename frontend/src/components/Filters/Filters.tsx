@@ -25,8 +25,8 @@ import {
     useGetDeparmentMutation,
     useGetJesusQuery,
 } from '../../services/departmentApi';
-import { useGetPublicationsYearsQuery } from '../../services/publicationApi';
 import ChipTag from '../ChipTag';
+import { useGetYearsRangeQuery } from '../../services/yearsRangeApi';
 
 function valuetext(value: number) {
     return `${value}°C`;
@@ -73,7 +73,7 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
     const large = useMediaQuery(theme.breakpoints.up('md'));
     const [value, setValue] = useState<number[]>([0, 100]);
     const [filteredDeps, setFilteredDeps] = useState<DepartmentsData[]>([]);
-    const { data, isFetching, isError } = useGetPublicationsYearsQuery();
+    const { data, isFetching, isError } = useGetYearsRangeQuery();
     // const [
     //     filter,
     //     { data: departmenentData, isLoading: isDepartmenentFetching },

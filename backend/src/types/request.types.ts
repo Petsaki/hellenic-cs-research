@@ -12,28 +12,42 @@ export const FilterSchema = z.object({
 
 export type Filter = z.infer<typeof FilterSchema>;
 
+// Department string
+export const DepartmentSchema = z.object({
+    department: z.string()
+})
 
-// Departments Array
+export type DepartmentReq = z.infer<typeof DepartmentSchema>;
+
+
+// Departments Array OR string
 export const DepartmentsSchema = z.object({
     departments: z.union([z.string(), z.array(z.string())])
 })
 
 export type Departments = z.infer<typeof DepartmentsSchema>;
 
-// Statistics required value Array
-export const DepartmentsRequiredSchema = z.object({
+export const DepartmentsReqSchema = z.object({
     departments: z
-        .union([z.string(), z.array(z.string())])
-        .refine((value) => {
-            if (Array.isArray(value)) {
-                return value.length > 0;
-            } else {
-                return value.trim().length > 0
-            }
-        }, {
-            message: "departments can't be empty.",
-        }),
+    .union([z.string(), z.array(z.string())])
+    .refine((value) => {
+        if (Array.isArray(value)) {
+            return value.length > 0;
+        } else {
+            return value.trim().length > 0
+        }
+    }, {
+        message: "departments can't be empty.",
+    }),
+})
+
+export type DepartmentsReq = z.infer<typeof DepartmentsReqSchema>;
+
+
+// Statistics required value Array
+export const StatisticReqSchema = z.object({
+    departments: DepartmentsReqSchema.shape.departments,
     positions: z.union([z.string(), z.array(z.string())]).optional()
 });
 
-export type DepartmentsRequired = z.infer<typeof DepartmentsRequiredSchema>;
+export type StatisticReq = z.infer<typeof StatisticReqSchema>;

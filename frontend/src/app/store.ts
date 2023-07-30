@@ -5,12 +5,14 @@ import { departmentApi } from '../services/departmentApi';
 import { publicationApi } from '../services/publicationApi';
 import testSliceReducer from './slices/testSlice';
 import rtkQueryErrorLogger from './slices/error-handler.middleware';
+import { yearsRangeApi } from '../services/yearsRangeApi';
 
 const store = configureStore({
     reducer: {
         [departmentApi.reducerPath]: departmentApi.reducer,
         [publicationApi.reducerPath]: publicationApi.reducer,
         [academicStaffApi.reducerPath]: academicStaffApi.reducer,
+        [yearsRangeApi.reducerPath]: yearsRangeApi.reducer,
         testSlice: testSliceReducer,
     },
     middleware: (getDefaultMiddleware) =>
@@ -18,6 +20,7 @@ const store = configureStore({
             departmentApi.middleware,
             publicationApi.middleware,
             academicStaffApi.middleware,
+            yearsRangeApi.middleware,
             rtkQueryErrorLogger
         ),
 });

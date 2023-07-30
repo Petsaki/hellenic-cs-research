@@ -1,12 +1,13 @@
 import { Request } from 'express';
-import { Model, Op, Sequelize, WhereOptions } from 'sequelize';
+import { Model, Op, QueryTypes, Sequelize, WhereOptions } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Departments from '../models/department.model';
-import { departmentsModel, omeaCitationsRes, omeaCitationsReqQuery, omeaCitationsReqBody, IDepartments, IDep } from '../types';
+import { departmentsModel, omeaCitationsRes, omeaCitationsReqQuery, omeaCitationsReqBody, IDepartments, IDep, IPublications } from '../types';
 import { checkFilter } from '../utils/checkFilter';
 import { tryCatch } from '../utils/tryCatch';
-import { DepartmentsRequired, DepartmentsRequiredSchema, Filter, FilterSchema } from '../types/request.types';
+import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, DepartmentsReq, DepartmentsReqSchema, DepartmentReq, DepartmentSchema } from '../types/request.types';
 import Dep from '../models/dep.model';
+import sequelize from '../db/connection';
 
 const decimalPlaces = '2';
 
@@ -76,11 +77,9 @@ export const getDepartmentsData = async (filter: string): Promise<IDepartments[]
 
 
 // STATISTICS
-export const getStatistics = tryCatch(async (req: omeaCitationsReqBody<DepartmentsRequired>, res: omeaCitationsRes<IStatistics>) => {
-    const {yearsRange, position: positionsCache} = req.cache;
-    const sumYearsRange = yearsRange[yearsRange.length - 1].year - yearsRange[0].year + 1;
-    
-    const {departments, positions}: DepartmentsRequired = DepartmentsRequiredSchema.parse(req.body);
+export const getStatistics = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<IStatistics>) => {
+    const {position: positionsCache} = req.cache;
+    const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
 
     // Validation - Check if departments exists in the database
     await departmentsValidation(departments);
@@ -88,6 +87,8 @@ export const getStatistics = tryCatch(async (req: omeaCitationsReqBody<Departmen
     if (positions) {
         positionsValidation(positions, positionsCache)
     }
+
+    const sumYearsRange = (positions && positions.length > 0) ? (await activeYears(departments, positions)).length : (await activeYears(departments)).length;
 
     let where: WhereOptions<IDep> = {inst: departments};
     if (positions && positions.length > 0) {
@@ -141,11 +142,9 @@ export const getStatistics = tryCatch(async (req: omeaCitationsReqBody<Departmen
     res.json(sendResponse<IStatistics>(200,'All good.', statistics));
 });
   
-export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReqBody<DepartmentsRequired>, res: omeaCitationsRes<IStatustucsPerDepartment[]>) => {
-    const {yearsRange, position: positionsCache} = req.cache;
-    const sumYearsRange = yearsRange[yearsRange.length - 1].year - yearsRange[0].year + 1;
-
-    const {departments, positions}: DepartmentsRequired = DepartmentsRequiredSchema.parse(req.body);
+export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<IStatustucsPerDepartment[]>) => {
+    const {position: positionsCache} = req.cache;
+    const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
     
     // Validation - Check if departments exists in the database
     await departmentsValidation(departments);
@@ -177,17 +176,88 @@ export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReq
         raw: true,
     });
 
-    queryRes.forEach((statistic) => {
+    for (const statistic of queryRes) {
+        const sumYearsRange = (positions && positions.length > 0) ? (await activeYears(statistic.inst, positions)).length : (await activeYears(statistic.inst)).length;
+
         statistic.avg_hindex = Number(Math.round(parseFloat(statistic.avg_hindex + 'e' + decimalPlaces)) + 'e-' + decimalPlaces);
         statistic.avg_hindex5 = Number(Math.round(parseFloat(statistic.avg_hindex5 + 'e' + decimalPlaces)) + 'e-' + decimalPlaces);
         statistic.avg_publications_per_staff = Number(Math.round(parseFloat(statistic.avg_publications_per_staff + 'e' + decimalPlaces)) + 'e-' + decimalPlaces);
         statistic.avg_citations_per_staff = Number(Math.round(parseFloat(statistic.avg_citations_per_staff + 'e' + decimalPlaces)) + 'e-' + decimalPlaces);
         statistic.avg_publications_per_staff_per_year = Number(Math.round(parseFloat((statistic.avg_publications_per_staff / sumYearsRange) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces);
         statistic.avg_citations_per_staff_per_year = Number(Math.round(parseFloat((statistic.avg_citations_per_staff / sumYearsRange) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces);
-    });
+    };
 
     res.json(sendResponse<IStatustucsPerDepartment[]>(200,'All good.', queryRes));
 });
+
+// Department's active years
+export const getDepartmentsActiveYears = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<number[]>) => {
+    const {position: positionsCache} = req.cache;
+    const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
+    
+    // Validation - Check if departments exists in the database
+    await departmentsValidation(departments);
+    // Validation - Check if positions exists in the database
+    if (positions) {
+        positionsValidation(positions, positionsCache)
+    }
+
+    const activeYearsData = await activeYears(departments, positions);
+    
+
+    res.json(sendResponse<number[]>(200,'All good.', activeYearsData));
+});
+
+// ACTIVE YEARS QUERY
+const activeYears = async (departments: string | string[], positions?: string | string[]): Promise<number[]> => {
+    const departmentArray = Array.isArray(departments) ? departments : [departments];
+
+    // Sequelize has very bad typescript support. It is better to let it as any.
+    const where: WhereOptions<any> = {
+        inst: {
+          [Op.in]: departmentArray, // Use Op.in to filter by multiple department IDs
+        },
+      };
+      if (positions && positions.length) {
+        where.position = {
+          [Op.in]: positions,
+        };
+      }
+  
+    // Retrieve the gsid values from the Dep table based on the departmentInst
+    const departmentsGsid: Array<{ id: string }> = await Dep.findAll({
+        where,
+        attributes: ['id'], // Only retrieve the 'gsid' column
+        raw: true, // Return raw data instead of Sequelize instances
+      });
+      
+      
+    // Extract the gsid values from the result and ensure uniqueness
+    const gsidValues = Array.from(new Set(departmentsGsid.map((department) => department.id)));
+    
+    const unionQuery = `
+      SELECT DISTINCT cyear FROM (
+        SELECT cyear FROM publications WHERE gsid IN (:gsidValues)
+        UNION
+        SELECT cyear FROM citations WHERE gsid IN (:gsidValues)
+      ) AS unioned_years
+      WHERE cyear >= 1
+    `;
+
+    const replacements = { gsidValues }; // Replace this with your actual gsidValues array
+
+
+    const uniqueYears = gsidValues.length ? await sequelize.query(unionQuery, {
+        replacements,
+        type: QueryTypes.SELECT,
+    }) : [];
+
+    
+    // Extract the unique year values from the result
+    const years: number[] = uniqueYears.map((item: any) => item.cyear).sort();
+
+    return years;
+}
 
 // Validators
 const departmentsValidation = async (departments: string[] | string): Promise<void> => {
@@ -223,8 +293,6 @@ const checkDepartmentsExist = async (departments: string[]): Promise<boolean> =>
 const positionsValidation = (positions: string | string[], cachePositions: IDep[]) => {
     const targetPositions = Array.isArray(positions) ? positions : [positions];
     if (!targetPositions.every((targetPosition) => cachePositions.some((obj) => obj.position === targetPosition))) {
-        console.log('DEN MPHKA EDW RE??');
-
         throw new Error(`Wrong positions names.`);
     }
 }
@@ -232,6 +300,11 @@ const positionsValidation = (positions: string | string[], cachePositions: IDep[
 export interface IStatisticWhere {
     inst: string | string[],
     position?: string | string[],
+}
+
+export interface IActiveYearsWhere {
+    inst: string | string[],
+    position?: string | string[] | undefined,
 }
   
 export interface IStatistics {

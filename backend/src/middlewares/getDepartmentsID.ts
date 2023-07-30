@@ -7,7 +7,6 @@ import { sendResponse } from '../api/common';
 import { Op, Sequelize } from 'sequelize';
 import errorHandler from './errorHandler';
 import { cacheTime, reqCache } from '../server';
-import { getYearsRange } from '../controllers/publications.controller';
 import { getDepartmentsData } from '../controllers/department.controller';
 import { Filter, FilterSchema } from '../types/request.types';
 

@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express';
 import routesDepartment from './routes/department.route';
 import routesPublications from './routes/publications.route';
 import routesAcademicStaff from './routes/academic-staff.route';
+import routesyearsRange from './routes/years-range.route';
 import cors from 'cors';
 import db from './db/connection';
 import errorHandler from './middlewares/errorHandler';
@@ -49,6 +50,7 @@ class Server {
         this.app.use('/api/departments', routesDepartment);
         this.app.use('/api/publications', routesPublications);
         this.app.use('/api/academic-staff', routesAcademicStaff);
+        this.app.use('/api/years-range', routesyearsRange);
     }
 
     middlewares(): void {

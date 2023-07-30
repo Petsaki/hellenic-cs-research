@@ -33,8 +33,8 @@ const statisticsTitles = new Map<string, ICardTexts>([
         'avg_citations_per_staff_per_year',
         {
             title: 'Ang C per M per Y',
-            tooltip:
-                'Average Citations per Member per Year from the selected departments.',
+            tooltip: `Average Citations per Member per Year from the selected departments.
+                Years are count base of if the year had any Publication or Citations and for the given academic positions.`,
         },
     ],
     [
@@ -64,8 +64,8 @@ const statisticsTitles = new Map<string, ICardTexts>([
         'avg_publications_per_staff_per_year',
         {
             title: 'Avg P per M per Y',
-            tooltip:
-                'Average Publications per Member per Year from the selected departments.',
+            tooltip: `Average Publications per Member per Year from the selected departments.
+            Years are count base of if the year had any Publication or Citations and for the given academic positions.`,
         },
     ],
     [

@@ -11,7 +11,7 @@ export const getPublications = tryCatch(async (req: omeaCitationsReqBody<unknown
 });
 
 export const getPublicationsYearsRange = tryCatch(async (req: omeaCitationsReqBody<unknown>, res: omeaCitationsRes<IPublications[]>) => {
-    const yearsRange = req.cache.yearsRange;
+    const yearsRange = await getYearsRange();
     res.json(sendResponse<IPublications[]>(200,'All good.', yearsRange));
 });
 

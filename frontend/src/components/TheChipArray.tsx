@@ -7,11 +7,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { RootState } from '../app/store';
-import { setYearsRange } from '../app/slices/testSlice';
-import { useGetPublicationsYearsQuery } from '../services/publicationApi';
 import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
 import { useGetJesusQuery } from '../services/departmentApi';
 import { ParamNames } from '../app/hooks/useUrlParams';
+import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
 
 interface ChipData {
     key: string;
@@ -28,7 +27,7 @@ const TheChipArray = () => {
     const [chipData, setChipData] = React.useState<readonly ChipData[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const { isLoading: isYearsDataLoading } = useGetPublicationsYearsQuery();
+    const { isLoading: isYearsDataLoading } = useGetYearsRangeQuery();
 
     const { isLoading: isPositionsDataLoading } =
         useGetAcademicStaffPositionsQuery();

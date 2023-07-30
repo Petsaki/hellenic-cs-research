@@ -7,15 +7,16 @@ import { sendResponse } from '../api/common';
 import { Op, Sequelize } from 'sequelize';
 import errorHandler from './errorHandler';
 import { cacheTime, reqCache } from '../server';
-import { getYearsRange } from '../controllers/publications.controller';
+import { getYearsRangeQuery } from '../controllers/years_range.controller';
+
 
 /* If there is no cached data, it calls the `getYearsRange` function and caches the result.
 The `tryCatch` function is used to handle any errors that may occur during the execution of this
 middleware function. */
-export const getCacheYearsRange = tryCatch(async (req: omeaCitationsReqBody<unknown>, res: omeaCitationsRes<IPublications[]>, next: NextFunction) => {
+export const getCacheYearsRange = tryCatch(async (req: omeaCitationsReqBody<unknown>, res: omeaCitationsRes<{year: number}[]>, next: NextFunction) => {
     const cachedData: IPublications[] = cache.get(cacheKeysEnum.YearsRange);
     if (!cachedData) {
-        const result = await getYearsRange();
+        const result = await getYearsRangeQuery();
         cache.put(cacheKeysEnum.YearsRange, result, cacheTime);
         reqCache.yearsRange = result;
     }

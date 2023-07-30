@@ -35,7 +35,6 @@ import {
     useGetDeparmentMutation,
     useGetJesusQuery,
 } from '../../services/departmentApi';
-import { useGetPublicationsYearsQuery } from '../../services/publicationApi';
 import ChipTag from '../ChipTag';
 import FixCheckBox from './FixCheckBox';
 import FixSlide from './FixSlide';
@@ -43,6 +42,7 @@ import { useGetAcademicStaffPositionsQuery } from '../../services/academicStaffA
 import FixAcademicStaff from './FixAcademicStaff';
 import { CompareByType } from '../../models/api/model';
 import NewAcademicStaff from './NewAcademicStaff';
+import { useGetYearsRangeQuery } from '../../services/yearsRangeApi';
 
 const filterDivider: SxProps = {
     marginX: '24px',
@@ -103,7 +103,7 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
         data: yearsData,
         isLoading: isYearsDataLoading,
         isError: isYearsDataError,
-    } = useGetPublicationsYearsQuery();
+    } = useGetYearsRangeQuery();
 
     const {
         data: positionsData,

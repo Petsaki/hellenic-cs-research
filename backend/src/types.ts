@@ -24,7 +24,7 @@ export enum cacheKeysEnum {
 
 export interface cacheData {
     position: IDep[],
-    yearsRange: IPublications[],
+    yearsRange: {year: number}[],
     departmentsID: IDepartments[]
 }
 
