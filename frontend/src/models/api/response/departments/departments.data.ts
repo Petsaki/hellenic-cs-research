@@ -23,3 +23,28 @@ export interface IStatistics {
     avg_publications_per_staff_per_year: number;
     avg_citations_per_staff_per_year: number;
 }
+
+// Academic Staff Data
+
+export interface CountPerYear {
+    year: number;
+    count: number;
+}
+
+export interface AcademicData {
+    id: string;
+    name: string;
+    position: string;
+    inst: string;
+    hindex: number;
+    publications: CountPerYear[];
+    citations: CountPerYear[];
+    hindex5: number;
+    citations5: number;
+    publications5: number;
+}
+
+export interface IAcademicStaffData {
+    academic_data: AcademicData[];
+    years_range: number[];
+}

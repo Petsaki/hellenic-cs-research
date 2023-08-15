@@ -109,7 +109,9 @@ const useUrlParams = ({
                     return prevSearchParams;
                 });
             }
-            updateYearsRangeSlice(years);
+            if (years !== paraSlice.join('-')) {
+                updateYearsRangeSlice(years);
+            }
         }
     };
 
@@ -196,7 +198,7 @@ const useUrlParams = ({
                 const validyearData = PublicationsYearValidation(param, data);
                 handleInputChange({ years: validyearData });
                 setParamValue(validyearData);
-            } else {
+            } else if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
                 dispatch(
                     setYearsRange([data[0].year, data[data.length - 1].year])
                 );
@@ -300,8 +302,10 @@ const useUrlParams = ({
         if (!param) {
             switch (name) {
                 case ParamNames.YearsRange:
-                    resetYearsRange();
-
+                    if (!isPublicationsYear(data)) return;
+                    if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
+                        resetYearsRange();
+                    }
                     break;
 
                 default:
@@ -353,3 +357,4 @@ const useUrlParams = ({
 };
 
 export default useUrlParams;
+// MARIOS TODO - Fix the yearsRange to not dispatch if value is the same at store because when you go to mobile it is re fetching data from backend

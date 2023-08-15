@@ -140,7 +140,7 @@ const TheChipArray = () => {
             }}
             component="ul"
         >
-            {isYearsDataLoading &&
+            {/* {isYearsDataLoading &&
                 isPositionsDataLoading &&
                 isDepartmenentDataLoading && (
                     <Box
@@ -168,7 +168,7 @@ const TheChipArray = () => {
                             </ListItem>
                         ))}
                     </Box>
-                )}
+                )} */}
             {chipData &&
                 chipData.map((data) => {
                     return (

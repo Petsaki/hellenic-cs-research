@@ -11,6 +11,7 @@ import TheChipArray from '../components/TheChipArray';
 import FixFilters from '../components/fixMui/FixFilter';
 import DepartmentStaff from '../components/Charts/DepartmentStaff';
 import Statistics from '../components/Statistics';
+import AcademicDataTable from '../components/AcademicDataTable';
 
 const toolbar: SxProps = {
     display: { xs: 'none', md: 'flex' },
@@ -51,7 +52,7 @@ const Rewrite = () => {
                     <Grid2
                         sx={{
                             display: { sx: 'none', md: 'block' },
-                            width: { sx: '0px', md: '280px' },
+                            width: { sx: '0px', md: '240px' },
                         }}
                     >
                         <FixFilters drawerStatus={drawerOpen} />
@@ -108,6 +109,7 @@ const Rewrite = () => {
                                     width: '100%',
                                 }}
                             >
+                                <AcademicDataTable />
                                 {/* <YearsChart /> */}
                             </Grid2>
                         </Grid2>

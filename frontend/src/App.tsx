@@ -160,6 +160,13 @@ function App() {
                             },
                         },
                     },
+                    MuiFormControlLabel: {
+                        styleOverrides: {
+                            root: {
+                                marginLeft: '12px',
+                            },
+                        },
+                    },
                 },
             }),
         // eslint-disable-next-line react-hooks/exhaustive-deps

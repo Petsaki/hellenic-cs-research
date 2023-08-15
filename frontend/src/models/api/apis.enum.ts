@@ -3,6 +3,7 @@ export const Apis: IGeneralApis = {
     GetDepartments: '/departments',
     GetDeparmentById: (id: string) => `/departments/${id}`,
     GetStatistics: '/departments/statistics',
+    GetAcademicStaffData: '/departments/academicStaffData',
 
     // Publications
     getPublications: '/publications',
@@ -21,6 +22,7 @@ export interface IGeneralApis extends IApis {
     GetDepartments: string;
     GetDeparmentById: ApiResolverFn;
     GetStatistics: string;
+    GetAcademicStaffData: string;
     // Publications
     getPublications: string;
     getPublicationsYears: string;
