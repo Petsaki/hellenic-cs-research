@@ -5,18 +5,18 @@ import Departments from '../models/department.model';
 import { departmentsModel, omeaCitationsRes, omeaCitationsReqQuery, omeaCitationsReqBody, IDepartments, IDep, IPublications } from '../types';
 import { checkFilter } from '../utils/checkFilter';
 import { tryCatch } from '../utils/tryCatch';
-import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, DepartmentsReq, DepartmentsReqSchema, DepartmentReq, DepartmentSchema } from '../types/request.types';
+import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, DepartmentsReq, DepartmentsReqSchema, DepartmentReq, DepartmentSchema, AcademicDataRequest, AcademicDataSchema } from '../types/request.types';
 import Dep from '../models/dep.model';
 import sequelize from '../db/connection';
+import Publications from '../models/publication.model';
+import Citations from '../models/citation.model';
 
 const decimalPlaces = '2';
 
 // I can put type on getDepartments if i return the res.json but is useless because express and my custom types already checks what i am going to return
 export const getDepartments = tryCatch(async (req: omeaCitationsReqBody<Filter>, res: omeaCitationsRes<IDepartments[]>) => {
-    // We have already checked the request body from getDepartmentsID middleware, this is useless now!
-    // const {filter}: Filter = FilterSchema.parse(req.body);
+    const {filter}: Filter = FilterSchema.parse(req.body);
 
-    const {filter}: Filter = req.body;
 
     // CheckFilter does not need anymore because i am handling the error from zod!
     // checkFilter(req.body, filter);
@@ -78,11 +78,11 @@ export const getDepartmentsData = async (filter: string): Promise<IDepartments[]
 
 // STATISTICS
 export const getStatistics = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<IStatistics>) => {
-    const {position: positionsCache} = req.cache;
+    const {position: positionsCache, departmentsID: departmentsCache} = req.cache;
     const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
 
     // Validation - Check if departments exists in the database
-    await departmentsValidation(departments);
+    await departmentsValidation(departments, departmentsCache);
     // Validation - Check if positions exists in the database
     if (positions) {
         positionsValidation(positions, positionsCache)
@@ -143,11 +143,11 @@ export const getStatistics = tryCatch(async (req: omeaCitationsReqBody<Statistic
 });
   
 export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<IStatustucsPerDepartment[]>) => {
-    const {position: positionsCache} = req.cache;
+    const {position: positionsCache, departmentsID: departmentsCache} = req.cache;
     const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
     
     // Validation - Check if departments exists in the database
-    await departmentsValidation(departments);
+    await departmentsValidation(departments, departmentsCache);
     // Validation - Check if positions exists in the database
     if (positions) {
         positionsValidation(positions, positionsCache)
@@ -192,11 +192,11 @@ export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReq
 
 // Department's active years
 export const getDepartmentsActiveYears = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<number[]>) => {
-    const {position: positionsCache} = req.cache;
+    const {position: positionsCache, departmentsID: departmentsCache} = req.cache;
     const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
     
     // Validation - Check if departments exists in the database
-    await departmentsValidation(departments);
+    await departmentsValidation(departments, departmentsCache);
     // Validation - Check if positions exists in the database
     if (positions) {
         positionsValidation(positions, positionsCache)
@@ -259,41 +259,133 @@ const activeYears = async (departments: string | string[], positions?: string | 
     return years;
 }
 
-// Validators
-const departmentsValidation = async (departments: string[] | string): Promise<void> => {
-    if (Array.isArray(departments)) {
-        const department = await checkDepartmentsExist(departments);
-        if (!department) {
-            throw new Error(`Wrong deparments ids.`);
-        }
-    } else {
-        const department = await Departments.findByPk(departments);
-        if (!department) {
-            throw new Error(`Deparment with this id: ${departments}, does not exists.`);
-        }
+// Departments academic staff data
+export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitationsReqBody<AcademicDataRequest>, res: omeaCitationsRes<IAcademicStaffData>) => {
+    const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
+    const {departments, positions, years}: AcademicDataRequest = AcademicDataSchema.parse(req.body);
+    
+    // Validation - Check if departments exists in the database
+    await departmentsValidation(departments, departmentsCache);
+    // Validation - Check if years exists in the database
+    await yearsValidation(years, yearsCache);
+    // Validation - Check if positions exists in the database
+    if (positions) {
+        positionsValidation(positions, positionsCache)
     }
-};
 
-const checkDepartmentsExist = async (departments: string[]): Promise<boolean> => {
-    const foundRows = await Departments.findAll({
+    const departmentArray = Array.isArray(departments) ? departments : [departments];
+
+    // Sequelize has very bad typescript support. It is better to let it as any.
+    const where: WhereOptions<any> = {
+        inst: {
+          [Op.in]: departmentArray, // Use Op.in to filter by multiple department IDs
+        },
+      };
+      if (positions && positions.length) {
+        where.position = {
+          [Op.in]: positions,
+        };
+      }
+    
+      // Use the gsid values to retrieve all columns from the Dep table
+      const academicData = await Dep.findAll({
+        where,
+        raw: true,
+      });
+
+    // Extract the position IDs from the academicData result
+    const positionIds = academicData.map((data) => data.id);
+
+    // Get the active years array
+    const activeYearsData = await activeYears(departments, positions);
+
+    // Get the range of active years base of user's input
+    const yearsInRange = activeYearsData.filter((year) => year >= years[0] && year <= years[years.length - 1]);
+
+      // Fetch the publication and citation data for the specified years and group them by year for each position ID
+    const publicationData = await Publications.findAll({
         where: {
             id: {
-                [Op.in]: departments,
+                [Op.in]: positionIds,
+            },
+            year: {
+                [Op.in]: yearsInRange,
             },
         },
-        attributes: ['id'],
+        attributes: ['id', 'year', 'counter'],
         raw: true,
     });
+
+    const citationData = await Citations.findAll({
+        where: {
+            id: {
+                [Op.in]: positionIds,
+            },
+            year: {
+                [Op.in]: yearsInRange,
+            },
+        },
+        attributes: ['id', 'year', 'counter'],
+        raw: true,
+    });
+
+    console.log(publicationData);
+
     
-    const allPrimaryKeysExist = foundRows.length === departments.length;
+  // Group the publication and citation data by year for each position ID
+  const groupedPublicationData: GroupedData = publicationData.reduce((acc, data) => {
+    const positionId = data.id;
+    if (!acc[positionId]) {
+      acc[positionId] = [];
+    }
+    acc[positionId].push({ year: data.year, count: data.counter });
+    return acc;
+  }, {} as GroupedData);
+
+  const groupedCitationData: GroupedData = citationData.reduce((acc, data) => {
+    const positionId = data.id;
+    if (!acc[positionId]) {
+      acc[positionId] = [];
+    }
+    acc[positionId].push({ year: data.year, count: data.counter });
+    return acc;
+  }, {} as GroupedData);
+
+  // Combine the academicData with the grouped publication and citation data
+  const academicDataWithStats = academicData.map((data) => {
+    const positionId = data.id;
+    return {
+      ...data,
+      publications: groupedPublicationData[positionId] || [],
+      citations: groupedCitationData[positionId] || [],
+    };
+  });
     
-    return allPrimaryKeysExist;
+
+
+    
+
+    res.json(sendResponse<IAcademicStaffData>(200,'All good.', {academic_data: academicDataWithStats, years_range: yearsInRange}));
+});
+
+// Validators
+const departmentsValidation = async (departments: string[] | string, cacheDepartments: {id: string}[]): Promise<void> => {
+    const targetDepartments = Array.isArray(departments) ? departments : [departments];
+    if (!targetDepartments.every((targetDepartment) => cacheDepartments.some((obj) => obj.id === targetDepartment))) {
+        throw new Error(`Wrong departments ids.`);
+    }
 };
 
 const positionsValidation = (positions: string | string[], cachePositions: IDep[]) => {
     const targetPositions = Array.isArray(positions) ? positions : [positions];
     if (!targetPositions.every((targetPosition) => cachePositions.some((obj) => obj.position === targetPosition))) {
         throw new Error(`Wrong positions names.`);
+    }
+}
+
+const yearsValidation = (years: number[], cacheYears: {year: number}[]) => {
+    if (!years.every((year) => cacheYears.some((obj) => obj.year === year))) {
+        throw new Error(`No data for this years exists.`);
     }
 }
 
@@ -322,4 +414,33 @@ export interface IStatistics {
 
 export interface IStatustucsPerDepartment extends IStatistics {
     inst: string;
+}
+
+export interface GroupedData {
+    [positionId: string]: { year: number; count: number }[];
+}
+  
+
+// Academic staff data interfaces
+export interface CountPerYear {
+    year: number;
+    count: number;
+}
+
+export interface AcademicData {
+    id: string;
+    name: string;
+    position: string;
+    inst: string;
+    hindex: number;
+    publications: CountPerYear[];
+    citations: CountPerYear[];
+    hindex5: number;
+    citations5: number;
+    publications5: number;
+}
+
+export interface IAcademicStaffData {
+    academic_data: AcademicData[];
+    years_range: number[];
 }

@@ -9,6 +9,7 @@ import errorHandler from './errorHandler';
 import { cacheTime, reqCache } from '../server';
 import { getDepartmentsData } from '../controllers/department.controller';
 import { Filter, FilterSchema } from '../types/request.types';
+import Departments from '../models/department.model';
 
 
 /* Checks if the cached data for departments' IDs exists in the
@@ -17,16 +18,15 @@ in the cache.
 The `tryCatch` function is used to handle any errors that may occur
 during the execution of this middleware. */
 export const getCacheDepartmentsID = tryCatch(async (req: omeaCitationsReqBody<Filter>, res: omeaCitationsRes<IDepartments[]>, next: NextFunction) => {
-    const {filter}: Filter = FilterSchema.parse(req.body);
-
-    // Only stores the id of departments
-    // Not sure why i have to return next() here but it works like that.
-    if (filter !== 'id') return next();
-
     const cachedData: IDepartments[] = cache.get(cacheKeysEnum.DepartmentsID);
     if (!cachedData) {
         // It will only run if filter is id
-        const result = await getDepartmentsData(filter);
+        const result = await Departments.findAll({
+            attributes: [
+                [Sequelize.fn('DISTINCT', Sequelize.col('id')), 'id']
+            ],
+            raw: true,
+        });
         cache.put(cacheKeysEnum.DepartmentsID, result, cacheTime);
         reqCache.departmentsID = result;
     }
