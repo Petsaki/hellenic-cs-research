@@ -19,7 +19,7 @@ const slider: SxProps = {
 
 const sliderLabel: SxProps<Theme> = (theme) => ({
     fontWeight: 'light',
-    bgcolor: theme.palette.mode === 'dark' ? '#272727' : '#7096d6',
+    bgcolor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
     p: 1.5,
     borderRadius: 1,
     color: 'white',

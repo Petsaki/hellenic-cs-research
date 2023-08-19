@@ -290,14 +290,14 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                 <FixSlide data={yearsData.data} />
                 <Divider sx={filterDivider} />
                 {/* <ChipTag data={positionsData.data} /> */}
-                <NewAcademicStaff data={positionsData.data} />
+                <FixAcademicStaff data={departmenentData.data} />
                 <Divider sx={filterDivider} />
                 {/* COMPARE BY CODE --------------------------------------------------------- */}
                 {/* <FixCheckBox
                     resetFilters={resetFilters}
                     data={departmenentData.data}
                 /> */}
-                <FixAcademicStaff data={departmenentData.data} />
+                <NewAcademicStaff data={positionsData.data} />
                 {/* TODO: A checkbox that has parents and children.
                 https://mui.com/joy-ui/react-checkbox/
             */}
@@ -360,13 +360,15 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                     },
                 }}
             >
-                {isYearsDataError ||
+                {/* It was if i want to show at filter and error message */}
+                {/* {isYearsDataError ||
                 isPositionsDataError ||
                 isDepartmenentDataError ? (
                     <h1>ERROR</h1>
                 ) : (
                     drawer
-                )}
+                )} */}
+                {drawer}
             </Drawer>
         </>
     );

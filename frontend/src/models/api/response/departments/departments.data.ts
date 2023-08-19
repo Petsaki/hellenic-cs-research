@@ -42,6 +42,10 @@ export interface AcademicData {
     hindex5: number;
     citations5: number;
     publications5: number;
+    citationTotal: number;
+    publicationTotal: number;
+    averagePublication: number;
+    averageCitation: number;
 }
 
 export interface IAcademicStaffData {

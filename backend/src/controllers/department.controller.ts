@@ -336,34 +336,46 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
   const groupedPublicationData: GroupedData = publicationData.reduce((acc, data) => {
     const positionId = data.id;
     if (!acc[positionId]) {
-      acc[positionId] = [];
+      acc[positionId] = { total: 0, data: [] };
     }
-    acc[positionId].push({ year: data.year, count: data.counter });
+    acc[positionId].data.push({ year: data.year, count: data.counter });
+    acc[positionId].total += data.counter;
     return acc;
   }, {} as GroupedData);
 
   const groupedCitationData: GroupedData = citationData.reduce((acc, data) => {
     const positionId = data.id;
     if (!acc[positionId]) {
-      acc[positionId] = [];
+      acc[positionId] = { total: 0, data: [] };
     }
-    acc[positionId].push({ year: data.year, count: data.counter });
+    acc[positionId].data.push({ year: data.year, count: data.counter });
+    acc[positionId].total += data.counter;
     return acc;
   }, {} as GroupedData);
 
   // Combine the academicData with the grouped publication and citation data
-  const academicDataWithStats = academicData.map((data) => {
+  const academicDataWithStats: AcademicData[] = academicData.map((data) => {
     const positionId = data.id;
+
+    // Extract unique years from citations and publications
+    const uniqueYearsSet = new Set<number>();
+
+    groupedCitationData[positionId]?.data.forEach((citation) => uniqueYearsSet.add(citation.year));
+    groupedPublicationData[positionId]?.data.forEach((publication) => uniqueYearsSet.add(publication.year));
+
+    // Get the length of the Set
+    const uniqueYearsCount = uniqueYearsSet.size;
+
     return {
       ...data,
-      publications: groupedPublicationData[positionId] || [],
-      citations: groupedCitationData[positionId] || [],
+      publications: groupedPublicationData[positionId]?.data || [],
+      publicationTotal: groupedPublicationData[positionId]?.total || 0,
+      citations: groupedCitationData[positionId]?.data || [],
+      citationTotal: groupedCitationData[positionId]?.total || 0,
+      averagePublication: Number(Math.round(parseFloat((groupedPublicationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
+      averageCitation: Number(Math.round(parseFloat((groupedCitationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
     };
   });
-    
-
-
-    
 
     res.json(sendResponse<IAcademicStaffData>(200,'All good.', {academic_data: academicDataWithStats, years_range: yearsInRange}));
 });
@@ -417,9 +429,11 @@ export interface IStatustucsPerDepartment extends IStatistics {
 }
 
 export interface GroupedData {
-    [positionId: string]: { year: number; count: number }[];
+    [positionId: string]: {
+      total: number;
+      data: { year: number; count: number }[];
+    };
 }
-  
 
 // Academic staff data interfaces
 export interface CountPerYear {
@@ -438,6 +452,10 @@ export interface AcademicData {
     hindex5: number;
     citations5: number;
     publications5: number;
+    citationTotal: number;
+    publicationTotal: number;
+    averagePublication: number;
+    averageCitation: number;
 }
 
 export interface IAcademicStaffData {

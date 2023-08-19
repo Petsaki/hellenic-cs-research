@@ -156,6 +156,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                             sx={{
                                 display: { xs: 'none', sm: 'block' },
                                 fontWeight: 'bold',
+                                color: 'white',
                             }}
                         >
                             OMEA Citations
@@ -221,9 +222,8 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                         }}
                     >
                         <IconButton
-                            sx={{ ml: 1 }}
+                            sx={{ ml: 1, color: 'white' }}
                             onClick={colorMode.toggleColorMode}
-                            color="inherit"
                         >
                             {theme.palette.mode === 'dark' ? (
                                 <Brightness7Icon />

@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import Toolbar from '@mui/material/Toolbar/Toolbar';
 import SpeedDial from '@mui/material/SpeedDial/SpeedDial';
 import TuneIcon from '@mui/icons-material/Tune';
-import { Container, SxProps } from '@mui/material';
+import { Container, SxProps, Theme, useTheme } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import HideOnScroll from '../components/Rewrite/HideOnScroll';
 import Header from '../components/Header';
@@ -12,20 +12,22 @@ import FixFilters from '../components/fixMui/FixFilter';
 import DepartmentStaff from '../components/Charts/DepartmentStaff';
 import Statistics from '../components/Statistics';
 import AcademicDataTable from '../components/AcademicDataTable';
+import TheProgressBar from '../components/TheProgressBar';
 
 const toolbar: SxProps = {
     display: { xs: 'none', md: 'flex' },
 };
 
-const speedDial: SxProps = {
+const speedDial: SxProps<Theme> = (theme) => ({
     position: 'fixed',
     bottom: 16,
     right: 16,
     display: { md: 'none' },
     '& .MuiSvgIcon-root': {
+        color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
         transform: 'rotate(-90deg)',
     },
-};
+});
 
 const mainContainer: SxProps = {
     mt: { xs: 1, md: 2, lg: 3 },
@@ -33,11 +35,13 @@ const mainContainer: SxProps = {
 };
 
 const Rewrite = () => {
+    const theme = useTheme();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const headerRef = useRef<HTMLDivElement>(null);
 
     return (
         <>
+            <TheProgressBar />
             <HideOnScroll ref={headerRef}>
                 <Header onChangeDrawer={() => {}} ref={headerRef} />
             </HideOnScroll>
@@ -120,7 +124,7 @@ const Rewrite = () => {
             <SpeedDial
                 open={false}
                 ariaLabel="Opens the filter menu"
-                sx={speedDial}
+                sx={speedDial(theme)}
                 onClick={() =>
                     setDrawerOpen((currentDrawerOpen) => !currentDrawerOpen)
                 }

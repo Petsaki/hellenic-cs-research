@@ -53,7 +53,7 @@ function App() {
                     ...(mode === 'light'
                         ? {
                               primary: {
-                                  main: '#007cbb',
+                                  main: '#55a1e5',
                               },
                               background: {
                                   default: '#f1f1f1',
