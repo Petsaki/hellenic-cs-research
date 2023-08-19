@@ -72,7 +72,7 @@ const NewAcademicStaff: React.FC<FixCheckBoxProp> = ({
             }}
         >
             <FormControl
-                sx={{ width: '100%' }}
+                sx={{ width: `calc(100% - 8px)` }}
                 component="fieldset"
                 variant="standard"
             >

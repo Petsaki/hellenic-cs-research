@@ -95,7 +95,7 @@ const Statistics = () => {
         return (
             <Box
                 sx={{
-                    mt: isSmallScreen ? '0px' : '48px',
+                    mt: isSmallScreen ? '0px' : '16px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -118,7 +118,7 @@ const Statistics = () => {
         return (
             <Box
                 sx={{
-                    mt: isSmallScreen ? '0px' : '48px',
+                    mt: isSmallScreen ? '0px' : '16px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
