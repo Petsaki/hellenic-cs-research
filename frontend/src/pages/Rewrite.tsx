@@ -14,9 +14,9 @@ import Statistics from '../components/Statistics';
 import AcademicDataTable from '../components/AcademicDataTable';
 import TheProgressBar from '../components/TheProgressBar';
 
-const toolbar: SxProps = {
-    display: { xs: 'none', md: 'flex' },
-};
+// const toolbar: SxProps = {
+//     display: { xs: 'none', md: 'flex' },
+// };
 
 const speedDial: SxProps<Theme> = (theme) => ({
     position: 'fixed',
@@ -37,15 +37,15 @@ const mainContainer: SxProps = {
 const Rewrite = () => {
     const theme = useTheme();
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const headerRef = useRef<HTMLDivElement>(null);
+    // const headerRef = useRef<HTMLDivElement>(null);
 
     return (
         <>
-            <TheProgressBar />
+            {/* <TheProgressBar />
             <HideOnScroll ref={headerRef}>
                 <Header onChangeDrawer={() => {}} ref={headerRef} />
             </HideOnScroll>
-            <Toolbar sx={toolbar} />
+            <Toolbar sx={toolbar} /> */}
 
             <Container
                 // disableGutters

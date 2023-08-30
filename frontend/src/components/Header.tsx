@@ -20,6 +20,7 @@ import Box from '@mui/material/Box';
 import {
     Alert,
     Autocomplete,
+    Button,
     CircularProgress,
     Container,
     Icon,
@@ -27,6 +28,7 @@ import {
     TextField,
     useMediaQuery,
 } from '@mui/material';
+import { Link } from 'react-router-dom';
 import omeaLogo from '../assets/omea_logo.png';
 import { ColorModeContext } from '../App';
 import { useGetJesusQuery } from '../services/departmentApi';
@@ -133,6 +135,8 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                             <MenuIcon />
                         </IconButton> */}
                         <IconButton
+                            component={Link}
+                            to="/rewrite"
                             size="large"
                             edge="start"
                             color="inherit"
@@ -145,7 +149,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                                     height: 38,
                                     width: 38,
                                 }}
-                                alt="The house from the offer."
+                                alt="Omea Logo"
                                 src={omeaLogo}
                             />
                         </IconButton>
@@ -154,6 +158,8 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                             noWrap
                             component="div"
                             sx={{
+                                // It was when the search component was visible
+                                // display: { xs: 'none', sm: 'block' },
                                 display: { xs: 'none', sm: 'block' },
                                 fontWeight: 'bold',
                                 color: 'white',
@@ -162,7 +168,8 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                             OMEA Citations
                         </Typography>
                     </Box>
-                    <Autocomplete
+                    {/* Search component for the feature */}
+                    {/* <Autocomplete
                         disableClearable
                         sx={{
                             width: 300,
@@ -212,15 +219,33 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                                 }}
                             />
                         )}
-                    />
+                    /> */}
                     <Box
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'flex-end',
                             flexGrow: 1,
+                            gap: '2rem',
                         }}
                     >
+                        <Button
+                            component={Link}
+                            to="/departments-stats"
+                            sx={{
+                                color: 'white',
+                                backgroundColor: 'transparent',
+                                ':hover': {
+                                    backgroundColor:
+                                        theme.palette.mode === 'dark'
+                                            ? '#383838'
+                                            : '#137cb8',
+                                },
+                            }}
+                        >
+                            Departments Stat&#39;s
+                        </Button>
+                        {/* MARIOS TODO - For someone reason the history of url has duplicate pages like /rewrite for 3 times */}
                         <IconButton
                             sx={{ ml: 1, color: 'white' }}
                             onClick={colorMode.toggleColorMode}
