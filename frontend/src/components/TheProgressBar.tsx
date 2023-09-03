@@ -69,9 +69,14 @@ const TheProgressBar = () => {
                 zIndex: '9999',
                 width: '100%',
                 display:
-                    isDepartmenentDataLoading ||
-                    isPositionsDataLoading ||
-                    isYearsDataLoading
+                    (isDepartmenentDataLoading ||
+                        isPositionsDataLoading ||
+                        isYearsDataLoading) &&
+                    !(
+                        isYearsDataError ||
+                        isPositionsDataError ||
+                        isDepartmenentDataError
+                    )
                         ? 'block'
                         : 'none',
             }}

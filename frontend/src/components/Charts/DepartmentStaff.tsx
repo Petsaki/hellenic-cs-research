@@ -35,6 +35,14 @@ export const dataTest = (
         `rgba(214, 39, 40,${bgColorOpacity})`,
         `rgba(44, 160, 44,${bgColorOpacity})`,
     ];
+    ChartJS.register(
+        CategoryScale,
+        LinearScale,
+        BarElement,
+        Title,
+        Tooltip,
+        Legend
+    );
 
     const datasets = data.length
         ? Object.keys(data[0].positions).map((position, index) => ({
@@ -137,9 +145,9 @@ const DepartmentStaff = () => {
     }, [departmentsPositionData]);
 
     if (
-        isdepartmentsPositionLoading &&
-        !labelTest.length &&
-        !!selectedDeps.length
+        (isdepartmentsPositionLoading || !labelTest.length) &&
+        !!selectedDeps.length &&
+        !labelTest.length
     )
         return (
             <Skeleton
@@ -150,7 +158,7 @@ const DepartmentStaff = () => {
             />
         );
 
-    if (!!selectedDeps.length && !!labelTest.length)
+    if (selectedDeps.length)
         return (
             <Paper
                 sx={{

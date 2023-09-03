@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import FixFilters from '../components/fixMui/FixFilter';
 import TestSlide from '../components/TestSlide';
 import Chart from '../pages/Chart';
@@ -11,25 +11,35 @@ import Rewrite from '../pages/Rewrite';
 import TheLayout from '../components/TheLayout';
 import NotFound from '../pages/NotFound';
 import DepartmentsStats from '../pages/DepartmentsStats';
+import FilterAndDataComponent from '../pages/FilterAndDataComponent';
 
 function Paths() {
     return (
         <BrowserRouter>
             <TheLayout>
                 <Routes>
-                    <Route path="/home" element={<Home />} />
+                    {/* <Route path="/home" element={<Home />} />
                     <Route path="/chart" element={<Chart />} />
                     <Route path="/mui" element={<TestMui />} />
                     <Route path="/fixmui" element={<FixMui />} />
                     <Route path="/fixfilters" element={<FixFilters />} />
                     <Route path="/drawer" element={<DrawerTest />} />
-                    <Route path="/slide" element={<TestSlide />} />
-                    <Route path="/rewrite" element={<Rewrite />} />
-                    <Route
+                    <Route path="/slide" element={<TestSlide />} /> */}
+                    {/* <Route path="/rewrite" element={<Rewrite />} /> */}
+                    <Route path="/" element={<FilterAndDataComponent />}>
+                        <Route index element={<Navigate to="/rewrite" />} />
+                        <Route path="/rewrite" element={<Rewrite />} />
+                        <Route
+                            path="/departments-stats"
+                            element={<DepartmentsStats />}
+                        />
+                    </Route>
+                    <Route path="*" element={<NotFound />} />
+                    {/* <Route
                         path="/departments-stats"
                         element={<DepartmentsStats />}
-                    />
-                    <Route path="*" element={<NotFound />} />
+                    /> */}
+
                     {/* <Route path="/slide2" element={<TheSlide />} /> */}
                 </Routes>
             </TheLayout>

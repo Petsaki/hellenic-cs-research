@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import {
     addDepartment,
     deleteDepartment,
@@ -118,6 +118,11 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
     } = useGetJesusQuery({
         filter: 'id',
     });
+
+    const location = useLocation();
+
+    // Check if the pathname is a specific value
+    const shouldRender = location.pathname === '/rewrite';
 
     // COMPARE BY CODE ---------------------------------------------------------
     const [compareBy, setCompareBy] = useState<CompareByType>('department');
@@ -290,8 +295,12 @@ const FixFilters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                 <FixSlide data={yearsData.data} />
                 <Divider sx={filterDivider} />
                 {/* <ChipTag data={positionsData.data} /> */}
-                <FixAcademicStaff data={departmenentData.data} />
-                <Divider sx={filterDivider} />
+                {shouldRender && (
+                    <>
+                        <FixAcademicStaff data={departmenentData.data} />
+                        <Divider sx={filterDivider} />
+                    </>
+                )}
                 {/* COMPARE BY CODE --------------------------------------------------------- */}
                 {/* <FixCheckBox
                     resetFilters={resetFilters}

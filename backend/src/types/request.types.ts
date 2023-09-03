@@ -58,3 +58,11 @@ export const AcademicDataSchema = StatisticReqSchema.extend({
     years: z.array(z.number())
 });
 export type AcademicDataRequest = z.infer<typeof AcademicDataSchema>;
+
+// Department Analytics Array
+export const DepartmentsAnalyticsReqSchema = z.object({
+    years: z.array(z.number()),
+    positions: z.union([z.string(), z.array(z.string())])
+});
+
+export type DepartmentsAnalyticsReq = z.infer<typeof DepartmentsAnalyticsReqSchema>;

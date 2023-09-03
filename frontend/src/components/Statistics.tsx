@@ -51,6 +51,8 @@ const Statistics = () => {
     });
 
     useEffect(() => {
+        if (!selectedDeps.length) return;
+
         statisticsFilters({
             departments: selectedDeps,
             positions: selectedPositions,

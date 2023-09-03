@@ -5,7 +5,7 @@ import Departments from '../models/department.model';
 import { departmentsModel, omeaCitationsRes, omeaCitationsReqQuery, omeaCitationsReqBody, IDepartments, IDep, IPublications } from '../types';
 import { checkFilter } from '../utils/checkFilter';
 import { tryCatch } from '../utils/tryCatch';
-import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, DepartmentsReq, DepartmentsReqSchema, DepartmentReq, DepartmentSchema, AcademicDataRequest, AcademicDataSchema } from '../types/request.types';
+import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, DepartmentsReq, DepartmentsReqSchema, DepartmentReq, DepartmentSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq } from '../types/request.types';
 import Dep from '../models/dep.model';
 import sequelize from '../db/connection';
 import Publications from '../models/publication.model';
@@ -209,8 +209,9 @@ export const getDepartmentsActiveYears = tryCatch(async (req: omeaCitationsReqBo
 });
 
 // ACTIVE YEARS QUERY
-const activeYears = async (departments: string | string[], positions?: string | string[]): Promise<number[]> => {
+const activeYears = async (departments: string | string[], positions?: string | string[], yearsRange?: number[]): Promise<number[]> => {
     const departmentArray = Array.isArray(departments) ? departments : [departments];
+    const positionArray = Array.isArray(positions) ? positions : [positions];
 
     // Sequelize has very bad typescript support. It is better to let it as any.
     const where: WhereOptions<any> = {
@@ -218,9 +219,9 @@ const activeYears = async (departments: string | string[], positions?: string | 
           [Op.in]: departmentArray, // Use Op.in to filter by multiple department IDs
         },
       };
-      if (positions && positions.length) {
+      if (positionArray && positionArray.length) {
         where.position = {
-          [Op.in]: positions,
+          [Op.in]: positionArray,
         };
       }
   
@@ -235,17 +236,24 @@ const activeYears = async (departments: string | string[], positions?: string | 
     // Extract the gsid values from the result and ensure uniqueness
     const gsidValues = Array.from(new Set(departmentsGsid.map((department) => department.id)));
     
-    const unionQuery = `
+    let unionQuery = `
       SELECT DISTINCT cyear FROM (
         SELECT cyear FROM publications WHERE gsid IN (:gsidValues)
         UNION
         SELECT cyear FROM citations WHERE gsid IN (:gsidValues)
       ) AS unioned_years
-      WHERE cyear >= 1
     `;
 
-    const replacements = { gsidValues }; // Replace this with your actual gsidValues array
+    const replacements: {gsidValues: string[], minYear?: number, maxYear?: number} = { gsidValues };
 
+    if (yearsRange && yearsRange.length === 2) {
+        unionQuery += ' WHERE cyear >= :minYear AND cyear <= :maxYear';
+        replacements.minYear = yearsRange[0];
+        replacements.maxYear = yearsRange[yearsRange.length - 1];
+    } else {
+        unionQuery += ' WHERE cyear >= 1';
+
+    }
 
     const uniqueYears = gsidValues.length ? await sequelize.query(unionQuery, {
         replacements,
@@ -378,6 +386,242 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
   });
 
     res.json(sendResponse<IAcademicStaffData>(200,'All good.', {academic_data: academicDataWithStats, years_range: yearsInRange}));
+});
+
+export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReqBody<DepartmentsAnalyticsReq>, res: omeaCitationsRes<any>) => {
+    const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
+    const {positions, years}: DepartmentsAnalyticsReq = DepartmentsAnalyticsReqSchema.parse(req.body);
+    
+    // Validation - Check if years exists in the database
+    await yearsValidation(years, yearsCache);
+    // Validation - Check if positions exists in the database
+    if (positions) {
+        positionsValidation(positions, positionsCache)
+    }
+
+    const departmentArray = departmentsCache.map((dep) => dep.id);
+
+    const positionArray = Array.isArray(positions) ? positions : [positions];
+
+
+    // Sequelize has very bad typescript support. It is better to let it as any.
+    const where: WhereOptions<any> = {
+        inst: {
+          [Op.in]: departmentArray, // Use Op.in to filter by multiple department IDs
+        },
+    };
+    if (positionArray && positionArray.length) {
+        where.position = {
+            [Op.in]: positionArray,
+        };
+    }
+    console.log('where HERE',where)
+    
+    // Use the gsid values to retrieve all columns from the Dep table
+    const academicData = await Dep.findAll({
+        where,
+        raw: true,
+        attributes: ['inst', 'id', 'position']
+    });
+
+    const groupedData: {[inst: string]: string[]} = {};
+
+    academicData.forEach((item) => {
+        if (!groupedData[item.inst]) {
+            groupedData[item.inst] = [];
+        }
+
+        groupedData[item.inst].push(item.id);
+    });
+
+    console.log('groupedData', groupedData);
+    
+
+    // Extract the position IDs from the academicData result
+    const positionIds = academicData.map((data) => data.id);
+
+    // console.log(groupedData);
+    
+
+    // console.log(positionIds);
+    const eachDepActiveYears: any[] = [];
+    for (const dep of departmentArray) {
+        // Get the active years array
+        const activeYearsData = await activeYears(dep, positions, years);
+
+        const currentDepStaffsIDs = groupedData[dep];
+
+        
+        // Fetch the publication and citation data for the specified years and group them by year for each position ID
+        if (currentDepStaffsIDs && activeYearsData && currentDepStaffsIDs.length && activeYearsData.length) {
+            const publicationData = await Publications.findAll({
+                where: {
+                    id: {
+                        [Op.in]: currentDepStaffsIDs,
+                    },
+                    year: {
+                        [Op.in]: activeYearsData,
+                    },
+                },
+                attributes: ['id', 'year', 'counter'],
+                raw: true,
+            });
+
+            const publicationsTotalPerStaff: any = {};
+            publicationData.forEach(item => {
+                if (!publicationsTotalPerStaff[item.id]) {
+                  publicationsTotalPerStaff[item.id] = 0;
+                }
+                publicationsTotalPerStaff[item.id] += item.counter;
+            });
+
+            let maxPublicationsStaff;
+            let minPublicationsStaff;
+            let maxPublicationsCount = -Infinity;
+            let minPublicationsCount = Infinity;
+
+            for (const id in publicationsTotalPerStaff) {
+                if (publicationsTotalPerStaff[id] > maxPublicationsCount) {
+                    maxPublicationsCount = publicationsTotalPerStaff[id];
+                    maxPublicationsStaff = id;
+                }
+                if (publicationsTotalPerStaff[id] < minPublicationsCount) {
+                    minPublicationsCount = publicationsTotalPerStaff[id];
+                    minPublicationsStaff = id;
+                }
+            }
+            
+        
+            const citationData = await Citations.findAll({
+                where: {
+                    id: {
+                        [Op.in]: currentDepStaffsIDs,
+                    },
+                    year: {
+                        [Op.in]: activeYearsData,
+                    },
+                },
+                attributes: ['id', 'year', 'counter'],
+                raw: true,
+            });
+
+            const citationsTotalPerStaff: any = {};
+            publicationData.forEach(item => {
+                if (!citationsTotalPerStaff[item.id]) {
+                  citationsTotalPerStaff[item.id] = 0;
+                }
+                citationsTotalPerStaff[item.id] += item.counter;
+            });
+
+            let maxCitationsStaff;
+            let minCitationsStaff;
+            let maxCitationsCount = -Infinity;
+            let minCitationsCount = Infinity;
+
+            for (const id in citationsTotalPerStaff) {
+                if (citationsTotalPerStaff[id] > maxCitationsCount) {
+                    maxCitationsCount = citationsTotalPerStaff[id];
+                    maxCitationsStaff = id;
+                }
+                if (citationsTotalPerStaff[id] < minCitationsCount) {
+                    minCitationsCount = citationsTotalPerStaff[id];
+                    minCitationsStaff = id;
+                }
+            }
+            
+        
+            // // console.log(publicationData);
+          
+            // Calculate the sum of citations and publications
+            const totalCitations = citationData.reduce((acc, item) => acc + item.counter, 0);
+            const totalPublications = publicationData.reduce((acc, item) => acc + item.counter, 0);
+          
+            // Count the number of staff
+            const staffCount = currentDepStaffsIDs.length;
+          
+            // Calculate the average publications per year and citations per year
+            const avgPublicationsPerStaff = totalPublications / staffCount;
+            const avgCitationsPerStaff = totalCitations / staffCount;
+            if (dep === 'ece@ntua') {
+                console.log(citationData);
+                console.log(publicationData);
+                console.log('publicationsTotalPerStaff', publicationsTotalPerStaff)
+                console.log("Max Publications Staff:", maxPublicationsStaff, "Count:", maxPublicationsCount);
+                console.log("Min Publications Staff:", minPublicationsStaff, "Count:", minPublicationsCount);
+                console.log("Max Citations Staff:", maxCitationsStaff, "Count:", maxCitationsCount);
+                console.log("Min Citations Staff:", minCitationsStaff, "Count:", minCitationsCount);
+            }
+            // Create an object to store the aggregated data
+            const departmentStats = {
+              totalCitations,
+              totalPublications,
+              staffCount,
+              avgPublicationsPerStaff,
+              avgCitationsPerStaff,
+              maxPublicationsCount,
+              minPublicationsCount,
+              maxCitationsCount,
+              minCitationsCount
+            };
+    
+            eachDepActiveYears.push({[dep]: departmentStats})
+            
+        } else {
+            eachDepActiveYears.push({[dep]: {
+                citationData: [],
+                publicationData: []
+            }})
+        }
+        
+    }; 
+
+    
+//   // Group the publication and citation data by year for each position ID
+//   const groupedPublicationData: GroupedData = publicationData.reduce((acc, data) => {
+//     const positionId = data.id;
+//     if (!acc[positionId]) {
+//       acc[positionId] = { total: 0, data: [] };
+//     }
+//     acc[positionId].data.push({ year: data.year, count: data.counter });
+//     acc[positionId].total += data.counter;
+//     return acc;
+//   }, {} as GroupedData);
+
+//   const groupedCitationData: GroupedData = citationData.reduce((acc, data) => {
+//     const positionId = data.id;
+//     if (!acc[positionId]) {
+//       acc[positionId] = { total: 0, data: [] };
+//     }
+//     acc[positionId].data.push({ year: data.year, count: data.counter });
+//     acc[positionId].total += data.counter;
+//     return acc;
+//   }, {} as GroupedData);
+
+//   // Combine the academicData with the grouped publication and citation data
+//   const academicDataWithStats: AcademicData[] = academicData.map((data) => {
+//     const positionId = data.id;
+
+//     // Extract unique years from citations and publications
+//     const uniqueYearsSet = new Set<number>();
+
+//     groupedCitationData[positionId]?.data.forEach((citation) => uniqueYearsSet.add(citation.year));
+//     groupedPublicationData[positionId]?.data.forEach((publication) => uniqueYearsSet.add(publication.year));
+
+//     // Get the length of the Set
+//     const uniqueYearsCount = uniqueYearsSet.size;
+
+//     return {
+//       ...data,
+//       publications: groupedPublicationData[positionId]?.data || [],
+//       publicationTotal: groupedPublicationData[positionId]?.total || 0,
+//       citations: groupedCitationData[positionId]?.data || [],
+//       citationTotal: groupedCitationData[positionId]?.total || 0,
+//       averagePublication: Number(Math.round(parseFloat((groupedPublicationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
+//       averageCitation: Number(Math.round(parseFloat((groupedCitationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
+//     };
+//   });
+
+    res.json(sendResponse<any>(200,'All good.', eachDepActiveYears));
 });
 
 // Validators

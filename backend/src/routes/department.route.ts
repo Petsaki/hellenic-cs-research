@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDepartment, getDepartments, getDepartmentsAcademicStaffData, getDepartmentsActiveYears, getStatistics, getStatisticsPerDepartments } from '../controllers/department.controller';
+import { getDepartment, getDepartments, getDepartmentsAcademicStaffData, getDepartmentsActiveYears, getDepartmentsAnalyticsData, getStatistics, getStatisticsPerDepartments } from '../controllers/department.controller';
 import { getCacheDepartmentsID } from '../middlewares/getDepartmentsID';
 import { getCacheYearsRange } from '../middlewares/getYearsRange';
 import { getCacheAllPositions } from '../middlewares/getAllPositions';
@@ -18,5 +18,8 @@ router.post('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStati
 
 // Active Years
 router.post('/active-years', getCacheAllPositions, getCacheDepartmentsID, getDepartmentsActiveYears);
+
+// department-analytics
+router.post('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAnalyticsData);
 
 export default router;

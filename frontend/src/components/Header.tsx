@@ -245,6 +245,22 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                         >
                             Departments Stat&#39;s
                         </Button>
+                        <Button
+                            component={Link}
+                            to="/about"
+                            sx={{
+                                color: 'white',
+                                backgroundColor: 'transparent',
+                                ':hover': {
+                                    backgroundColor:
+                                        theme.palette.mode === 'dark'
+                                            ? '#383838'
+                                            : '#137cb8',
+                                },
+                            }}
+                        >
+                            About
+                        </Button>
                         {/* MARIOS TODO - For someone reason the history of url has duplicate pages like /rewrite for 3 times */}
                         <IconButton
                             sx={{ ml: 1, color: 'white' }}

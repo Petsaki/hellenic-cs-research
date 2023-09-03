@@ -99,11 +99,16 @@ const useUrlParams = ({
     };
 
     const updateYearsRangeURL = (years?: string): void => {
+        console.log('updateYearsRangeURL');
+        console.log(years);
+        console.log(paraSlice.join('-'));
+        console.log(param);
+
         if (isPublicationsYear(data) && years) {
             if (isyearRangeMaxValue(years, data)) {
                 searchParams.delete(name);
                 setSearchParams(searchParams);
-            } else {
+            } else if (years !== param) {
                 setSearchParams((prevSearchParams) => {
                     prevSearchParams.set(name, years);
                     return prevSearchParams;
@@ -121,11 +126,15 @@ const useUrlParams = ({
     };
 
     const updateAcademicPosURL = (academicPos?: string[]): void => {
+        console.log('updateAcademicPosURL');
+
         if (
             isAcademicPos(data) &&
             academicPos &&
             !compareTwoArrays(paraSlice, academicPos)
         ) {
+            console.log('den nomizw na mphka edw file');
+
             if (
                 academicPos.toString() === param ||
                 (!param && !academicPos.toString())
@@ -222,18 +231,18 @@ const useUrlParams = ({
 
     // INIT/RESET - ACADEMIC POSITION
     const initAcademicPos = (): void => {
+        console.log('initAcademicPos');
+
         if (isAcademicPos(data)) {
+            console.log(param);
+
             if (param) {
-                const validAcademicPosData = academicPosValidation(param, data);
+                const validAcademicPosData: string[] = academicPosValidation(
+                    param,
+                    data
+                );
                 console.log('initAcademicPos', validAcademicPosData);
                 if (validAcademicPosData.length) {
-                    setSearchParams((prevSearchParams) => {
-                        prevSearchParams.set(
-                            name,
-                            validAcademicPosData.join(',')
-                        );
-                        return prevSearchParams;
-                    });
                     setParamValue(validAcademicPosData.join(','));
                     if (!compareTwoArrays(paraSlice, validAcademicPosData)) {
                         dispatch(setAcademicPos(validAcademicPosData));
@@ -242,9 +251,6 @@ const useUrlParams = ({
                     searchParams.delete(name);
                     setSearchParams(searchParams);
                 }
-            } else {
-                searchParams.delete(name);
-                setSearchParams(searchParams);
             }
         }
     };
@@ -256,13 +262,6 @@ const useUrlParams = ({
                 const validDepartmentData = departmentValidation(param, data);
                 console.log('initDepartments', validDepartmentData);
                 if (validDepartmentData.length) {
-                    setSearchParams((prevSearchParams) => {
-                        prevSearchParams.set(
-                            name,
-                            validDepartmentData.join(',')
-                        );
-                        return prevSearchParams;
-                    });
                     setParamValue(validDepartmentData.join(','));
                     if (!compareTwoArrays(paraSlice, validDepartmentData)) {
                         dispatch(addDepartment(validDepartmentData));
@@ -271,9 +270,6 @@ const useUrlParams = ({
                     searchParams.delete(name);
                     setSearchParams(searchParams);
                 }
-            } else {
-                searchParams.delete(name);
-                setSearchParams(searchParams);
             }
         }
     };
@@ -299,20 +295,49 @@ const useUrlParams = ({
     }, []);
 
     useEffect(() => {
-        if (!param) {
-            switch (name) {
-                case ParamNames.YearsRange:
-                    if (!isPublicationsYear(data)) return;
-                    if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
-                        resetYearsRange();
-                    }
-                    break;
+        // if (!param) {
+        //     switch (name) {
+        //         case ParamNames.YearsRange:
+        //             if (!isPublicationsYear(data)) return;
+        //             if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
+        //                 resetYearsRange();
+        //             }
+        //             break;
 
-                default:
-                    break;
-            }
-        }
+        //         default:
+        //             break;
+        //     }
+        // }
         switch (name) {
+            case ParamNames.YearsRange:
+                console.log(
+                    'USEEFFECT THAT WILL RUN EVERY FCKING TIME. AGAIN AND AGAIN'
+                );
+
+                /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
+                or `paraSlice` is not empty.
+                A NAND LOGIC GATE */
+                console.log('useEffect YearsRange');
+                console.log(paraSlice.join('-'));
+                console.log(param);
+                console.log(paraSlice.join('-') !== param);
+
+                if (
+                    !(!param && !paraSlice.join('-')) &&
+                    paraSlice.join('-') !== param
+                ) {
+                    console.log('PREPEI NA KANW UPDATE!!');
+                    if (isPublicationsYear(data)) {
+                        setParamValue(
+                            param || (paramValue === null ? '' : null)
+                        );
+                        updateYearsRangeSlice(
+                            PublicationsYearValidation(param, data)
+                        );
+                    }
+                }
+
+                break;
             case ParamNames.AcademicPos:
                 console.log(
                     'USEEFFECT THAT WILL RUN EVERY FCKING TIME. AGAIN AND AGAIN'
@@ -325,6 +350,8 @@ const useUrlParams = ({
                     !(!param && !paraSlice.join(',')) &&
                     paraSlice.join(',') !== param
                 ) {
+                    console.log();
+
                     setParamValue(param || (paramValue === null ? '' : null));
                     updateAcademicPosSlice(param ? param.split(',') : []);
                 }
@@ -357,4 +384,3 @@ const useUrlParams = ({
 };
 
 export default useUrlParams;
-// MARIOS TODO - Fix the yearsRange to not dispatch if value is the same at store because when you go to mobile it is re fetching data from backend
