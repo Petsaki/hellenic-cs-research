@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { ParamNames } from '../app/hooks/useUrlParams';
 import { addDepartment } from '../app/slices/testSlice';
+import DepartmentDataTable from '../components/DepartmentDataTable';
 
 const DepartmentsStats = () => {
     const dispatch = useDispatch();
@@ -12,7 +11,7 @@ const DepartmentsStats = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return <div>DepartmentsStats</div>;
+    return <DepartmentDataTable />;
 };
 
 export default DepartmentsStats;

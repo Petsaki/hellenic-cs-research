@@ -52,3 +52,25 @@ export interface IAcademicStaffData {
     academic_data: AcademicData[];
     years_range: number[];
 }
+
+// Departments Data Analytics
+export interface IDepartmentData {
+    totalCitations: number;
+    totalPublications: number;
+    staffCount: number;
+    avgPublicationsPerStaff: number;
+    avgCitationsPerStaff: number;
+    maxPublicationsCount: number;
+    minPublicationsCount: number;
+    maxCitationsCount: number;
+    minCitationsCount: number;
+    cvPublications: number;
+    cvCitations: number;
+    avgHIndex: number;
+    minHIndex: number;
+    maxHIndex: number;
+}
+
+export interface IDepartments {
+    [departmentId: string]: IDepartmentData;
+}

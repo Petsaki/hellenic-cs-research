@@ -3,11 +3,13 @@ import { Apis } from '../models/api/apis.enum';
 import {
     DepartmentsData,
     IAcademicStaffData,
+    IDepartments,
     IStatistics,
 } from '../models/api/response/departments/departments.data';
 import { ResponseData } from '../models/api/response/response.data';
 import {
     IFAcademicStaff,
+    IFDepartmentsData,
     IFStatistics,
     IFilter,
 } from '../models/api/request/filters.data';
@@ -65,6 +67,16 @@ export const departmentApi = createApi({
                 body,
             }),
         }),
+        getDepartmentsData: builder.mutation<
+            ResponseData<IDepartments>,
+            Partial<IFDepartmentsData>
+        >({
+            query: (body) => ({
+                url: Apis.GetDepartmentsData,
+                method: 'POST',
+                body,
+            }),
+        }),
     }),
 });
 
@@ -80,4 +92,5 @@ export const {
     useGetJesusQuery,
     useGetStatisticsMutation,
     useGetAcademicStaffDataMutation,
+    useGetDepartmentsDataMutation,
 } = departmentApi;

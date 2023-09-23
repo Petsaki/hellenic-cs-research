@@ -16,3 +16,8 @@ export interface IFAcademicStaff {
     positions?: string[] | string;
     years: number[];
 }
+
+export interface IFDepartmentsData {
+    positions: string[] | string;
+    years: number[];
+}
