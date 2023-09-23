@@ -388,6 +388,10 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
     res.json(sendResponse<IAcademicStaffData>(200,'All good.', {academic_data: academicDataWithStats, years_range: yearsInRange}));
 });
 
+const roundNumberWithDecimalPlaces = (num: number, numOfDecimals: string = decimalPlaces): number => {
+    return +(Math.round(+(num + 'e+' + numOfDecimals))  + 'e-' + numOfDecimals) || 0;
+}
+
 export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReqBody<DepartmentsAnalyticsReq>, res: omeaCitationsRes<any>) => {
     const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
     const {positions, years}: DepartmentsAnalyticsReq = DepartmentsAnalyticsReqSchema.parse(req.body);
@@ -415,7 +419,7 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
             [Op.in]: positionArray,
         };
     }
-    console.log('where HERE',where)
+    // console.log('where HERE',where)
     
     // Use the gsid values to retrieve all columns from the Dep table
     const academicData = await Dep.findAll({
@@ -434,16 +438,8 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
         groupedData[item.inst].push(item.id);
     });
 
-    console.log('groupedData', groupedData);
+    // console.log('groupedData', groupedData);
     
-
-    // Extract the position IDs from the academicData result
-    const positionIds = academicData.map((data) => data.id);
-
-    // console.log(groupedData);
-    
-
-    // console.log(positionIds);
     const eachDepActiveYears: any[] = [];
     for (const dep of departmentArray) {
         // Get the active years array
@@ -506,7 +502,7 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
             });
 
             const citationsTotalPerStaff: any = {};
-            publicationData.forEach(item => {
+            citationData.forEach(item => {
                 if (!citationsTotalPerStaff[item.id]) {
                   citationsTotalPerStaff[item.id] = 0;
                 }
@@ -542,6 +538,66 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
             // Calculate the average publications per year and citations per year
             const avgPublicationsPerStaff = totalPublications / staffCount;
             const avgCitationsPerStaff = totalCitations / staffCount;
+
+            // Calculate the CV for publications
+            // Calculate squared differences and sum them
+            const publicationsSquaredDifferencesSum: any = Object.values(publicationsTotalPerStaff).reduce((sum: any, publications: any) => {
+                const difference = publications - avgPublicationsPerStaff;
+                return sum + difference * difference;
+            }, 0);
+            
+            // Calculate the variance
+            const publicationsVariance = publicationsSquaredDifferencesSum / staffCount;
+            
+            // Calculate the standard deviation
+            const publicationsStandardDeviation = Math.sqrt(publicationsVariance);
+            const cvPublications = (publicationsStandardDeviation / avgPublicationsPerStaff) * 100;
+
+            // Calculate the CV for citations
+            // Calculate squared differences and sum them
+            const citationsSquaredDifferencesSum: any = Object.values(citationsTotalPerStaff).reduce((sum: any, citations: any) => {
+                const difference = citations - avgCitationsPerStaff;
+                return sum + difference * difference;
+            }, 0);
+            
+            // Calculate the variance
+            const citationsVariance = citationsSquaredDifferencesSum / staffCount;
+            
+            // Calculate the standard deviation
+            const citationsStandardDeviation = Math.sqrt(citationsVariance);
+
+            const cvCitations = (citationsStandardDeviation / avgCitationsPerStaff) * 100;
+
+
+
+            //CALCULATE H INDEX
+            const dataByResearchers: ResearcherData = {};
+
+            citationData.forEach(citation => {
+              const { id, year, counter } = citation;
+              if (!dataByResearchers[id]) {
+                dataByResearchers[id] = [];
+              }
+              dataByResearchers[id].push({ year, counter });
+            });
+            
+            const departmentHIndices: number[] = [];
+            
+            for (const id in dataByResearchers) {
+              const researcherCitations = dataByResearchers[id];
+              const hIndex = calculateHIndex(researcherCitations);
+              departmentHIndices.push(hIndex);
+            }
+            
+            const totalHIndex = departmentHIndices.reduce((sum, hIndex) => sum + hIndex, 0);
+            const avgHIndex = totalHIndex / staffCount;
+            
+            // console.log(`Average H-index for the department: ${avgHIndex}`);
+
+            // Calculate the minimum and maximum H-indices for the department
+            const minHIndex = Math.min(...departmentHIndices);
+            const maxHIndex = Math.max(...departmentHIndices);
+
             if (dep === 'ece@ntua') {
                 console.log(citationData);
                 console.log(publicationData);
@@ -556,12 +612,17 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
               totalCitations,
               totalPublications,
               staffCount,
-              avgPublicationsPerStaff,
-              avgCitationsPerStaff,
+              avgPublicationsPerStaff: roundNumberWithDecimalPlaces(avgPublicationsPerStaff, '1'),
+              avgCitationsPerStaff: roundNumberWithDecimalPlaces(avgCitationsPerStaff, '1'),
               maxPublicationsCount,
               minPublicationsCount,
               maxCitationsCount,
-              minCitationsCount
+              minCitationsCount,
+              cvPublications: roundNumberWithDecimalPlaces(cvPublications, '1'),
+              cvCitations: roundNumberWithDecimalPlaces(cvCitations, '1'),
+              avgHIndex: roundNumberWithDecimalPlaces(avgHIndex),
+              minHIndex,
+              maxHIndex
             };
     
             eachDepActiveYears.push({[dep]: departmentStats})
@@ -575,54 +636,30 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
         
     }; 
 
-    
-//   // Group the publication and citation data by year for each position ID
-//   const groupedPublicationData: GroupedData = publicationData.reduce((acc, data) => {
-//     const positionId = data.id;
-//     if (!acc[positionId]) {
-//       acc[positionId] = { total: 0, data: [] };
-//     }
-//     acc[positionId].data.push({ year: data.year, count: data.counter });
-//     acc[positionId].total += data.counter;
-//     return acc;
-//   }, {} as GroupedData);
-
-//   const groupedCitationData: GroupedData = citationData.reduce((acc, data) => {
-//     const positionId = data.id;
-//     if (!acc[positionId]) {
-//       acc[positionId] = { total: 0, data: [] };
-//     }
-//     acc[positionId].data.push({ year: data.year, count: data.counter });
-//     acc[positionId].total += data.counter;
-//     return acc;
-//   }, {} as GroupedData);
-
-//   // Combine the academicData with the grouped publication and citation data
-//   const academicDataWithStats: AcademicData[] = academicData.map((data) => {
-//     const positionId = data.id;
-
-//     // Extract unique years from citations and publications
-//     const uniqueYearsSet = new Set<number>();
-
-//     groupedCitationData[positionId]?.data.forEach((citation) => uniqueYearsSet.add(citation.year));
-//     groupedPublicationData[positionId]?.data.forEach((publication) => uniqueYearsSet.add(publication.year));
-
-//     // Get the length of the Set
-//     const uniqueYearsCount = uniqueYearsSet.size;
-
-//     return {
-//       ...data,
-//       publications: groupedPublicationData[positionId]?.data || [],
-//       publicationTotal: groupedPublicationData[positionId]?.total || 0,
-//       citations: groupedCitationData[positionId]?.data || [],
-//       citationTotal: groupedCitationData[positionId]?.total || 0,
-//       averagePublication: Number(Math.round(parseFloat((groupedPublicationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
-//       averageCitation: Number(Math.round(parseFloat((groupedCitationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
-//     };
-//   });
-
     res.json(sendResponse<any>(200,'All good.', eachDepActiveYears));
 });
+
+const calculateHIndex = (citations: StaffDataPerYear[]): number => {
+    citations.sort((a, b) => b.counter - a.counter);
+    let hIndex = 0;
+    for (let i = 0; i < citations.length; i++) {
+      if (citations[i].counter >= i + 1) {
+        hIndex++;
+      } else {
+        break;
+      }
+    }
+    return hIndex;
+}
+
+export interface StaffDataPerYear {
+    year: number;
+    counter: number;
+}
+
+export interface ResearcherData {
+    [id: string]: StaffDataPerYear[];
+}
 
 // Validators
 const departmentsValidation = async (departments: string[] | string, cacheDepartments: {id: string}[]): Promise<void> => {
