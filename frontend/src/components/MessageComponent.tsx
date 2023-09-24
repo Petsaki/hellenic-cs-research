@@ -5,6 +5,11 @@ import ErrorIcon from '@mui/icons-material/Error';
 import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft';
 import SouthEastIcon from '@mui/icons-material/SouthEast';
 import { useMediaQuery, useTheme, SxProps } from '@mui/material';
+import useDynamicSelector from '../app/hooks/useDynamicSelector';
+import { ParamNames } from '../app/hooks/useUrlParams';
+import { useGetJesusQuery } from '../services/departmentApi';
+import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
+import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
 
 const title: SxProps = {
     fontWeight: 'bold',
@@ -12,19 +17,28 @@ const title: SxProps = {
 };
 
 export interface MessageComponentProp {
-    showError?: boolean;
-    showMessage?: boolean;
     filter?: string;
+    param: ParamNames;
 }
 
 const MessageComponent: React.FC<MessageComponentProp> = ({
-    showError,
-    showMessage,
     filter,
+    param,
 }: MessageComponentProp) => {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
-    if (showError)
+    const paraSlice = useDynamicSelector(param);
+
+    const { isError: isDepartmenentDataError } = useGetJesusQuery({
+        filter: 'id',
+    });
+
+    const { isError: isYearsDataError } = useGetYearsRangeQuery();
+
+    const { isError: isPositionsDataError } =
+        useGetAcademicStaffPositionsQuery();
+
+    if (isYearsDataError || isPositionsDataError || isDepartmenentDataError)
         return (
             <Box
                 sx={{
@@ -47,7 +61,7 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
             </Box>
         );
 
-    if (showMessage) {
+    if (!paraSlice.length) {
         return (
             <Box
                 sx={{

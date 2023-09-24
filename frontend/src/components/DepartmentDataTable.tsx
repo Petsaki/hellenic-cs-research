@@ -6,14 +6,8 @@ import Box from '@mui/material/Box';
 import { SxProps, Theme, styled, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import { RootState } from '../app/store';
-import {
-    useGetDepartmentsDataMutation,
-    useGetJesusQuery,
-} from '../services/departmentApi';
+import { useGetDepartmentsDataMutation } from '../services/departmentApi';
 import { IDepartmentData } from '../models/api/response/departments/departments.data';
-import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
-import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
-import MessageComponent from './MessageComponent';
 
 const tableStyle: SxProps<Theme> = (theme) => ({
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',
@@ -179,15 +173,6 @@ const DepartmentDataTable = () => {
         (state: RootState) => state.testSlice.yearsRange
     );
 
-    const { isError: isYearsDataError } = useGetYearsRangeQuery();
-
-    const { isError: isPositionsDataError } =
-        useGetAcademicStaffPositionsQuery();
-
-    const { isError: isDepartmenentDataError } = useGetJesusQuery({
-        filter: 'id',
-    });
-
     const rows = useMemo(() => {
         if (!departmentsData || !departmentsData?.data) {
             return [];
@@ -229,7 +214,7 @@ const DepartmentDataTable = () => {
                 minH: department.minHIndex,
             });
         });
-        return test;
+        return rowData;
     }, [departmentsData, selectedPositions, selectedYears]);
 
     useEffect(() => {
@@ -245,27 +230,12 @@ const DepartmentDataTable = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedPositions, selectedYears]);
 
-    if (
-        isYearsDataError ||
-        isPositionsDataError ||
-        isDepartmenentDataError ||
-        !selectedPositions.length
-    )
-        return (
-            <MessageComponent
-                showError={
-                    isYearsDataError ||
-                    isPositionsDataError ||
-                    isDepartmenentDataError
-                }
-                showMessage={!selectedPositions.length}
-                filter="Academic Position"
-            />
-        );
+    if (!selectedPositions.length || !selectedYears.length) return null;
+
     return (
         <Paper
             sx={{
-                height: '600px',
+                height: '750px',
                 width: '100%',
             }}
         >

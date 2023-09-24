@@ -5,14 +5,8 @@ import { useSelector } from 'react-redux';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import StatisticCard from './StatisticCard';
 import { RootState } from '../app/store';
-import {
-    useGetJesusQuery,
-    useGetStatisticsMutation,
-} from '../services/departmentApi';
+import { useGetStatisticsMutation } from '../services/departmentApi';
 import { IStatistics } from '../models/api/response/departments/departments.data';
-import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
-import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
-import MessageComponent from './MessageComponent';
 
 const title: SxProps = {
     fontWeight: 'bold',
@@ -31,19 +25,6 @@ const Statistics = () => {
         statisticsFilters,
         { data: statisticsData, isLoading: isStatisticsLoading },
     ] = useGetStatisticsMutation();
-
-    const { isLoading: isYearsDataLoading, isError: isYearsDataError } =
-        useGetYearsRangeQuery();
-
-    const { isLoading: isPositionsDataLoading, isError: isPositionsDataError } =
-        useGetAcademicStaffPositionsQuery();
-
-    const {
-        isLoading: isDepartmenentDataFetching,
-        isError: isDepartmenentDataError,
-    } = useGetJesusQuery({
-        filter: 'id',
-    });
 
     useEffect(() => {
         if (!selectedDeps.length) return;
@@ -73,11 +54,7 @@ const Statistics = () => {
         }
     }, [statisticsData]);
 
-    if (
-        isYearsDataLoading ||
-        isPositionsDataLoading ||
-        isDepartmenentDataFetching
-    )
+    if (!selectedDeps.length)
         // return (
         //     <Skeleton
         //         animation="wave"
@@ -88,23 +65,6 @@ const Statistics = () => {
         // );
         return null;
 
-    if (
-        isYearsDataError ||
-        isPositionsDataError ||
-        isDepartmenentDataError ||
-        !selectedDeps.length
-    )
-        return (
-            <MessageComponent
-                showError={
-                    isYearsDataError ||
-                    isPositionsDataError ||
-                    isDepartmenentDataError
-                }
-                showMessage={!selectedDeps.length}
-                filter="department"
-            />
-        );
     return (
         <Box sx={{ mb: '12px' }}>
             {selectedDeps.length > 0 && (

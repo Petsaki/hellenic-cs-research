@@ -29,6 +29,7 @@ import {
     isDepartment,
     removeDepartmentForUrlParam,
 } from '../untils/departments';
+import useDynamicSelector from './useDynamicSelector';
 
 const compareTwoArrays = (
     array1: Array<string | number>,
@@ -59,16 +60,6 @@ export interface IInputValue {
     checkboxList2?: Array<DepartmentId | AcademicStaffPosition>;
     checkboxList?: Array<string>;
 }
-type UserPropertyType<T> = T extends keyof IUser ? IUser[T] : never;
-
-// Custom Hook for dynamic useSelector
-const useDynamicSelector = <T extends keyof IUser>(
-    name: T
-): UserPropertyType<T> => {
-    return useSelector(
-        (state: RootState) => state.testSlice[name]
-    ) as UserPropertyType<T>;
-};
 
 export interface SearchParamProp {
     name: ParamNames;

@@ -4,6 +4,8 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import DepartmentStaff from '../components/Charts/DepartmentStaff';
 import Statistics from '../components/Statistics';
 import AcademicDataTable from '../components/AcademicDataTable';
+import { ParamNames } from '../app/hooks/useUrlParams';
+import MessageComponent from '../components/MessageComponent';
 
 const Rewrite = () => {
     const theme = useTheme();
@@ -12,6 +14,10 @@ const Rewrite = () => {
 
     return (
         <>
+            <MessageComponent
+                param={ParamNames.Departments}
+                filter="department"
+            />
             <Grid2
                 xs
                 sx={{
