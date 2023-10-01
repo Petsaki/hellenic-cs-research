@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import Grid2 from '@mui/material/Unstable_Grid2';
 import { addDepartment } from '../app/slices/filtersSlice';
 import DepartmentDataTable from '../components/DataTables/DepartmentDataTable';
 import { ParamNames } from '../app/hooks/useUrlParams';
@@ -19,7 +20,14 @@ const DepartmentsStats = () => {
                 param={ParamNames.AcademicPos}
                 filter="Academic Position"
             />
-            <DepartmentDataTable />
+            <Grid2
+                xs
+                sx={{
+                    width: '100%',
+                }}
+            >
+                <DepartmentDataTable />
+            </Grid2>
         </>
     );
 };

@@ -14,6 +14,7 @@ import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi'
 const title: SxProps = {
     fontWeight: 'bold',
     letterSpacing: '0.03rem',
+    fontSize: { xs: '2rem', md: '2.5rem' },
 };
 
 export interface MessageComponentProp {
@@ -54,7 +55,7 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
 
                 <ErrorIcon
                     sx={{
-                        fontSize: isSmallScreen ? '18rem' : '24rem',
+                        fontSize: isSmallScreen ? '16rem' : '22rem',
                         color: '#d32f2f',
                     }}
                 />
@@ -89,7 +90,7 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
                 {isSmallScreen ? (
                     <SouthEastIcon
                         sx={{
-                            fontSize: '18rem',
+                            fontSize: '16rem',
                             color:
                                 theme.palette.mode === 'dark'
                                     ? '#90caf9'
@@ -99,7 +100,7 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
                 ) : (
                     <SubdirectoryArrowLeftIcon
                         sx={{
-                            fontSize: '24rem',
+                            fontSize: '22rem',
                             color:
                                 theme.palette.mode === 'dark'
                                     ? '#90caf9'

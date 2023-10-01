@@ -1,5 +1,4 @@
 import { ReactNode, useRef } from 'react';
-import { Route } from 'react-router-dom';
 import { Toolbar, SxProps } from '@mui/material';
 import Header from './Header';
 import HideOnScroll from './HideOnScroll';
@@ -20,7 +19,7 @@ const TheLayout: React.FC<TheLayoutProps> = ({ children }: TheLayoutProps) => {
         <>
             <TheProgressBar />
             <HideOnScroll ref={headerRef}>
-                <Header onChangeDrawer={() => {}} ref={headerRef} />
+                <Header ref={headerRef} />
             </HideOnScroll>
             <Toolbar sx={toolbar} />
             <main>{children}</main>

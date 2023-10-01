@@ -52,6 +52,7 @@ const FilterAndDataComponent = () => {
                         sx={{
                             padding: '0',
                             margin: '0',
+                            marginBottom: { xs: '4rem', md: '0' },
                         }}
                     >
                         <Grid2
