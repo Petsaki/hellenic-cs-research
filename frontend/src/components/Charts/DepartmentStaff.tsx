@@ -14,7 +14,7 @@ import Paper from '@mui/material/Paper';
 import { useSelector } from 'react-redux';
 import Skeleton from '@mui/material/Skeleton/Skeleton';
 import { useTheme } from '@mui/material/styles';
-import { useGetJesusQuery } from '../../services/departmentApi';
+import { useGetDepartmentsQuery } from '../../services/departmentApi';
 import { RootState } from '../../app/store';
 import { useGetPositionsByDepartmentsMutation } from '../../services/academicStaffApi';
 import { PositionsByDepartment } from '../../models/api/response/academicStaff/academicStaff.data';
@@ -90,7 +90,7 @@ const DepartmentStaff = () => {
     const theme = useTheme();
     const [colorMode, setColorMode] = useState(theme.palette.mode);
     // AMA deis na kanei loading ksana auto to component. na ksereis ftaiei to FixCheckBox epeidh kaloun to idio endpoint kai auto to blepei
-    const { data, isLoading: isFetching } = useGetJesusQuery({
+    const { data, isLoading: isFetching } = useGetDepartmentsQuery({
         filter: 'id',
     });
 
@@ -105,7 +105,7 @@ const DepartmentStaff = () => {
     const [labelTest, setLabelTest] = useState<PositionsByDepartment[]>([]);
 
     const selectedDeps = useSelector(
-        (state: RootState) => state.testSlice.departments
+        (state: RootState) => state.filtersSlice.departments
     );
 
     const testData = useMemo(() => {
@@ -113,8 +113,6 @@ const DepartmentStaff = () => {
     }, [labelTest, colorMode]);
 
     useEffect(() => {
-        console.log('ALAKSE TO THEME COLOR MODE!!!!');
-
         setColorMode(theme.palette.mode);
     }, [theme.palette.mode]);
 

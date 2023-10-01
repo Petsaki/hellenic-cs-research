@@ -1,11 +1,11 @@
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 import type { MiddlewareAPI, Middleware } from '@reduxjs/toolkit';
-import { setAlert } from './testSlice';
+import { setAlert } from './alertSlice';
 
 const rtkQueryErrorLogger: Middleware =
     (api: MiddlewareAPI) => (next) => (action) => {
         if (isRejectedWithValue(action)) {
-            console.log(action);
+            // console.log(action);
             if (action?.payload?.status === 'FETCH_ERROR') {
                 api.dispatch(
                     setAlert({

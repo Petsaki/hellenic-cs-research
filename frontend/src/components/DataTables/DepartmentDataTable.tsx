@@ -5,9 +5,9 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
 import { SxProps, Theme, styled, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import { RootState } from '../app/store';
-import { useGetDepartmentsDataMutation } from '../services/departmentApi';
-import { IDepartmentData } from '../models/api/response/departments/departments.data';
+import { RootState } from '../../app/store';
+import { useGetDepartmentsDataMutation } from '../../services/departmentApi';
+import { IDepartmentData } from '../../models/api/response/departments/departments.data';
 
 const tableStyle: SxProps<Theme> = (theme) => ({
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',
@@ -167,10 +167,10 @@ const DepartmentDataTable = () => {
     ] = useGetDepartmentsDataMutation();
 
     const selectedPositions = useSelector(
-        (state: RootState) => state.testSlice.academicPos
+        (state: RootState) => state.filtersSlice.academicPos
     );
     const selectedYears = useSelector(
-        (state: RootState) => state.testSlice.yearsRange
+        (state: RootState) => state.filtersSlice.yearsRange
     );
 
     const rows = useMemo(() => {

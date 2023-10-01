@@ -12,13 +12,13 @@ import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 // TODO - Maybe it will broke when deploy
 let departmentTimeout: NodeJS.Timeout;
 
-export interface FixAcademicStaffProp {
+export interface DepartmentCheckboxesProp {
     data: DepartmentId[];
 }
 
-const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
+const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
     data,
-}: FixAcademicStaffProp) => {
+}: DepartmentCheckboxesProp) => {
     const [paramValue, handleInputChange] = useUrlParams({
         name: ParamNames.Departments,
         data,
@@ -138,4 +138,4 @@ const FixAcademicStaff: React.FC<FixAcademicStaffProp> = ({
     );
 };
 
-export default FixAcademicStaff;
+export default DepartmentCheckboxes;

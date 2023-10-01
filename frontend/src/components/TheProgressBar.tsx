@@ -1,9 +1,16 @@
 import { LinearProgress } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useTheme } from '@mui/material/styles';
+import { useTheme, SxProps, Theme } from '@mui/material/styles';
 import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
 import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
-import { useGetJesusQuery } from '../services/departmentApi';
+import { useGetDepartmentsQuery } from '../services/departmentApi';
+
+const ProgressBarStyle: SxProps<Theme> = (theme) => ({
+    color: theme.palette.mode === 'dark' ? theme.palette.primary.main : 'white',
+    position: 'fixed',
+    zIndex: '9999',
+    width: '100%',
+});
 
 const TheProgressBar = () => {
     const theme = useTheme();
@@ -26,10 +33,9 @@ const TheProgressBar = () => {
         data: departmenentData,
         isLoading: isDepartmenentDataLoading,
         isError: isDepartmenentDataError,
-    } = useGetJesusQuery({
+    } = useGetDepartmentsQuery({
         filter: 'id',
     });
-    // #cfcfcf
 
     useEffect(() => {
         let newValue = 0;
@@ -61,13 +67,7 @@ const TheProgressBar = () => {
             variant="determinate"
             color="inherit"
             sx={{
-                color:
-                    theme.palette.mode === 'dark'
-                        ? theme.palette.primary.main
-                        : 'white',
-                position: 'fixed',
-                zIndex: '9999',
-                width: '100%',
+                ...ProgressBarStyle(theme),
                 display:
                     (isDepartmenentDataLoading ||
                         isPositionsDataLoading ||

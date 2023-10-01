@@ -5,13 +5,7 @@ import { Container, SxProps, Theme, useTheme } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { Outlet } from 'react-router-dom';
 import TheChipArray from '../components/TheChipArray';
-import FixFilters from '../components/fixMui/FixFilter';
-import DepartmentStaff from '../components/Charts/DepartmentStaff';
-import Statistics from '../components/Statistics';
-import AcademicDataTable from '../components/AcademicDataTable';
-import Rewrite from './Rewrite';
-import DepartmentsStats from './DepartmentsStats';
-import NotFound from './NotFound';
+import Filters from '../components/Filters';
 
 const speedDial: SxProps<Theme> = (theme) => ({
     position: 'fixed',
@@ -47,7 +41,7 @@ const FilterAndDataComponent = () => {
                             width: { sx: '0px', md: '240px' },
                         }}
                     >
-                        <FixFilters drawerStatus={drawerOpen} />
+                        <Filters drawerStatus={drawerOpen} />
                     </Grid2>
 
                     <Grid2

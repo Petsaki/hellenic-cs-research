@@ -1,4 +1,3 @@
-import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
 import { DepartmentId } from '../../models/api/response/departments/departments.data';
 import { FilterData } from '../hooks/useUrlParams';
 
@@ -18,7 +17,6 @@ export const departmentValidation = (
     param: string | null,
     data: DepartmentId[]
 ): string[] => {
-    console.log(data);
     let validDepartmentData: string[] = [];
     if (param) {
         const departments = param.split(',');

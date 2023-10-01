@@ -16,10 +16,10 @@ const title: SxProps = {
 const Statistics = () => {
     const [statistics, setStatistics] = useState<IStatistics>();
     const selectedDeps = useSelector(
-        (state: RootState) => state.testSlice.departments
+        (state: RootState) => state.filtersSlice.departments
     );
     const selectedPositions = useSelector(
-        (state: RootState) => state.testSlice.academicPos
+        (state: RootState) => state.filtersSlice.academicPos
     );
     const [
         statisticsFilters,
@@ -54,16 +54,7 @@ const Statistics = () => {
         }
     }, [statisticsData]);
 
-    if (!selectedDeps.length)
-        // return (
-        //     <Skeleton
-        //         animation="wave"
-        //         variant="rounded"
-        //         width="100%"
-        //         height={1000}
-        //     />
-        // );
-        return null;
+    if (!selectedDeps.length) return null;
 
     return (
         <Box sx={{ mb: '12px' }}>

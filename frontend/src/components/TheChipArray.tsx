@@ -1,92 +1,86 @@
 import Box from '@mui/material/Box/Box';
 import Chip from '@mui/material/Chip/Chip';
-import Paper from '@mui/material/Paper/Paper';
-import Skeleton from '@mui/material/Skeleton/Skeleton';
-import { styled } from '@mui/material/styles';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { SxProps } from '@mui/material';
 import { RootState } from '../app/store';
-import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
-import { useGetJesusQuery } from '../services/departmentApi';
 import { ParamNames } from '../app/hooks/useUrlParams';
-import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
+
+enum ChipKey {
+    YearsRange = 'YearsRange',
+    Position = 'Position',
+    Department = 'Department',
+}
 
 interface ChipData {
     key: string;
     label: string;
 }
+const ContainerChipStyle: SxProps = {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    listStyle: 'none',
+    p: 0.5,
+    pt: 0,
+    m: 0,
+    flexWrap: { xs: 'nowrap', sm: 'wrap' },
+    overflowX: 'auto',
+};
 
-const ListItem = styled('li')(({ theme }) => ({
-    margin: theme.spacing(0.5),
-}));
+const chipStyle: SxProps = {
+    margin: '0.25rem',
+};
 
 const TheChipArray = () => {
-    const dispatch = useDispatch();
-    const testSliceData = useSelector((state: RootState) => state.testSlice);
+    const filtersSliceData = useSelector(
+        (state: RootState) => state.filtersSlice
+    );
     const [chipData, setChipData] = React.useState<readonly ChipData[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const { isLoading: isYearsDataLoading } = useGetYearsRangeQuery();
-
-    const { isLoading: isPositionsDataLoading } =
-        useGetAcademicStaffPositionsQuery();
-
-    const { isLoading: isDepartmenentDataLoading } = useGetJesusQuery({
-        filter: 'id',
-    });
-
     useEffect(() => {
-        console.log('ESPASE!');
-        console.log(testSliceData);
         const chipDataTemp: ChipData[] = [];
+
         if (
-            testSliceData.yearsRange.join(',') !==
-            testSliceData.maxYearsRange.join(',')
+            filtersSliceData.yearsRange.join(',') !==
+            filtersSliceData.maxYearsRange.join(',')
         ) {
             chipDataTemp.push({
-                key: '1',
-                label: `${testSliceData.yearsRange[0]} - ${testSliceData.yearsRange[1]}`,
+                key: ChipKey.YearsRange,
+                label: `${filtersSliceData.yearsRange[0]} - ${filtersSliceData.yearsRange[1]}`,
             });
         }
-        if (testSliceData.academicPos.length) {
-            testSliceData.academicPos.forEach((pos) => {
-                chipDataTemp.push({
-                    key: `pos-${pos}`,
-                    label: pos,
-                });
-            });
-        }
-        if (testSliceData.departments.length) {
-            console.log(testSliceData.departments.length);
 
-            testSliceData.departments.forEach((department) => {
-                chipDataTemp.push({
-                    key: `dep-${department}`,
-                    label: department,
-                });
+        filtersSliceData.academicPos.forEach((pos) => {
+            chipDataTemp.push({
+                key: `${ChipKey.Position}-${pos}`,
+                label: pos,
             });
-        }
+        });
+
+        filtersSliceData.departments.forEach((department) => {
+            chipDataTemp.push({
+                key: `${ChipKey.Department}-${department}`,
+                label: department,
+            });
+        });
+
         setChipData([...chipDataTemp]);
-    }, [testSliceData]);
+    }, [filtersSliceData]);
 
-    const handleDelete = (chipToDelete: ChipData) => () => {
-        setChipData((chips) =>
-            chips.filter((chip) => chip.key !== chipToDelete.key)
-        );
-        if (chipToDelete.key === '1') {
+    const handleDelete = (deletedChip: ChipData) => () => {
+        if (deletedChip.key.startsWith(ChipKey.YearsRange)) {
             searchParams.delete(ParamNames.YearsRange);
             setSearchParams(searchParams);
-        } else if (chipToDelete.key.startsWith('pos-')) {
+        } else if (deletedChip.key.startsWith(ChipKey.Position)) {
             const academicPosURL = searchParams
                 .get(ParamNames.AcademicPos)
                 ?.split(',');
-            console.log(academicPosURL);
             if (academicPosURL?.length) {
                 const newAcademicPositions = academicPosURL
-                    .filter((pos) => pos !== chipToDelete.label)
+                    .filter((pos) => pos !== deletedChip.label)
                     .join(',');
-                console.log(newAcademicPositions);
                 if (newAcademicPositions) {
                     setSearchParams((prevSearchParams) => {
                         prevSearchParams.set(
@@ -100,16 +94,14 @@ const TheChipArray = () => {
                     setSearchParams(searchParams);
                 }
             }
-        } else if (chipToDelete.key.startsWith('dep-')) {
+        } else if (deletedChip.key.startsWith(ChipKey.Department)) {
             const departmentURL = searchParams
                 .get(ParamNames.Departments)
                 ?.split(',');
-            console.log(departmentURL);
             if (departmentURL?.length) {
                 const newDepartments = departmentURL
-                    .filter((pos) => pos !== chipToDelete.label)
+                    .filter((pos) => pos !== deletedChip.label)
                     .join(',');
-                console.log(newDepartments);
                 if (newDepartments) {
                     setSearchParams((prevSearchParams) => {
                         prevSearchParams.set(
@@ -127,57 +119,16 @@ const TheChipArray = () => {
     };
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                listStyle: 'none',
-                p: 0.5,
-                pt: 0,
-                m: 0,
-                flexWrap: { xs: 'nowrap', sm: 'wrap' },
-                overflowX: 'auto',
-            }}
-            component="ul"
-        >
-            {/* {isYearsDataLoading &&
-                isPositionsDataLoading &&
-                isDepartmenentDataLoading && (
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'flex-start',
-                            listStyle: 'none',
-                            p: 0.5,
-                            pt: 0,
-                            m: 0,
-                            flexWrap: { xs: 'nowrap', sm: 'wrap' },
-                            overflowX: 'auto',
-                        }}
-                        component="ul"
-                    >
-                        {[...Array(5).keys()].map((key) => (
-                            <ListItem key={key}>
-                                <Skeleton
-                                    animation="wave"
-                                    variant="rounded"
-                                    width={120}
-                                    height={28}
-                                    sx={{ borderRadius: '9999px' }}
-                                />
-                            </ListItem>
-                        ))}
-                    </Box>
-                )} */}
+        <Box sx={ContainerChipStyle} component="ul">
             {chipData &&
                 chipData.map((data) => {
                     return (
-                        <ListItem key={data.key}>
-                            <Chip
-                                label={data.label}
-                                onDelete={handleDelete(data)}
-                            />
-                        </ListItem>
+                        <Chip
+                            key={data.key}
+                            label={data.label}
+                            onDelete={handleDelete(data)}
+                            sx={chipStyle}
+                        />
                     );
                 })}
         </Box>

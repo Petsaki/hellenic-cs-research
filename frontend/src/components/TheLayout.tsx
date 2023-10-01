@@ -2,7 +2,7 @@ import { ReactNode, useRef } from 'react';
 import { Route } from 'react-router-dom';
 import { Toolbar, SxProps } from '@mui/material';
 import Header from './Header';
-import HideOnScroll from './Rewrite/HideOnScroll';
+import HideOnScroll from './HideOnScroll';
 import TheProgressBar from './TheProgressBar';
 
 const toolbar: SxProps = {

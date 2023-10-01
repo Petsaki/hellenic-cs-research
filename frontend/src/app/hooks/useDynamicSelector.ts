@@ -1,14 +1,16 @@
 import { useSelector } from 'react-redux';
-import { IUser } from '../slices/testSlice';
+import { IFilterSlice } from '../slices/filtersSlice';
 import { RootState } from '../store';
 
-type UserPropertyType<T> = T extends keyof IUser ? IUser[T] : never;
+type UserPropertyType<T> = T extends keyof IFilterSlice
+    ? IFilterSlice[T]
+    : never;
 
-const useDynamicSelector = <T extends keyof IUser>(
+const useDynamicSelector = <T extends keyof IFilterSlice>(
     name: T
 ): UserPropertyType<T> => {
     return useSelector(
-        (state: RootState) => state.testSlice[name]
+        (state: RootState) => state.filtersSlice[name]
     ) as UserPropertyType<T>;
 };
 

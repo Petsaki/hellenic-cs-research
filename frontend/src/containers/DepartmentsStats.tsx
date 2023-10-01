@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { addDepartment } from '../app/slices/testSlice';
-import DepartmentDataTable from '../components/DepartmentDataTable';
+import { addDepartment } from '../app/slices/filtersSlice';
+import DepartmentDataTable from '../components/DataTables/DepartmentDataTable';
 import { ParamNames } from '../app/hooks/useUrlParams';
 import MessageComponent from '../components/MessageComponent';
 

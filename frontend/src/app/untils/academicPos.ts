@@ -1,5 +1,4 @@
 import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
-import { DepartmentId } from '../../models/api/response/departments/departments.data';
 import { FilterData } from '../hooks/useUrlParams';
 
 export const removeAcademicPosForUrlParam = (
@@ -18,7 +17,6 @@ export const academicPosValidation = (
     param: string | null,
     data: AcademicStaffPosition[]
 ): string[] => {
-    console.log(data);
     let validAcademisData: string[] = [];
     if (param) {
         const academics = param.split(',');

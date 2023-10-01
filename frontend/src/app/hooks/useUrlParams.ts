@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { PublicationsYear } from '../../models/api/response/publications/publications.data';
-import { RootState } from '../store';
 import {
-    IUser,
     addDepartment,
     setAcademicPos,
     setMaxYearsRange,
     setYearsRange,
-} from '../slices/testSlice';
+} from '../slices/filtersSlice';
 import {
     PublicationsYearValidation,
     isPublicationsYear,
@@ -18,17 +16,9 @@ import {
     stringToYearArray,
 } from '../untils/yearsRange';
 import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
-import {
-    academicPosValidation,
-    isAcademicPos,
-    removeAcademicPosForUrlParam,
-} from '../untils/academicPos';
+import { academicPosValidation, isAcademicPos } from '../untils/academicPos';
 import { DepartmentId } from '../../models/api/response/departments/departments.data';
-import {
-    departmentValidation,
-    isDepartment,
-    removeDepartmentForUrlParam,
-} from '../untils/departments';
+import { departmentValidation, isDepartment } from '../untils/departments';
 import useDynamicSelector from './useDynamicSelector';
 
 const compareTwoArrays = (
@@ -124,8 +114,6 @@ const useUrlParams = ({
             academicPos &&
             !compareTwoArrays(paraSlice, academicPos)
         ) {
-            console.log('den nomizw na mphka edw file');
-
             if (
                 academicPos.toString() === param ||
                 (!param && !academicPos.toString())
@@ -268,7 +256,7 @@ const useUrlParams = ({
     useEffect(() => {
         console.log(param);
         console.log(data);
-        console.log('MPHKA EDW useUrlParams useEffect []');
+        console.log('useUrlParams useEffect []');
         switch (name) {
             case ParamNames.YearsRange:
                 initYearsRange();
@@ -286,38 +274,15 @@ const useUrlParams = ({
     }, []);
 
     useEffect(() => {
-        // if (!param) {
-        //     switch (name) {
-        //         case ParamNames.YearsRange:
-        //             if (!isPublicationsYear(data)) return;
-        //             if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
-        //                 resetYearsRange();
-        //             }
-        //             break;
-
-        //         default:
-        //             break;
-        //     }
-        // }
         switch (name) {
             case ParamNames.YearsRange:
-                console.log(
-                    'USEEFFECT THAT WILL RUN EVERY FCKING TIME. AGAIN AND AGAIN'
-                );
-
                 /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
                 or `paraSlice` is not empty.
                 A NAND LOGIC GATE */
-                console.log('useEffect YearsRange');
-                console.log(paraSlice.join('-'));
-                console.log(param);
-                console.log(paraSlice.join('-') !== param);
-
                 if (
                     !(!param && !paraSlice.join('-')) &&
                     paraSlice.join('-') !== param
                 ) {
-                    console.log('PREPEI NA KANW UPDATE!!');
                     if (isPublicationsYear(data)) {
                         setParamValue(
                             param || (paramValue === null ? '' : null)
@@ -330,10 +295,6 @@ const useUrlParams = ({
 
                 break;
             case ParamNames.AcademicPos:
-                console.log(
-                    'USEEFFECT THAT WILL RUN EVERY FCKING TIME. AGAIN AND AGAIN'
-                );
-
                 /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
                 or `paraSlice` is not empty.
                 A NAND LOGIC GATE */
@@ -341,18 +302,12 @@ const useUrlParams = ({
                     !(!param && !paraSlice.join(',')) &&
                     paraSlice.join(',') !== param
                 ) {
-                    console.log();
-
                     setParamValue(param || (paramValue === null ? '' : null));
                     updateAcademicPosSlice(param ? param.split(',') : []);
                 }
 
                 break;
             case ParamNames.Departments:
-                console.log(
-                    'USEEFFECT THAT WILL RUN EVERY FCKING TIME. AGAIN AND AGAIN'
-                );
-
                 /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
                 or `paraSlice` is not empty.
                 A NAND LOGIC GATE */
@@ -363,7 +318,6 @@ const useUrlParams = ({
                     setParamValue(param || (paramValue === null ? '' : null));
                     updateDepartmentSlice(param ? param.split(',') : []);
                 }
-
                 break;
             default:
                 break;

@@ -21,7 +21,7 @@ export const departmentApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
     endpoints: (builder) => ({
         // query<any,any>, the first generic is the type of data response and the second generic is the request data
-        getDeparment: builder.mutation<
+        getDepartment: builder.mutation<
             ResponseData<DepartmentsData[]>,
             Partial<IFilter>
         >({
@@ -31,13 +31,13 @@ export const departmentApi = createApi({
                 body,
             }),
         }),
-        getDeparmentId: builder.query<ResponseData<DepartmentsData>, string>({
+        getDepartmentId: builder.query<ResponseData<DepartmentsData>, string>({
             query: (departmentId: string) =>
                 Apis.GetDeparmentById(departmentId),
         }),
         // Apo oti thimame auto einai pou thelw, anti gia mutation thelw kanoniko query
         // Giati nomizw oti ithela na trexei me tin prwth. Me to mutation eprepe na to kalesw egw
-        getJesus: builder.query<
+        getDepartments: builder.query<
             ResponseData<DepartmentsData[]>,
             Partial<IFilter>
         >({
@@ -87,9 +87,9 @@ export const departmentApi = createApi({
 //   ): ResultType | Promise<ResultType>
 
 export const {
-    useGetDeparmentMutation,
-    useGetDeparmentIdQuery,
-    useGetJesusQuery,
+    useGetDepartmentMutation,
+    useGetDepartmentIdQuery,
+    useGetDepartmentsQuery,
     useGetStatisticsMutation,
     useGetAcademicStaffDataMutation,
     useGetDepartmentsDataMutation,

@@ -20,6 +20,13 @@ const container: SxProps = {
     borderRadius: '8px',
 };
 
+const cardContentStyle: SxProps = {
+    p: 2,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+};
+
 const statisticsTitles = new Map<string, ICardTexts>([
     [
         'avg_citations_per_staff',
@@ -144,10 +151,7 @@ const StatisticCard: React.FC<StatisticCardProp> = ({
             >
                 <CardContent
                     sx={{
-                        p: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
+                        ...cardContentStyle,
                         ...(skeleton && {
                             gap: 2,
                         }),

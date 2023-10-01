@@ -12,7 +12,7 @@ const TheAlert = () => {
 
     const [open, setOpen] = useState(false);
 
-    const alertData = useSelector((state: RootState) => state.testSlice.alert);
+    const alertData = useSelector((state: RootState) => state.alertSlice);
 
     useEffect(() => {
         setOpen(alertData.isOpen ?? true);

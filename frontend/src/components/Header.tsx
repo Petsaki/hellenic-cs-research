@@ -31,7 +31,7 @@ import {
 import { Link } from 'react-router-dom';
 import omeaLogo from '../assets/omea_logo.png';
 import { ColorModeContext } from '../App';
-import { useGetJesusQuery } from '../services/departmentApi';
+import { useGetDepartmentsQuery } from '../services/departmentApi';
 import { DepartmentsData } from '../models/api/response/departments/departments.data';
 
 const Search = styled('div')(({ theme }) => ({
@@ -91,7 +91,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
         data: departmenentData,
         isLoading: isDepartmenentDataFetching,
         isError: isDepartmenentDataError,
-    } = useGetJesusQuery({
+    } = useGetDepartmentsQuery({
         filter: 'id',
     });
 
@@ -136,7 +136,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                         </IconButton> */}
                         <IconButton
                             component={Link}
-                            to="/rewrite"
+                            to="/citations"
                             size="large"
                             edge="start"
                             color="inherit"
@@ -261,7 +261,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement, HeaderProps> = (
                         >
                             About
                         </Button>
-                        {/* MARIOS TODO - For someone reason the history of url has duplicate pages like /rewrite for 3 times */}
+                        {/* MARIOS TODO - For someone reason the history of url has duplicate pages like /citations for 3 times */}
                         <IconButton
                             sx={{ ml: 1, color: 'white' }}
                             onClick={colorMode.toggleColorMode}

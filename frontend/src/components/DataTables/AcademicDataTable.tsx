@@ -5,12 +5,12 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
 import { SxProps, Theme, styled, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import { RootState } from '../app/store';
-import { useGetAcademicStaffDataMutation } from '../services/departmentApi';
+import { RootState } from '../../app/store';
+import { useGetAcademicStaffDataMutation } from '../../services/departmentApi';
 import {
     AcademicData,
     CountPerYear,
-} from '../models/api/response/departments/departments.data';
+} from '../../models/api/response/departments/departments.data';
 
 // const columns: GridColDef[] = [
 //     { field: 'id', headerName: 'ID', width: 270 },
@@ -156,13 +156,13 @@ const AcademicDataTable = () => {
     ] = useGetAcademicStaffDataMutation();
 
     const selectedDeps = useSelector(
-        (state: RootState) => state.testSlice.departments
+        (state: RootState) => state.filtersSlice.departments
     );
     const selectedPositions = useSelector(
-        (state: RootState) => state.testSlice.academicPos
+        (state: RootState) => state.filtersSlice.academicPos
     );
     const selectedYears = useSelector(
-        (state: RootState) => state.testSlice.yearsRange
+        (state: RootState) => state.filtersSlice.yearsRange
     );
 
     const rows = useMemo(() => {

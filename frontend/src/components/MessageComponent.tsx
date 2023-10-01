@@ -7,7 +7,7 @@ import SouthEastIcon from '@mui/icons-material/SouthEast';
 import { useMediaQuery, useTheme, SxProps } from '@mui/material';
 import useDynamicSelector from '../app/hooks/useDynamicSelector';
 import { ParamNames } from '../app/hooks/useUrlParams';
-import { useGetJesusQuery } from '../services/departmentApi';
+import { useGetDepartmentsQuery } from '../services/departmentApi';
 import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
 import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
 
@@ -29,7 +29,7 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
     const paraSlice = useDynamicSelector(param);
 
-    const { isError: isDepartmenentDataError } = useGetJesusQuery({
+    const { isError: isDepartmenentDataError } = useGetDepartmentsQuery({
         filter: 'id',
     });
 

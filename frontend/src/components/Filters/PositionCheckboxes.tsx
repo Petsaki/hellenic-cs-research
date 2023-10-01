@@ -11,13 +11,13 @@ import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 // TODO - Maybe it will broke when deploy
 let academicPosTimeout: NodeJS.Timeout;
 
-export interface FixCheckBoxProp {
+export interface PositionCheckboxesProp {
     data: AcademicStaffPosition[];
 }
 
-const NewAcademicStaff: React.FC<FixCheckBoxProp> = ({
+const PositionCheckboxes: React.FC<PositionCheckboxesProp> = ({
     data,
-}: FixCheckBoxProp) => {
+}: PositionCheckboxesProp) => {
     const [paramValue, handleInputChange] = useUrlParams({
         name: ParamNames.AcademicPos,
         data,
@@ -107,4 +107,4 @@ const NewAcademicStaff: React.FC<FixCheckBoxProp> = ({
     );
 };
 
-export default NewAcademicStaff;
+export default PositionCheckboxes;
