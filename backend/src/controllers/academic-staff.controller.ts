@@ -1,10 +1,10 @@
-import { Request } from 'express';
-import { Op, Sequelize } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Dep from '../models/dep.model';
-import { IDep, depModel, omeaCitationsReqBody, omeaCitationsReqQuery, omeaCitationsRes } from '../types';
+import { IDep, omeaCitationsReqBody, omeaCitationsRes } from '../types';
 import { tryCatch } from '../utils/tryCatch';
 import { Departments as DepartmentsReq, DepartmentsSchema } from '../types/request.types';
+import { IPositionsCountByDepartment } from '../types/response/academic-staff.type';
 
 export const getAllPositions = async (): Promise<IDep[]> => {
   return await Dep.findAll({
@@ -79,11 +79,6 @@ export const getPositionsCountByDepartment = tryCatch(async (req: omeaCitationsR
     
     res.json(sendResponse<IPositionsCountByDepartment[]>(200,'All good.', countByInstArr));
 });
-
-export interface IPositionsCountByDepartment {
-  inst: string;
-  positions: Record<string, number>;
-}
 
 interface DepCountResult {
   inst: string;

@@ -1,14 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction } from 'express';
 import cache from 'memory-cache';
-import { IDep, IDepartments, IPublications, cacheData, cacheKeysEnum, omeaCitationsReqBody, omeaCitationsRes } from '../types';
+import { IDepartments, cacheKeysEnum, omeaCitationsReqBody, omeaCitationsRes } from '../types';
 import { tryCatch } from '../utils/tryCatch';
-import Dep from '../models/dep.model';
-import { sendResponse } from '../api/common';
-import { Op, Sequelize } from 'sequelize';
-import errorHandler from './errorHandler';
+import { Sequelize } from 'sequelize';
 import { cacheTime, reqCache } from '../server';
-import { getDepartmentsData } from '../controllers/department.controller';
-import { Filter, FilterSchema } from '../types/request.types';
+import { Filter } from '../types/request.types';
 import Departments from '../models/department.model';
 
 

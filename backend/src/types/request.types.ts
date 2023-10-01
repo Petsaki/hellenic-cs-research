@@ -53,7 +53,7 @@ export const StatisticReqSchema = z.object({
 export type StatisticReq = z.infer<typeof StatisticReqSchema>;
 
 
-// Statistics required value Array
+// Academic Data required value Array
 export const AcademicDataSchema = StatisticReqSchema.extend({
     years: z.array(z.number())
 });

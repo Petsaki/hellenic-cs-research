@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import routesDepartment from './routes/department.route';
 import routesPublications from './routes/publications.route';
 import routesAcademicStaff from './routes/academic-staff.route';
@@ -7,7 +7,6 @@ import cors from 'cors';
 import db from './db/connection';
 import errorHandler from './middlewares/errorHandler';
 import { runAssociations } from './models/associations';
-import { tryCatch } from './utils/tryCatch';
 import { cacheData } from './types';
 
 class Server {

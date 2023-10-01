@@ -1,6 +1,5 @@
-import { Query, Send, Params } from 'express-serve-static-core';
+import { Query, Send } from 'express-serve-static-core';
 import { InferAttributes, InferCreationAttributes, Model, ModelDefined, Optional } from "sequelize";
-import { z } from "zod";
 
 // Response Data interface
 export interface ResponseData<T> {
@@ -14,7 +13,6 @@ export interface ErrorData {
     code: number;
     description: string;
 }
-
 
 export enum cacheKeysEnum {
     Position = 'position',
@@ -57,29 +55,6 @@ export interface omeaCitationsReqQuery<Params,T extends Query> extends Express.R
 export interface omeaCitationsReqBody<T> extends Express.Request {
     body: T
 }
-
-
-// THEY HAVE MOVED TO request.types.ts file!
-// // REQUEST BODY INTERFACES
-
-// // Filter interface
-// export interface IFilter {
-//     filter: string;
-// }
-
-// // Filter interface
-// export interface IDepartments {
-//     departments: string[];
-// }
-
-// // Enum for dep
-// const deparmentFilterEnum = z.enum(["id"]);
-
-// export const FilterSchema = z.object({
-//     filter: z.string()
-// })
-
-// export type Filter = z.infer<typeof FilterSchema>;
 
 // Response Typed interface
 export interface omeaCitationsRes<D> extends Express.Response {

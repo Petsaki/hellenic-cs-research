@@ -1,12 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction } from 'express';
 import { getAllPositions } from '../controllers/academic-staff.controller';
 import cache from 'memory-cache';
 import { IDep, cacheData, cacheKeysEnum, omeaCitationsReqBody, omeaCitationsRes } from '../types';
 import { tryCatch } from '../utils/tryCatch';
-import Dep from '../models/dep.model';
-import { sendResponse } from '../api/common';
-import { Op, Sequelize } from 'sequelize';
-import errorHandler from './errorHandler';
 import { cacheTime, reqCache } from '../server';
 
 

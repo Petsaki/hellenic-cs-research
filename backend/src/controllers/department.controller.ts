@@ -1,25 +1,21 @@
-import { Request } from 'express';
-import { Model, Op, QueryTypes, Sequelize, WhereOptions } from 'sequelize';
+import { Op, QueryTypes, Sequelize, WhereOptions } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Departments from '../models/department.model';
-import { departmentsModel, omeaCitationsRes, omeaCitationsReqQuery, omeaCitationsReqBody, IDepartments, IDep, IPublications } from '../types';
-import { checkFilter } from '../utils/checkFilter';
+import { omeaCitationsRes, omeaCitationsReqQuery, omeaCitationsReqBody, IDepartments, IDep } from '../types';
 import { tryCatch } from '../utils/tryCatch';
-import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, DepartmentsReq, DepartmentsReqSchema, DepartmentReq, DepartmentSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq } from '../types/request.types';
+import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq } from '../types/request.types';
 import Dep from '../models/dep.model';
 import sequelize from '../db/connection';
 import Publications from '../models/publication.model';
 import Citations from '../models/citation.model';
+import { departmentsValidation, positionsValidation, yearsValidation } from '../utils/validators';
+import { AcademicData, IAcademicStaffData, IStatistics, IStatisticsPerDepartment } from '../types/response/department.type';
 
 const decimalPlaces = '2';
 
 // I can put type on getDepartments if i return the res.json but is useless because express and my custom types already checks what i am going to return
 export const getDepartments = tryCatch(async (req: omeaCitationsReqBody<Filter>, res: omeaCitationsRes<IDepartments[]>) => {
     const {filter}: Filter = FilterSchema.parse(req.body);
-
-
-    // CheckFilter does not need anymore because i am handling the error from zod!
-    // checkFilter(req.body, filter);
 
     if (filter === 'id') {
         return res.json(sendResponse<IDepartments[]>(200, 'All good.', req.cache.departmentsID));
@@ -43,25 +39,6 @@ export const getDepartment = tryCatch(async (req: omeaCitationsReqQuery<{id:stri
 
     return res.json(sendResponse<IDepartments>(200,'All good.', department));
 });
-
-
-// export const getDepartmentsStaff = tryCatch(async (req: omeaCitationsReqBody<DepartmentsReq>, res: omeaCitationsRes<IDepartments[]>) => {
-//     const {departments}: DepartmentsReq = DepartmentsSchema.parse(req.body);
-//     console.log(departments);
-
-//     // if (departments) {
-//     //     const deparmentsList = await Departments.findAll({
-//     //         attributes: [
-//     //             [Sequelize.fn('DISTINCT', Sequelize.col(filter)), filter]
-//     //         ]
-//     //     });
-//     //     return res.json(sendResponse<departmentsModel[]>(200, 'All good.', deparmentsList));
-//     // }
-    
-//     // const deparmentsList = await Departments.findAll();
-//     // res.json(sendResponse<departmentsModel[]>(200, 'All good.', deparmentsList));
-// });
-
 
 export const getDepartmentsData = async (filter: string): Promise<IDepartments[]> => {
     if (filter) {
@@ -142,7 +119,7 @@ export const getStatistics = tryCatch(async (req: omeaCitationsReqBody<Statistic
     res.json(sendResponse<IStatistics>(200,'All good.', statistics));
 });
   
-export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<IStatustucsPerDepartment[]>) => {
+export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<IStatisticsPerDepartment[]>) => {
     const {position: positionsCache, departmentsID: departmentsCache} = req.cache;
     const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
     
@@ -159,7 +136,7 @@ export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReq
     }
   
     // TODO - Find a better way for typescript
-    const queryRes: IStatustucsPerDepartment[] = await Dep.findAll<any>({
+    const queryRes: IStatisticsPerDepartment[] = await Dep.findAll<any>({
         attributes: [
             'inst',
             [Sequelize.fn('AVG', Sequelize.col('hindex')), 'avg_hindex'],
@@ -187,7 +164,7 @@ export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReq
         statistic.avg_citations_per_staff_per_year = Number(Math.round(parseFloat((statistic.avg_citations_per_staff / sumYearsRange) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces);
     };
 
-    res.json(sendResponse<IStatustucsPerDepartment[]>(200,'All good.', queryRes));
+    res.json(sendResponse<IStatisticsPerDepartment[]>(200,'All good.', queryRes));
 });
 
 // Department's active years
@@ -598,15 +575,6 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
             const minHIndex = Math.min(...departmentHIndices);
             const maxHIndex = Math.max(...departmentHIndices);
 
-            if (dep === 'ece@ntua') {
-                console.log(citationData);
-                console.log(publicationData);
-                console.log('publicationsTotalPerStaff', publicationsTotalPerStaff)
-                console.log("Max Publications Staff:", maxPublicationsStaff, "Count:", maxPublicationsCount);
-                console.log("Min Publications Staff:", minPublicationsStaff, "Count:", minPublicationsCount);
-                console.log("Max Citations Staff:", maxCitationsStaff, "Count:", maxCitationsCount);
-                console.log("Min Citations Staff:", minCitationsStaff, "Count:", minCitationsCount);
-            }
             // Create an object to store the aggregated data
             const departmentStats = {
               totalCitations,
@@ -661,52 +629,9 @@ export interface ResearcherData {
     [id: string]: StaffDataPerYear[];
 }
 
-// Validators
-const departmentsValidation = async (departments: string[] | string, cacheDepartments: {id: string}[]): Promise<void> => {
-    const targetDepartments = Array.isArray(departments) ? departments : [departments];
-    if (!targetDepartments.every((targetDepartment) => cacheDepartments.some((obj) => obj.id === targetDepartment))) {
-        throw new Error(`Wrong departments ids.`);
-    }
-};
-
-const positionsValidation = (positions: string | string[], cachePositions: IDep[]) => {
-    const targetPositions = Array.isArray(positions) ? positions : [positions];
-    if (!targetPositions.every((targetPosition) => cachePositions.some((obj) => obj.position === targetPosition))) {
-        throw new Error(`Wrong positions names.`);
-    }
-}
-
-const yearsValidation = (years: number[], cacheYears: {year: number}[]) => {
-    if (!years.every((year) => cacheYears.some((obj) => obj.year === year))) {
-        throw new Error(`No data for this years exists.`);
-    }
-}
-
 export interface IStatisticWhere {
     inst: string | string[],
     position?: string | string[],
-}
-
-export interface IActiveYearsWhere {
-    inst: string | string[],
-    position?: string | string[] | undefined,
-}
-  
-export interface IStatistics {
-    avg_hindex: number;
-    sum_publications: number;
-    sum_citations: number;
-    avg_hindex5: number;
-    sum_publications5: number;
-    sum_citations5: number;
-    avg_publications_per_staff: number;
-    avg_citations_per_staff: number;
-    avg_publications_per_staff_per_year: number;
-    avg_citations_per_staff_per_year: number;
-}
-
-export interface IStatustucsPerDepartment extends IStatistics {
-    inst: string;
 }
 
 export interface GroupedData {
@@ -714,32 +639,4 @@ export interface GroupedData {
       total: number;
       data: { year: number; count: number }[];
     };
-}
-
-// Academic staff data interfaces
-export interface CountPerYear {
-    year: number;
-    count: number;
-}
-
-export interface AcademicData {
-    id: string;
-    name: string;
-    position: string;
-    inst: string;
-    hindex: number;
-    publications: CountPerYear[];
-    citations: CountPerYear[];
-    hindex5: number;
-    citations5: number;
-    publications5: number;
-    citationTotal: number;
-    publicationTotal: number;
-    averagePublication: number;
-    averageCitation: number;
-}
-
-export interface IAcademicStaffData {
-    academic_data: AcademicData[];
-    years_range: number[];
 }
