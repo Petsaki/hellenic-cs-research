@@ -274,53 +274,71 @@ const useUrlParams = ({
     }, []);
 
     useEffect(() => {
-        switch (name) {
-            case ParamNames.YearsRange:
-                /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
-                or `paraSlice` is not empty.
-                A NAND LOGIC GATE */
-                if (
-                    !(!param && !paraSlice.join('-')) &&
-                    paraSlice.join('-') !== param
-                ) {
-                    if (isPublicationsYear(data)) {
+        if (!param) {
+            switch (name) {
+                case ParamNames.YearsRange:
+                    if (!isPublicationsYear(data)) return;
+                    if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
+                        resetYearsRange();
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        } else {
+            switch (name) {
+                case ParamNames.YearsRange:
+                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
+                    or `paraSlice` is not empty.
+                    A NAND LOGIC GATE */
+                    if (
+                        !(!param && !paraSlice.join('-')) &&
+                        paraSlice.join('-') !== param
+                    ) {
+                        if (isPublicationsYear(data)) {
+                            setParamValue(
+                                param || (paramValue === null ? '' : null)
+                            );
+                            updateYearsRangeSlice(
+                                PublicationsYearValidation(param, data)
+                            );
+                        }
+                    }
+
+                    break;
+                case ParamNames.AcademicPos:
+                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
+                    or `paraSlice` is not empty.
+                    A NAND LOGIC GATE */
+                    if (
+                        !(!param && !paraSlice.join(',')) &&
+                        paraSlice.join(',') !== param
+                    ) {
                         setParamValue(
                             param || (paramValue === null ? '' : null)
                         );
-                        updateYearsRangeSlice(
-                            PublicationsYearValidation(param, data)
-                        );
+                        updateAcademicPosSlice(param ? param.split(',') : []);
                     }
-                }
 
-                break;
-            case ParamNames.AcademicPos:
-                /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
-                or `paraSlice` is not empty.
-                A NAND LOGIC GATE */
-                if (
-                    !(!param && !paraSlice.join(',')) &&
-                    paraSlice.join(',') !== param
-                ) {
-                    setParamValue(param || (paramValue === null ? '' : null));
-                    updateAcademicPosSlice(param ? param.split(',') : []);
-                }
-
-                break;
-            case ParamNames.Departments:
-                /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
-                or `paraSlice` is not empty.
-                A NAND LOGIC GATE */
-                if (
-                    !(!param && !paraSlice.join(',')) &&
-                    paraSlice.join(',') !== param
-                ) {
-                    setParamValue(param || (paramValue === null ? '' : null));
-                    updateDepartmentSlice(param ? param.split(',') : []);
-                }
-                break;
-            default:
-                break;
+                    break;
+                case ParamNames.Departments:
+                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
+                    or `paraSlice` is not empty.
+                    A NAND LOGIC GATE */
+                    if (
+                        !(!param && !paraSlice.join(',')) &&
+                        paraSlice.join(',') !== param
+                    ) {
+                        setParamValue(
+                            param || (paramValue === null ? '' : null)
+                        );
+                        updateDepartmentSlice(param ? param.split(',') : []);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [param]);

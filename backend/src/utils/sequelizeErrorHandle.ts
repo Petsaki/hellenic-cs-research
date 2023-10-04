@@ -24,7 +24,7 @@ const sequelizeErrorHandle = (error: BaseError): ErrorData => {
     
     // Generic connection error
     if (error instanceof ConnectionError) {
-        const errorMessage = "Server can't handle your request. Try again later!";
+        const errorMessage = "Can't connect to database. Try again later!";
         // Can't find the database
         if (error instanceof ConnectionRefusedError) {
             console.log("Database is down or doesn't exist");   
