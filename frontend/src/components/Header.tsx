@@ -3,6 +3,8 @@ import {
     ForwardedRef,
     forwardRef,
     useContext,
+    useEffect,
+    useState,
 } from 'react';
 import { useTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
@@ -13,9 +15,14 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Box from '@mui/material/Box';
 import { Button, Container } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import omeaLogo from '../assets/omea_logo.png';
 import { ColorModeContext } from '../App';
+
+interface IDynamicLinkButton {
+    to: string;
+    text: string;
+}
 
 const Header: ForwardRefRenderFunction<HTMLDivElement> = (
     props,
@@ -24,6 +31,32 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
     const colorMode = useContext(ColorModeContext);
+
+    const location = useLocation();
+    const [buttonConfig, setButtonConfig] = useState<IDynamicLinkButton>({
+        to: '/',
+        text: "Departments Stat's",
+    });
+
+    useEffect(() => {
+        // Define your conditional logic based on the current URL
+        if (location.pathname === '/citations') {
+            setButtonConfig({
+                to: '/departments-stats',
+                text: "Departments Stat's",
+            });
+        } else if (location.pathname === '/departments-stats') {
+            setButtonConfig({
+                to: 'citations',
+                text: "Citations Stat's",
+            });
+        } else {
+            setButtonConfig({
+                to: 'citations',
+                text: "Citations Stat's",
+            });
+        }
+    }, [location.pathname]);
 
     return (
         <AppBar
@@ -144,7 +177,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
                     >
                         <Button
                             component={Link}
-                            to="/departments-stats"
+                            to={buttonConfig.to}
                             sx={{
                                 color: 'white',
                                 backgroundColor: 'transparent',
@@ -156,7 +189,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
                                 },
                             }}
                         >
-                            Departments Stat&#39;s
+                            {buttonConfig.text}
                         </Button>
                         {/* <Button
                             component={Link}
