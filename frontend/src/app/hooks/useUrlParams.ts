@@ -282,7 +282,35 @@ const useUrlParams = ({
                         resetYearsRange();
                     }
                     break;
+                case ParamNames.AcademicPos:
+                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
+                        or `paraSlice` is not empty.
+                        A NAND LOGIC GATE */
+                    if (
+                        !(!param && !paraSlice.join(',')) &&
+                        paraSlice.join(',') !== param
+                    ) {
+                        setParamValue(
+                            param || (paramValue === null ? '' : null)
+                        );
+                        updateAcademicPosSlice(param ? param.split(',') : []);
+                    }
 
+                    break;
+                case ParamNames.Departments:
+                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
+                        or `paraSlice` is not empty.
+                        A NAND LOGIC GATE */
+                    if (
+                        !(!param && !paraSlice.join(',')) &&
+                        paraSlice.join(',') !== param
+                    ) {
+                        setParamValue(
+                            param || (paramValue === null ? '' : null)
+                        );
+                        updateDepartmentSlice(param ? param.split(',') : []);
+                    }
+                    break;
                 default:
                     break;
             }
