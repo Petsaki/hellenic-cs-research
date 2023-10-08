@@ -8,6 +8,7 @@ import db from './db/connection';
 import errorHandler from './middlewares/errorHandler';
 import { runAssociations } from './models/associations';
 import { cacheData } from './types';
+import swaggerDocs from './utils/swagger';
 
 class Server {
     private app = express();
@@ -29,6 +30,7 @@ class Server {
     listen(): void {
         this.app.listen(this.port,this.host, (): void => {
             console.log(`Application runs at host: ${this.host} and port: ${this.port}`);
+            swaggerDocs(this.app);
         });
     }
 

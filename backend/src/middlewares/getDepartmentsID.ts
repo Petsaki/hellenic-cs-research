@@ -19,7 +19,8 @@ export const getCacheDepartmentsID = tryCatch(async (req: omeaCitationsReqBody<F
         // It will only run if filter is id
         const result = await Departments.findAll({
             attributes: [
-                [Sequelize.fn('DISTINCT', Sequelize.col('id')), 'id']
+                [Sequelize.fn('DISTINCT', Sequelize.col('id')), 'id'],
+                'url',
             ],
             raw: true,
         });
