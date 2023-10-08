@@ -6,7 +6,7 @@ import {
     useEffect,
     useState,
 } from 'react';
-import { useTheme } from '@mui/material/styles';
+import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -14,10 +14,25 @@ import Typography from '@mui/material/Typography';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Box from '@mui/material/Box';
-import { Button, Container } from '@mui/material';
+import { Button, Container, useMediaQuery } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
+import Menu from '@mui/material/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import omeaLogo from '../assets/omea_logo.png';
 import { ColorModeContext } from '../App';
+
+const headerButton: SxProps<Theme> = (theme) => ({
+    color: 'white',
+    backgroundColor: 'transparent',
+    textAlign: 'center',
+    ':hover': {
+        backgroundColor: {
+            xs: 'transparent',
+            md: theme.palette.mode === 'dark' ? '#383838' : '#137cb8',
+        },
+    },
+});
 
 interface IDynamicLinkButton {
     to: string;
@@ -30,7 +45,10 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
 ) => {
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const colorMode = useContext(ColorModeContext);
+
+    const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
 
     const location = useLocation();
     const [buttonConfig, setButtonConfig] = useState<IDynamicLinkButton>({
@@ -38,8 +56,20 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
         text: "Departments Stat's",
     });
 
+    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorElNav(event.currentTarget);
+    };
+
+    const handleCloseNavMenu = () => {
+        setAnchorElNav(null);
+    };
+
+    const openAPIDoc = () => {
+        window.open(`${import.meta.env.VITE_BASE_URL}/docs`, '_blank');
+        handleCloseNavMenu();
+    };
+
     useEffect(() => {
-        // Define your conditional logic based on the current URL
         if (location.pathname === '/citations') {
             setButtonConfig({
                 to: '/departments-stats',
@@ -58,6 +88,10 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
         }
     }, [location.pathname]);
 
+    useEffect(() => {
+        if (!isMobile) setAnchorElNav(null);
+    }, [isMobile]);
+
     return (
         <AppBar
             ref={ref}
@@ -74,22 +108,69 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
             }}
         >
             <Container maxWidth="xl" disableGutters>
-                <Toolbar>
+                <Toolbar
+                    sx={{
+                        paddingX: { xs: '8px', sm: '16px' },
+                    }}
+                >
+                    <Box
+                        sx={{
+                            flex: 1,
+                            display: { xs: 'flex', md: 'none' },
+                        }}
+                    >
+                        <IconButton
+                            aria-label="account of current user"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            onClick={handleOpenNavMenu}
+                            color="inherit"
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorElNav}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'left',
+                            }}
+                            open={Boolean(anchorElNav)}
+                            onClose={handleCloseNavMenu}
+                            sx={{
+                                display: { xs: 'block', md: 'none' },
+                            }}
+                        >
+                            <MenuItem
+                                onClick={handleCloseNavMenu}
+                                component={Link}
+                                to={buttonConfig.to}
+                            >
+                                {buttonConfig.text}
+                            </MenuItem>
+                            <MenuItem onClick={openAPIDoc}>API Doc</MenuItem>
+                        </Menu>
+                    </Box>
                     <Box
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            flexGrow: 1,
+                            flex: 1,
+                            justifyContent: { xs: 'center', sm: 'start' },
                         }}
                     >
                         <IconButton
                             component={Link}
                             to="/citations"
                             size="large"
-                            edge="start"
+                            edge={isMobile ? false : 'start'}
                             color="inherit"
                             aria-label="open drawer"
-                            sx={{ mr: 2 }}
                         >
                             <Box
                                 component="img"
@@ -171,26 +252,30 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'flex-end',
-                            flexGrow: 1,
-                            gap: { sx: '0.8rem', md: '2rem' },
+                            flex: 1,
+                            gap: { xs: '0.8rem', md: '2rem' },
                         }}
                     >
-                        <Button
-                            component={Link}
-                            to={buttonConfig.to}
+                        <Box
                             sx={{
-                                color: 'white',
-                                backgroundColor: 'transparent',
-                                ':hover': {
-                                    backgroundColor:
-                                        theme.palette.mode === 'dark'
-                                            ? '#383838'
-                                            : '#137cb8',
-                                },
+                                display: { xs: 'none', md: 'flex' },
+                                gap: '1rem',
                             }}
                         >
-                            {buttonConfig.text}
-                        </Button>
+                            <Button
+                                component={Link}
+                                to={buttonConfig.to}
+                                sx={headerButton(theme)}
+                            >
+                                {buttonConfig.text}
+                            </Button>
+                            <Button
+                                onClick={openAPIDoc}
+                                sx={headerButton(theme)}
+                            >
+                                API Doc
+                            </Button>
+                        </Box>
                         {/* <Button
                             component={Link}
                             to="/about"
@@ -208,7 +293,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
                             About
                         </Button> */}
                         <IconButton
-                            sx={{ ml: 1, color: 'white' }}
+                            sx={{ color: 'white' }}
                             onClick={colorMode.toggleColorMode}
                         >
                             {theme.palette.mode === 'dark' ? (

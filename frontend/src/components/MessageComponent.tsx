@@ -55,6 +55,10 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
 
                 <ErrorIcon
                     sx={{
+                        width: 'auto',
+                        height: 'auto',
+                        maxWidth: '1em',
+                        minWidth: '0.8em',
                         fontSize: isSmallScreen ? '16rem' : '22rem',
                         color: '#d32f2f',
                     }}
@@ -91,6 +95,10 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
                     <SouthEastIcon
                         sx={{
                             fontSize: '16rem',
+                            width: 'auto',
+                            height: 'auto',
+                            maxWidth: '1em',
+                            minWidth: '0.8em',
                             color:
                                 theme.palette.mode === 'dark'
                                     ? '#90caf9'
