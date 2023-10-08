@@ -13,6 +13,17 @@ const title: SxProps = {
     letterSpacing: '0.03rem',
 };
 
+const statisticsCardGrid: SxProps = {
+    aspectRatio: '16/10',
+    maxHeight: '275px',
+    minHeight: { xs: '120px', sm: '130px', lg: '150px' },
+    minWidth: {
+        xs: 'auto',
+        sm: '190px',
+        lg: '225px',
+    },
+};
+
 const Statistics = () => {
     const [statistics, setStatistics] = useState<IStatistics>();
     const selectedDeps = useSelector(
@@ -21,6 +32,7 @@ const Statistics = () => {
     const selectedPositions = useSelector(
         (state: RootState) => state.filtersSlice.academicPos
     );
+
     const [
         statisticsFilters,
         { data: statisticsData, isLoading: isStatisticsLoading },
@@ -74,14 +86,28 @@ const Statistics = () => {
                 {selectedDeps.length > 0 &&
                     statistics &&
                     Object.entries(statistics).map(([key, value]) => (
-                        <Grid2 key={key} xs={6} sm={3} md={3} lg={2.4}>
+                        <Grid2
+                            key={key}
+                            xs={6}
+                            sm={4}
+                            md={4}
+                            lg={2.4}
+                            sx={statisticsCardGrid}
+                        >
                             <StatisticCard keyMap={key} value={value} />
                         </Grid2>
                     ))}
                 {!statistics &&
                     selectedDeps.length > 0 &&
                     [...Array(10).keys()].map((key) => (
-                        <Grid2 key={key} xs={6} sm={3} md={3} lg={2.4}>
+                        <Grid2
+                            key={key}
+                            xs={6}
+                            sm={4}
+                            md={4}
+                            lg={2.4}
+                            sx={statisticsCardGrid}
+                        >
                             <StatisticCard skeleton />
                         </Grid2>
                     ))}

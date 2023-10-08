@@ -11,7 +11,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import Tooltip from '@mui/material/Tooltip';
 
 const container: SxProps = {
-    maxWidth: '275px',
+    height: '100%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -21,17 +21,20 @@ const container: SxProps = {
 };
 
 const cardContentStyle: SxProps = {
-    p: 2,
+    p: { xs: '8px 8px', sm: '16px 8px', lg: '16px' },
+    gap: { xs: '4px', sm: '12px' },
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'flex-start',
 };
 
 const statisticsTitles = new Map<string, ICardTexts>([
     [
         'avg_citations_per_staff',
         {
-            title: 'Ang C per M',
+            title: 'Avg Citations per Member',
             tooltip:
                 'Average Citations per Member from the selected departments.',
         },
@@ -39,7 +42,7 @@ const statisticsTitles = new Map<string, ICardTexts>([
     [
         'avg_citations_per_staff_per_year',
         {
-            title: 'Ang C per M per Y',
+            title: 'Avg Citations per Member per Year',
             tooltip: `Average Citations per Member per Year from the selected departments.
                 Years are count base of if the year had any Publication or Citations and for the given academic positions.`,
         },
@@ -62,7 +65,7 @@ const statisticsTitles = new Map<string, ICardTexts>([
     [
         'avg_publications_per_staff',
         {
-            title: 'Avg P per M',
+            title: 'Avg Publications per Member',
             tooltip:
                 'Average Publications per Member from the selected departments.',
         },
@@ -70,7 +73,7 @@ const statisticsTitles = new Map<string, ICardTexts>([
     [
         'avg_publications_per_staff_per_year',
         {
-            title: 'Avg P per M per Y',
+            title: 'Avg Publications per Member per Year',
             tooltip: `Average Publications per Member per Year from the selected departments.
             Years are count base of if the year had any Publication or Citations and for the given academic positions.`,
         },
@@ -130,9 +133,7 @@ const StatisticCard: React.FC<StatisticCardProp> = ({
             ? 'linear-gradient(126deg,#005a87,#7096d6 67%)'
             : 'linear-gradient(126deg,#0188cc,#8ab2f6 67%)';
 
-    const isSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
-
-    const aspectRatioCard = isSmallScreen ? '16/9' : '16/9';
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
         if (keyMap) {
@@ -146,7 +147,6 @@ const StatisticCard: React.FC<StatisticCardProp> = ({
                 sx={{
                     ...container,
                     background: backgroundCard,
-                    aspectRatio: aspectRatioCard,
                 }}
             >
                 <CardContent
