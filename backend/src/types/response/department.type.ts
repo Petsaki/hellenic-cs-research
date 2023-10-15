@@ -42,3 +42,15 @@ export interface IStatistics {
 export interface IStatisticsPerDepartment extends IStatistics {
     inst: string;
 }
+
+// getAcademicPositionTotals
+export interface ResearchPerPosition {
+    position: string;
+    citations: number;
+    publications: number;
+}
+
+export interface IAcademicPositionTotals {
+    inst: string;
+    researchPerPosition: ResearchPerPosition[];
+}

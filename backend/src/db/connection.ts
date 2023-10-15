@@ -9,7 +9,9 @@ const sequelize = new Sequelize(process.env.DB_NAME || "citations", process.env.
         freezeTableName: true,
         // Does not let Sequelize to add automatically the fields createdAt and updatedAt
         timestamps: false
-    }
+    },
+    // For log the sql queries
+    logging: false,
 });
 
 export default sequelize;

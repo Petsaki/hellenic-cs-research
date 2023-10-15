@@ -2,7 +2,7 @@ import { NextFunction, Request } from "express";
 import { AccessDeniedError, BaseError, ConnectionError, ConnectionRefusedError } from "sequelize";
 import { ZodError } from "zod";
 import { sendResponse } from "../api/common";
-import { ErrorData, omeaCitationsRes, omeaCitationsReqBody, omeaCitationsReqQuery } from "../types";
+import { ErrorData, omeaCitationsRes } from "../types";
 import sequelizeErrorHandle from "../utils/sequelizeErrorHandle";
 import zodErrorHandle from "../utils/zodErrorHandle";
 

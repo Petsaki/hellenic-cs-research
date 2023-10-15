@@ -46,7 +46,7 @@ export interface omeaCitationsReq<T extends Query, U> extends Express.Request {
 
 // Request Typed interface with params and query
 // params is from the url dynamic variables
-export interface omeaCitationsReqQuery<Params,T extends Query> extends Express.Request {
+export interface omeaCitationsReqBodyQuery<Params,T extends Query> extends Express.Request {
     params: Params,
     query: T
 }
@@ -55,6 +55,12 @@ export interface omeaCitationsReqQuery<Params,T extends Query> extends Express.R
 export interface omeaCitationsReqBody<T> extends Express.Request {
     body: T
 }
+
+// Request Typed interface with body only
+export interface omeaCitationsReqQuery<T extends Query> extends Express.Request {
+    query: T
+}
+
 
 // Response Typed interface
 export interface omeaCitationsRes<D> extends Express.Response {

@@ -1,9 +1,11 @@
 import Grid2 from '@mui/material/Unstable_Grid2';
 import DepartmentStaff from '../components/Charts/DepartmentStaff';
 import Statistics from '../components/Statistics';
-import AcademicDataTable from '../components/DataTables/AcademicDataTable';
 import { ParamNames } from '../app/hooks/useUrlParams';
 import MessageComponent from '../components/MessageComponent';
+import TestPieChart from '../components/Charts/TestPieChart';
+import TestVerticalChart from '../components/Charts/TestVerticalChart';
+import CitationsTableGroup from '../components/CitationsTableGroup';
 
 const Citations = () => {
     return (
@@ -27,6 +29,8 @@ const Citations = () => {
                 }}
             >
                 <DepartmentStaff />
+                <TestPieChart />
+                <TestVerticalChart />
             </Grid2>
             <Grid2
                 xs
@@ -34,7 +38,7 @@ const Citations = () => {
                     width: '100%',
                 }}
             >
-                <AcademicDataTable />
+                <CitationsTableGroup />
             </Grid2>
         </>
     );

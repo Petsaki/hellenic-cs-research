@@ -9,8 +9,10 @@ import { useGetAcademicStaffDataMutation } from '../../services/departmentApi';
 import {
     AcademicData,
     CountPerYear,
+    IAcademicStaffData,
 } from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
+import SectionTitle from '../SectionTitle';
 
 // Helper function to get the cell value for each dynamic column
 const getCellValue = (year: number, rowData: AcademicData) => {
@@ -40,34 +42,25 @@ const tableStyle: SxProps<Theme> = (theme) => ({
         color: 'white',
     },
 });
+export interface AcademicStaffDataTableProp {
+    data: IAcademicStaffData | undefined;
+    loading: boolean;
+    hidden: boolean;
+}
 
-const AcademicDataTable = () => {
+const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
+    data,
+    loading,
+    hidden,
+}: AcademicStaffDataTableProp) => {
     const theme = useTheme();
-    const [
-        academicStaffDataReq,
-        { data: academicStaffData, isLoading: isAcademicStaffDataLoading },
-    ] = useGetAcademicStaffDataMutation();
-
-    const selectedDeps = useSelector(
-        (state: RootState) => state.filtersSlice.departments
-    );
-    const selectedPositions = useSelector(
-        (state: RootState) => state.filtersSlice.academicPos
-    );
-    const selectedYears = useSelector(
-        (state: RootState) => state.filtersSlice.yearsRange
-    );
 
     const rows = useMemo(() => {
-        if (!academicStaffData || !academicStaffData?.data) {
+        if (!data) {
             return [];
         }
 
-        if (!(selectedDeps.length && selectedYears.length)) {
-            return [];
-        }
-
-        return academicStaffData.data.academic_data.map((item) => {
+        return data.academic_data.map((item) => {
             const rowData: any = {
                 id: item.name,
                 position: item.position,
@@ -82,37 +75,35 @@ const AcademicDataTable = () => {
                 averageCitation: item.averageCitation,
             };
 
-            if (academicStaffData.data.years_range) {
-                academicStaffData.data.years_range.forEach((year) => {
-                    rowData[year.toString()] = getCellValue(year, item);
-                });
-            }
-
             return rowData;
         });
-    }, [academicStaffData, selectedDeps, selectedYears]);
-
-    const yearsColumns: GridColDef[] = useMemo(() => {
-        if (!academicStaffData?.data || !academicStaffData?.data.years_range) {
-            return [];
-        }
-
-        // Map over the years_range array to generate dynamic columns
-        return academicStaffData.data.years_range
-            .map((year) => ({
-                field: year.toString(),
-                headerName: year.toString(),
-                width: 100,
-                sortable: false,
-                type: 'number',
-            }))
-            .reverse();
-    }, [academicStaffData]);
+    }, [data]);
 
     const columns: GridColDef[] = useMemo(() => {
         // Define your columns based on academicStaffData
         const additionalColumns: GridColDef[] = [
-            { field: 'id', headerName: 'Name', width: 200 },
+            {
+                field: 'id',
+                headerName: 'Name',
+                width: 200,
+                renderCell: (params) => {
+                    const academicStaffID = data?.academic_data.find(
+                        (staff) => staff.name === params.value
+                    )?.id;
+                    return (
+                        <a
+                            href={`https://scholar.google.com/citations?user=${academicStaffID}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                                color: 'inherit',
+                            }}
+                        >
+                            {params.value.toString()}
+                        </a>
+                    );
+                },
+            },
             { field: 'position', headerName: 'Position', width: 180 },
             { field: 'inst', headerName: 'Institute', width: 150 },
             {
@@ -163,50 +154,51 @@ const AcademicDataTable = () => {
                 width: 150,
                 type: 'number',
             },
-            // Add other columns as needed
-            ...yearsColumns, // Include the dynamic columns here
         ];
 
         return additionalColumns;
-    }, [yearsColumns]);
-
-    useEffect(() => {
-        // When the 'data' changes, update 'labelTest' state with the transformed data
-        if (selectedDeps.length && selectedYears.length) {
-            academicStaffDataReq({
-                departments: selectedDeps,
-                positions: selectedPositions,
-                years: selectedYears,
-            });
-        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedDeps, selectedPositions, selectedYears]);
+    }, [data]);
 
-    if (!selectedDeps.length || !selectedYears.length) return null;
+    const handleRowClick = (params: any) => {
+        // Access the data for the clicked row using params.row
+        const clickedRowData = params.row;
+
+        // You can perform actions based on the clicked row data here
+        console.log('Clicked row data:', clickedRowData);
+    };
+
+    if (hidden) return null;
     return (
-        <Paper
-            sx={{
-                height: '600px',
-                width: '100%',
-            }}
-        >
-            <DataGrid
-                slots={{
-                    loadingOverlay: LinearProgress,
-                    noRowsOverlay: EmptyData,
+        <>
+            <SectionTitle titleText="Academic Staff Data" />
+
+            <Paper
+                sx={{
+                    height: '600px',
+                    width: '100%',
+                    marginBottom: '24px',
                 }}
-                sx={tableStyle(theme)}
-                loading={isAcademicStaffDataLoading}
-                rows={rows}
-                columns={columns}
-                initialState={{
-                    pagination: { paginationModel: { pageSize: 100 } },
-                }}
-                pageSizeOptions={[10, 25, 50, 100]}
-                disableRowSelectionOnClick
-            />
-        </Paper>
+            >
+                <DataGrid
+                    slots={{
+                        loadingOverlay: LinearProgress,
+                        noRowsOverlay: EmptyData,
+                    }}
+                    sx={tableStyle(theme)}
+                    loading={loading}
+                    rows={rows}
+                    columns={columns}
+                    initialState={{
+                        pagination: { paginationModel: { pageSize: 100 } },
+                    }}
+                    pageSizeOptions={[10, 25, 50, 100]}
+                    disableRowSelectionOnClick
+                    onRowClick={handleRowClick}
+                />
+            </Paper>
+        </>
     );
 };
 
-export default AcademicDataTable;
+export default AcademicStaffDataTable;

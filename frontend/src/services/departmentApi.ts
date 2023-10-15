@@ -2,12 +2,14 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Apis } from '../models/api/apis.enum';
 import {
     DepartmentsData,
+    IAcademicPositionTotals,
     IAcademicStaffData,
     IDepartments,
     IStatistics,
 } from '../models/api/response/departments/departments.data';
 import { ResponseData } from '../models/api/response/response.data';
 import {
+    IFAcademicPositionTotals,
     IFAcademicStaff,
     IFDepartmentsData,
     IFStatistics,
@@ -77,6 +79,21 @@ export const departmentApi = createApi({
                 body,
             }),
         }),
+        getAcademicPositionTotals: builder.query<
+            ResponseData<IAcademicPositionTotals[]>,
+            IFAcademicPositionTotals
+        >({
+            query: ({ departments, positions, years }) => ({
+                url: `${Apis.getAcademicPositionTotals}?departments=${
+                    Array.isArray(departments)
+                        ? departments.join(',')
+                        : departments
+                }&positions=${
+                    Array.isArray(positions) ? positions.join(',') : positions
+                }&years=${years.join(',')}`,
+                method: 'GET',
+            }),
+        }),
     }),
 });
 
@@ -93,4 +110,5 @@ export const {
     useGetStatisticsMutation,
     useGetAcademicStaffDataMutation,
     useGetDepartmentsDataMutation,
+    useGetAcademicPositionTotalsQuery,
 } = departmentApi;

@@ -9,7 +9,7 @@ import { AcademicStaffPosition } from '../../models/api/response/academicStaff/a
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 
 // TODO - Maybe it will broke when deploy
-let academicPosTimeout: NodeJS.Timeout;
+let academicPosTimeout: ReturnType<typeof setTimeout>;
 
 export interface PositionCheckboxesProp {
     data: AcademicStaffPosition[];

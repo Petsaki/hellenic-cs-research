@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { ZodError, z } from "zod";
 
 // REQUEST BODY
 
@@ -66,3 +66,49 @@ export const DepartmentsAnalyticsReqSchema = z.object({
 });
 
 export type DepartmentsAnalyticsReq = z.infer<typeof DepartmentsAnalyticsReqSchema>;
+
+// Express Query
+
+const customYearsValidation = (years: string): number[] | ZodError => {
+    const yearsArray = years.split(',');
+
+    if (yearsArray.length !== 2) {
+        throw new ZodError([
+            {
+                code: yearsArray.length > 2 ? 'too_big' : 'too_small',
+                minimum: 2,
+                maximum: 2,
+                type: 'array',
+                inclusive: true,
+                exact: true,
+                path: ["years"],
+                message: 'Array must contain exactly 2 element(s)',
+            }
+        ]);
+    }
+
+    const yearsRange = yearsArray.map((item) => parseInt(item, 10));
+
+    if (yearsRange.some(isNaN)) {
+      throw new ZodError([
+        {
+            code: "invalid_type",
+            expected: "number",
+            received: "string",
+            path: ["years"],
+            message: "expected number, received string",
+        },
+      ]);
+    }
+  
+    return yearsRange;
+};
+
+// AcademicPositionTotals
+export const AcademicPositionTotalsSchema = z.object({
+    years: z.string().nonempty().refine(customYearsValidation),
+    departments: z.string().nonempty(),
+    positions: z.string().nonempty(),
+});
+
+export type AcademicPositionTotalsRequest = z.infer<typeof AcademicPositionTotalsSchema>;

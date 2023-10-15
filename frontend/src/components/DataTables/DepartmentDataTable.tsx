@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
@@ -8,6 +8,7 @@ import { RootState } from '../../app/store';
 import { useGetDepartmentsDataMutation } from '../../services/departmentApi';
 import { IDepartmentData } from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
+import StaffsTotalResearch from '../Charts/StaffsTotalResearch';
 
 const tableStyle: SxProps<Theme> = (theme) => ({
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',
@@ -18,30 +19,53 @@ const tableStyle: SxProps<Theme> = (theme) => ({
 });
 
 const columns: GridColDef[] = [
-    { field: 'id', headerName: 'Department', width: 150 },
+    {
+        field: 'id',
+        headerName: 'Department',
+        width: 150,
+        renderCell: (params) => {
+            return (
+                <a
+                    href={`citations?departments=${params.value.toString()}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                        color: 'inherit',
+                    }}
+                >
+                    {params.value.toString()}
+                </a>
+            );
+        },
+    },
     {
         field: 'publications',
-        headerName: 'Publications',
+        headerName: 'Total Publications',
         width: 150,
         type: 'number',
     },
-    { field: 'citations', headerName: 'Citations', width: 150, type: 'number' },
+    {
+        field: 'citations',
+        headerName: 'Total Citations',
+        width: 150,
+        type: 'number',
+    },
     { field: 'count', headerName: 'Count', width: 150, type: 'number' },
     {
         field: 'averagePublication',
-        headerName: 'Avg Publication',
-        width: 150,
+        headerName: 'Avg Publication Per Member',
+        width: 200,
         type: 'number',
     },
     {
         field: 'averageCitation',
-        headerName: 'Avg Citation',
-        width: 150,
+        headerName: 'Avg Citation Per Member',
+        width: 180,
         type: 'number',
     },
     {
         field: 'averageH',
-        headerName: 'Ang H',
+        headerName: 'Ang H Per Member',
         width: 150,
         type: 'number',
     },
@@ -91,6 +115,8 @@ const DepartmentDataTable = () => {
         departmentsDataReq,
         { data: departmentsData, isLoading: isDepartmentDataLoading },
     ] = useGetDepartmentsDataMutation();
+
+    const [selectedDep, setSelectedDep] = useState<string>();
 
     const selectedPositions = useSelector(
         (state: RootState) => state.filtersSlice.academicPos
@@ -143,6 +169,10 @@ const DepartmentDataTable = () => {
         return rowData;
     }, [departmentsData, selectedPositions, selectedYears]);
 
+    const handleRowClick = (params: any) => {
+        setSelectedDep(params.id);
+    };
+
     useEffect(() => {
         // When the 'data' changes, update 'labelTest' state with the transformed data
         if (selectedPositions.length && selectedYears.length) {
@@ -157,28 +187,32 @@ const DepartmentDataTable = () => {
     if (!selectedPositions.length || !selectedYears.length) return null;
 
     return (
-        <Paper
-            sx={{
-                height: '750px',
-                width: '100%',
-            }}
-        >
-            <DataGrid
-                slots={{
-                    loadingOverlay: LinearProgress,
-                    noRowsOverlay: EmptyData,
+        <>
+            <Paper
+                sx={{
+                    height: '750px',
+                    width: '100%',
                 }}
-                sx={tableStyle(theme)}
-                loading={isDepartmentDataLoading}
-                rows={rows}
-                columns={columns}
-                initialState={{
-                    pagination: { paginationModel: { pageSize: 100 } },
-                }}
-                pageSizeOptions={[10, 25, 50, 100]}
-                disableRowSelectionOnClick
-            />
-        </Paper>
+            >
+                <DataGrid
+                    slots={{
+                        loadingOverlay: LinearProgress,
+                        noRowsOverlay: EmptyData,
+                    }}
+                    sx={tableStyle(theme)}
+                    loading={isDepartmentDataLoading}
+                    rows={rows}
+                    columns={columns}
+                    initialState={{
+                        pagination: { paginationModel: { pageSize: 100 } },
+                    }}
+                    pageSizeOptions={[10, 25, 50, 100]}
+                    disableRowSelectionOnClick
+                    onRowClick={handleRowClick}
+                />
+            </Paper>
+            <StaffsTotalResearch id={selectedDep} />
+        </>
     );
 };
 

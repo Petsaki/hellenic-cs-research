@@ -10,7 +10,7 @@ import { DepartmentId } from '../../models/api/response/departments/departments.
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 
 // TODO - Maybe it will broke when deploy
-let departmentTimeout: NodeJS.Timeout;
+let departmentTimeout: ReturnType<typeof setTimeout>;
 
 export interface DepartmentCheckboxesProp {
     data: DepartmentId[];
@@ -112,7 +112,7 @@ const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
             >
                 {data && (
                     <FormGroup>
-                        {filteredDepsArray.map((depID) => (
+                        {filteredDepsArray.map((dep) => (
                             <FormControlLabel
                                 sx={{
                                     display: 'flex',
@@ -120,15 +120,26 @@ const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
                                     mr: '0',
                                 }}
                                 labelPlacement="start"
-                                key={depID.id}
+                                key={dep.id}
                                 control={
                                     <Checkbox
-                                        name={depID.id}
+                                        name={dep.id}
                                         onChange={handleCheckboxChange}
-                                        checked={checked.includes(depID.id)}
+                                        checked={checked.includes(dep.id)}
                                     />
                                 }
-                                label={depID.id}
+                                label={
+                                    <a
+                                        href={dep.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            color: 'inherit',
+                                        }}
+                                    >
+                                        {dep.id}
+                                    </a>
+                                }
                             />
                         ))}
                     </FormGroup>

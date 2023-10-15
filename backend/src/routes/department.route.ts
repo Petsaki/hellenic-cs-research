@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDepartment, getDepartments, getDepartmentsAcademicStaffData, getDepartmentsActiveYears, getDepartmentsAnalyticsData, getStatistics, getStatisticsPerDepartments } from '../controllers/department.controller';
+import { getAcademicPositionTotals, getDepartment, getDepartments, getDepartmentsAcademicStaffData, getDepartmentsActiveYears, getDepartmentsAnalyticsData, getScholarlyProfiles, getStatistics, getStatisticsPerDepartments } from '../controllers/department.controller';
 import { getCacheDepartmentsID } from '../middlewares/getDepartmentsID';
 import { getCacheYearsRange } from '../middlewares/getYearsRange';
 import { getCacheAllPositions } from '../middlewares/getAllPositions';
@@ -7,7 +7,6 @@ import { getCacheAllPositions } from '../middlewares/getAllPositions';
 const router = Router();
 
 router.post('/', getCacheDepartmentsID, getDepartments);
-router.get('/:id', getDepartment);
 
 // Academic-staff data
 router.post('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAcademicStaffData);
@@ -21,5 +20,14 @@ router.post('/active-years', getCacheAllPositions, getCacheDepartmentsID, getDep
 
 // department-analytics
 router.post('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAnalyticsData);
+
+
+// citations and publications per academic position per department
+router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getAcademicPositionTotals);
+
+// citations and publicattions per staff per department 
+router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getScholarlyProfiles);
+
+router.get('/:id', getDepartment);
 
 export default router;

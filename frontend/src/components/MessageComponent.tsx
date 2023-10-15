@@ -30,13 +30,17 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
     const paraSlice = useDynamicSelector(param);
 
-    const { isError: isDepartmenentDataError } = useGetDepartmentsQuery({
+    const {
+        isLoading: isDepartmenentDataLoading,
+        isError: isDepartmenentDataError,
+    } = useGetDepartmentsQuery({
         filter: 'id',
     });
 
-    const { isError: isYearsDataError } = useGetYearsRangeQuery();
+    const { isLoading: isYearsDataLoading, isError: isYearsDataError } =
+        useGetYearsRangeQuery();
 
-    const { isError: isPositionsDataError } =
+    const { isLoading: isPositionsDataLoading, isError: isPositionsDataError } =
         useGetAcademicStaffPositionsQuery();
 
     if (isYearsDataError || isPositionsDataError || isDepartmenentDataError)
@@ -65,6 +69,13 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
                 />
             </Box>
         );
+
+    if (
+        isDepartmenentDataLoading ||
+        isYearsDataLoading ||
+        isPositionsDataLoading
+    )
+        return null;
 
     if (!paraSlice.length) {
         return (

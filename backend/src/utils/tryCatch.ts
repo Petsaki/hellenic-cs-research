@@ -1,5 +1,5 @@
 import { NextFunction, Request } from "express";
-import { ErrorData, omeaCitationsReqQuery, omeaCitationsRes } from "../types";
+import { ErrorData, omeaCitationsRes } from "../types";
 import errorHandler from "../middlewares/errorHandler";
 import { BaseError } from "sequelize";
 

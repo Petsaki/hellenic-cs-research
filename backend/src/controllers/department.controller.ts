@@ -1,15 +1,15 @@
 import { Op, QueryTypes, Sequelize, WhereOptions } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Departments from '../models/department.model';
-import { omeaCitationsRes, omeaCitationsReqQuery, omeaCitationsReqBody, IDepartments, IDep } from '../types';
+import { omeaCitationsRes, omeaCitationsReqBody, IDepartments, IDep, omeaCitationsReqQuery, omeaCitationsReqBodyQuery } from '../types';
 import { tryCatch } from '../utils/tryCatch';
-import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq } from '../types/request.types';
+import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq, AcademicPositionTotalsSchema, AcademicPositionTotalsRequest } from '../types/request.types';
 import Dep from '../models/dep.model';
 import sequelize from '../db/connection';
 import Publications from '../models/publication.model';
 import Citations from '../models/citation.model';
 import { departmentsValidation, positionsValidation, yearsValidation } from '../utils/validators';
-import { AcademicData, IAcademicStaffData, IStatistics, IStatisticsPerDepartment } from '../types/response/department.type';
+import { AcademicData, IAcademicPositionTotals, IAcademicStaffData, IStatistics, IStatisticsPerDepartment } from '../types/response/department.type';
 
 const decimalPlaces = '2';
 
@@ -25,7 +25,7 @@ export const getDepartments = tryCatch(async (req: omeaCitationsReqBody<Filter>,
     return res.json(sendResponse<IDepartments[]>(200, 'All good.', deparmentsList));
 });
 
-export const getDepartment = tryCatch(async (req: omeaCitationsReqQuery<{id:string}, {test: string, test2: string}>, res: omeaCitationsRes<IDepartments>) => {
+export const getDepartment = tryCatch(async (req: omeaCitationsReqBodyQuery<{id:string}, {test: string, test2: string}>, res: omeaCitationsRes<IDepartments>) => {
     const {id} = req.params;
     const {test, test2} = req.query;
     console.log(test);
@@ -271,6 +271,7 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
           [Op.in]: positions,
         };
       }
+      
     
       // Use the gsid values to retrieve all columns from the Dep table
       const academicData = await Dep.findAll({
@@ -278,8 +279,12 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
         raw: true,
       });
 
+      console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',academicData);
+      
+
     // Extract the position IDs from the academicData result
     const positionIds = academicData.map((data) => data.id);
+console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',positionIds);
 
     // Get the active years array
     const activeYearsData = await activeYears(departments, positions);
@@ -314,7 +319,7 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
         raw: true,
     });
 
-    console.log(publicationData);
+    // console.log(publicationData);
 
     
   // Group the publication and citation data by year for each position ID
@@ -607,6 +612,390 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
     res.json(sendResponse<any>(200,'All good.', eachDepActiveYears));
 });
 
+export const getAcademicPositionTotals = tryCatch(async (req: omeaCitationsReqQuery<AcademicPositionTotalsRequest>, res: omeaCitationsRes<IAcademicPositionTotals[]>) => {
+    const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
+    const {departments: departmentsZod, positions: positionsZod, years: yearsString}: AcademicPositionTotalsRequest = AcademicPositionTotalsSchema.parse(req.query);
+    const departments = departmentsZod.split(',');
+    const positions = positionsZod.split(',');
+
+    const years = yearsString.split(',').map((item) => parseInt(item, 10));
+
+    // Validation - Check if years exists in the database
+    await yearsValidation(years, yearsCache);
+    // Validation - Check if departments exists in the database
+    await departmentsValidation(departments, departmentsCache);
+    // Validation - Check if positions exists in the database
+    await positionsValidation(positions, positionsCache)
+
+    const departmentArray = Array.isArray(departments) ? departments : [departments];
+
+    const positionArray = Array.isArray(positions) ? positions : [positions];
+
+    // Sequelize has very bad typescript support. It is better to let it as any.
+    const where: WhereOptions<any> = {
+        inst: {
+            [Op.in]: departmentArray, // Use Op.in to filter by multiple department IDs
+        },
+    };
+    if (positionArray && positionArray.length) {
+        where.position = {
+            [Op.in]: positionArray,
+        };
+    }
+
+    const academicData = await Dep.findAll({
+        where,
+        raw: true,
+        attributes: ['inst', 'id', 'position'],
+    });
+
+    const staffPerPositionPerDep: IStaffPerPositionPerDep[] = [];
+
+    // Loop through the initial data
+    for (const item of academicData) {
+        let existingInstIndex = -1;
+      
+        // Find the index of the 'inst' in staffPerPositionPerDep
+        for (let i = 0; i < staffPerPositionPerDep.length; i++) {
+            if (staffPerPositionPerDep[i].inst === item.inst) {
+            existingInstIndex = i;
+            break;
+            }
+        }
+      
+        // If 'inst' doesn't exist in staffPerPositionPerDep, create it
+        if (existingInstIndex === -1) {
+            staffPerPositionPerDep.push({
+            inst: item.inst,
+            staffPerPosition: [{
+                position: item.position,
+                ids: [item.id],
+            }],
+            });
+        } else {
+            // If 'inst' exists, find the index of the 'position' in staffPerPosition
+            const existingPositionIndex = staffPerPositionPerDep[existingInstIndex].staffPerPosition.findIndex(
+                (pos) => pos.position === item.position
+            );
+        
+            // If 'position' doesn't exist in staffPerPosition, create it
+            if (existingPositionIndex === -1) {
+                staffPerPositionPerDep[existingInstIndex].staffPerPosition.push({
+                    position: item.position,
+                    ids: [item.id],
+                });
+            } else {
+                // If 'position' exists, push the item.id to the existing 'id' array
+                staffPerPositionPerDep[existingInstIndex].staffPerPosition[existingPositionIndex].ids.push(item.id);
+            }
+        }
+    }
+    
+    const groupedData: {[inst: string]: string[]} = {};
+
+    academicData.forEach((item) => {
+        if (!groupedData[item.inst]) {
+            groupedData[item.inst] = [];
+        }
+
+        groupedData[item.inst].push(item.id);
+    });
+
+    const dataPerDep: IResearchDataPerDep[] = [];
+    for (const dep of departmentArray) {
+        // Get the active years array
+        const activeYearsData = await activeYears(dep, positions, years);
+
+        const currentDepStaffsIDs = groupedData[dep];
+
+        
+        // Fetch the publication and citation data for the specified years and group them by year for each position ID
+        if (currentDepStaffsIDs && activeYearsData && currentDepStaffsIDs.length && activeYearsData.length) {
+            const publicationData = await Publications.findAll({
+                where: {
+                    id: {
+                        [Op.in]: currentDepStaffsIDs,
+                    },
+                    year: {
+                        [Op.in]: activeYearsData,
+                    },
+                },
+                attributes: ['id', 'year', 'counter'],
+                raw: true,
+            });
+
+            const publicationsTotalPerStaff: any = {};
+            publicationData.forEach(item => {
+                if (!publicationsTotalPerStaff[item.id]) {
+                  publicationsTotalPerStaff[item.id] = 0;
+                }
+                publicationsTotalPerStaff[item.id] += item.counter;
+            });
+
+            const publicationsPerStaff: IStaffResearch[] = []
+            for (const [key, value] of Object.entries(publicationsTotalPerStaff)) {
+                publicationsPerStaff.push({
+                    id: key,
+                    total: value as number,
+                });
+            }
+               
+            const citationData = await Citations.findAll({
+                where: {
+                    id: {
+                        [Op.in]: currentDepStaffsIDs,
+                    },
+                    year: {
+                        [Op.in]: activeYearsData,
+                    },
+                },
+                attributes: ['id', 'year', 'counter'],
+                raw: true,
+            });
+
+            const citationsTotalPerStaff: any = {};
+            citationData.forEach(item => {
+                if (!citationsTotalPerStaff[item.id]) {
+                  citationsTotalPerStaff[item.id] = 0;
+                }
+                citationsTotalPerStaff[item.id] += item.counter;
+            });
+
+            const citationsPerStaff: IStaffResearch[] = []
+            for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
+                citationsPerStaff.push({
+                    id: key,
+                    total: value as number,
+                });
+            }   
+          
+            // Calculate the sum of citations and publications
+            const totalCitations = citationData.reduce((acc, item) => acc + item.counter, 0);
+            const totalPublications = publicationData.reduce((acc, item) => acc + item.counter, 0);
+
+            // Create an object to store the aggregated data
+            const departmentStats = {
+              totalCitations,
+              totalPublications,
+              publicationsTotalPerStaff: publicationsPerStaff,
+              citationsTotalPerStaff: citationsPerStaff,
+            };
+    
+            dataPerDep.push({inst: dep, departmentStats: departmentStats})
+            
+        } else {
+            dataPerDep.push({inst: dep, departmentStats: {
+                publicationsTotalPerStaff: [],
+                citationsTotalPerStaff: [],
+                totalCitations: 0,
+                totalPublications: 0,
+            }})
+        }
+        
+    };
+
+    return res.json(sendResponse<IAcademicPositionTotals[]>(200,'All good.', groupAndSumData(staffPerPositionPerDep, dataPerDep, positionArray)));
+});
+
+
+export const groupAndSumData = (
+    staffPerPositionPerDep: IStaffPerPositionPerDep[],
+    dataPerDep: IResearchDataPerDep[],
+    positionArray: Array<string>,
+  ): IAcademicPositionTotals[] => {
+    const groupByInst = new Map<string, IStaffPerPosition[]>();
+    for (const item of staffPerPositionPerDep) {
+        const inst = item.inst;
+        const staffPerPosition = item.staffPerPosition;
+
+        if (!groupByInst.has(inst)) {
+            groupByInst.set(inst, staffPerPosition);
+        }
+    }
+    
+    const groupedData: IAcademicPositionTotals[] = [];
+    
+    for (const [inst, positionsArray] of groupByInst) {
+        const researchPerPositions = positionArray.map((position) => {
+            return {
+                position,
+                citations: 0,
+                publications: 0,
+            }
+        });
+        
+        for (const staffPerPosition of positionsArray) {
+            const position = staffPerPosition.position;
+            const staffArray = staffPerPosition.ids;
+            
+            const positionIndex = researchPerPositions.findIndex((researchPerPosition) => {
+                return researchPerPosition.position === position
+            });
+            
+            const researchValues = dataPerDep.find((entry) => entry.inst === inst);
+            if (researchValues) {
+                researchValues.departmentStats.citationsTotalPerStaff.forEach((staffResearch) => {
+                    if (staffArray.some((id) => id === staffResearch.id)) {
+                        researchPerPositions[positionIndex].citations += staffResearch.total;
+                    }
+                });
+
+                researchValues.departmentStats.publicationsTotalPerStaff.forEach((staffResearch) => {
+                    if (staffArray.some((id) => id === staffResearch.id)) {
+                        researchPerPositions[positionIndex].publications += staffResearch.total;
+                    }
+                });
+            }
+        }
+    
+        groupedData.push({ inst, researchPerPosition: researchPerPositions });
+    }
+    return groupedData;
+}
+
+export const getScholarlyProfiles = tryCatch(async (req: omeaCitationsReqQuery<AcademicPositionTotalsRequest>, res: omeaCitationsRes<IScholarlyProfilesPerDep[]>) => {
+    const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
+    const {departments: departmentsZod, positions: positionsZod, years: yearsString}: AcademicPositionTotalsRequest = AcademicPositionTotalsSchema.parse(req.query);
+    const departments = departmentsZod.split(',');
+    const positions = positionsZod.split(',');
+    const years = yearsString.split(',').map((item) => parseInt(item, 10));
+
+    // Validation - Check if years exists in the database
+    await yearsValidation(years, yearsCache);
+    // Validation - Check if departments exists in the database
+    await departmentsValidation(departments, departmentsCache);
+    // Validation - Check if positions exists in the database
+    await positionsValidation(positions, positionsCache)
+
+    const departmentArray = Array.isArray(departments) ? departments : [departments];
+
+    const positionArray = Array.isArray(positions) ? positions : [positions];
+
+    // Sequelize has very bad typescript support. It is better to let it as any.
+    const where: WhereOptions<any> = {
+        inst: {
+            [Op.in]: departmentArray, // Use Op.in to filter by multiple department IDs
+        },
+    };
+    if (positionArray && positionArray.length) {
+        where.position = {
+            [Op.in]: positionArray,
+        };
+    }
+
+    const academicData = await Dep.findAll({
+        where,
+        raw: true,
+        attributes: ['inst', 'id', 'position', 'name'],
+    });
+    
+    const groupedData: {[inst: string]: Map<string, string>} = {};
+
+    academicData.forEach((item) => {
+        if (!groupedData[item.inst]) {
+            groupedData[item.inst] = new Map();
+        }
+        groupedData[item.inst].set(item.id, item.name);
+    });
+
+    const dataPerDep: IScholarlyProfilesPerDep[] = [];
+    for (const dep of departmentArray) {
+        // Get the active years array
+        const activeYearsData = await activeYears(dep, positions, years);
+
+        const currentDepStaffsIDs = Array.from(groupedData[dep].keys());
+
+        
+        // Fetch the publication and citation data for the specified years and group them by year for each position ID
+        if (currentDepStaffsIDs && activeYearsData && currentDepStaffsIDs.length && activeYearsData.length) {
+            const publicationData = await Publications.findAll({
+                where: {
+                    id: {
+                        [Op.in]: currentDepStaffsIDs,
+                    },
+                    year: {
+                        [Op.in]: activeYearsData,
+                    },
+                },
+                attributes: ['id', 'year', 'counter'],
+                raw: true,
+            });
+
+            const publicationsTotalPerStaff: any = {};
+            publicationData.forEach(item => {
+                if (!publicationsTotalPerStaff[item.id]) {
+                  publicationsTotalPerStaff[item.id] = 0;
+                }
+                publicationsTotalPerStaff[item.id] += item.counter;
+            });
+
+            const publicationsPerStaff: IStaffNamesResearch[] = []
+            for (const [key, value] of Object.entries(publicationsTotalPerStaff)) {
+                publicationsPerStaff.push({
+                    id: key,
+                    total: value as number,
+                    name: groupedData[dep]?.get(key)!
+                });
+            }
+               
+            const citationData = await Citations.findAll({
+                where: {
+                    id: {
+                        [Op.in]: currentDepStaffsIDs,
+                    },
+                    year: {
+                        [Op.in]: activeYearsData,
+                    },
+                },
+                attributes: ['id', 'year', 'counter'],
+                raw: true,
+            });
+
+            const citationsTotalPerStaff: any = {};
+            citationData.forEach(item => {
+                if (!citationsTotalPerStaff[item.id]) {
+                  citationsTotalPerStaff[item.id] = 0;
+                }
+                citationsTotalPerStaff[item.id] += item.counter;
+            });
+
+            const citationsPerStaff: IStaffNamesResearch[] = []
+            for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
+                citationsPerStaff.push({
+                    id: key,
+                    total: value as number,
+                    name: groupedData[dep]?.get(key)!
+                });
+            }   
+          
+            // Calculate the sum of citations and publications
+            const totalCitations = citationData.reduce((acc, item) => acc + item.counter, 0);
+            const totalPublications = publicationData.reduce((acc, item) => acc + item.counter, 0);
+
+            // Create an object to store the aggregated data
+            const departmentStats = {
+              totalCitations,
+              totalPublications,
+              publicationsTotalPerStaff: publicationsPerStaff,
+              citationsTotalPerStaff: citationsPerStaff,
+            };
+    
+            dataPerDep.push({inst: dep, departmentStats: departmentStats})
+            
+        } else {
+            dataPerDep.push({inst: dep, departmentStats: {
+                publicationsTotalPerStaff: [],
+                citationsTotalPerStaff: [],
+                totalCitations: 0,
+                totalPublications: 0,
+            }})
+        }
+        
+    };
+
+    return res.json(sendResponse<IScholarlyProfilesPerDep[]>(200,'All good.', dataPerDep));
+});
+
 const calculateHIndex = (citations: StaffDataPerYear[]): number => {
     citations.sort((a, b) => b.counter - a.counter);
     let hIndex = 0;
@@ -640,3 +1029,48 @@ export interface GroupedData {
       data: { year: number; count: number }[];
     };
 }
+
+// getAcademicPositionTotals Interfaces
+
+export interface IStaffPerPosition {
+    position: string;
+    ids: string[];
+}
+
+export interface IStaffPerPositionPerDep {
+    inst: string;
+    staffPerPosition: IStaffPerPosition[];
+}
+
+export interface IStaffResearch {
+    id: string;
+    total: number;
+}
+
+export interface IDepResearchStats<T> {
+    totalCitations: number;
+    totalPublications: number;
+    publicationsTotalPerStaff: T[];
+    citationsTotalPerStaff: T[];
+
+}
+
+export interface IResearchDataPerDep {
+    inst: string;
+    departmentStats: IDepResearchStats<IStaffResearch>;
+}
+
+// -------------------------------------
+
+// getScholarlyProfiles interfaces
+
+export interface IStaffNamesResearch extends IStaffResearch {
+    name: string;
+}
+
+export interface IScholarlyProfilesPerDep {
+    inst: string;
+    departmentStats: IDepResearchStats<IStaffNamesResearch>;
+}
+
+// -------------------------------------

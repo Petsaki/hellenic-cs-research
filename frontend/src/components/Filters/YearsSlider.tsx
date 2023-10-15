@@ -46,7 +46,7 @@ export const createMarks = (
     return marks;
 };
 
-let sliderTimeout: NodeJS.Timeout;
+let sliderTimeout: ReturnType<typeof setTimeout>;
 
 export interface FixSliderProp {
     data: PublicationsYear[];

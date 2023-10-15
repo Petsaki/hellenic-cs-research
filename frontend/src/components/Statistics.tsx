@@ -7,11 +7,7 @@ import StatisticCard from './StatisticCard';
 import { RootState } from '../app/store';
 import { useGetStatisticsMutation } from '../services/departmentApi';
 import { IStatistics } from '../models/api/response/departments/departments.data';
-
-const title: SxProps = {
-    fontWeight: 'bold',
-    letterSpacing: '0.03rem',
-};
+import SectionTitle from './SectionTitle';
 
 const statisticsCardGrid: SxProps = {
     aspectRatio: '16/10',
@@ -70,11 +66,7 @@ const Statistics = () => {
 
     return (
         <Box sx={{ mb: '12px' }}>
-            {selectedDeps.length > 0 && (
-                <Typography variant="h4" sx={title} gutterBottom align="center">
-                    Statistics
-                </Typography>
-            )}
+            {selectedDeps.length > 0 && <SectionTitle titleText="Statistics" />}
 
             <Grid2
                 container

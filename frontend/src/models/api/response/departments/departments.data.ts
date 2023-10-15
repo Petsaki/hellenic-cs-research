@@ -9,6 +9,7 @@ export interface DepartmentsData {
 
 export interface DepartmentId {
     id: string;
+    url: string;
 }
 
 export interface IStatistics {
@@ -73,4 +74,16 @@ export interface IDepartmentData {
 
 export interface IDepartments {
     [departmentId: string]: IDepartmentData;
+}
+
+// getAcademicPositionTotals
+export interface ResearchPerPosition {
+    position: string;
+    citations: number;
+    publications: number;
+}
+
+export interface IAcademicPositionTotals {
+    inst: string;
+    researchPerPosition: ResearchPerPosition[];
 }

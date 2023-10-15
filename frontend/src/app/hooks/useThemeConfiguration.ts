@@ -130,6 +130,21 @@ const useThemeConfiguration = ({ mode }: ThemeConfiguration) => {
                         },
                     },
                 },
+                MuiToggleButton: {
+                    styleOverrides: {
+                        root: {
+                            '&.Mui-selected': {
+                                color: 'white',
+                                backgroundColor:
+                                    mode === 'light' ? '#55a1e5' : 'auto',
+                                ':hover': {
+                                    backgroundColor:
+                                        mode === 'dark' ? '#383838' : '#188acb',
+                                },
+                            },
+                        },
+                    },
+                },
             },
         });
 
