@@ -25,12 +25,15 @@ const Citations = () => {
             <Grid2
                 xs
                 sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
                     width: '100%',
                 }}
             >
-                <DepartmentStaff />
+                {/* <DepartmentStaff /> */}
                 <TestPieChart />
-                <TestVerticalChart />
+                {/* <TestVerticalChart /> */}
             </Grid2>
             <Grid2
                 xs

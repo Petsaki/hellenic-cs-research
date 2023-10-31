@@ -212,7 +212,7 @@ const PerYearStats: React.FC<PerYearStatsProp> = ({
         <Paper
             sx={{
                 height: { xs: '450px', lg: '650px' },
-                p: '20px',
+                p: { xs: '4px', md: '20px' },
                 minHeight: '400px',
             }}
         >

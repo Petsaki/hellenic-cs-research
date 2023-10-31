@@ -24,6 +24,9 @@ const DepartmentsStats = () => {
                 xs
                 sx={{
                     width: '100%',
+                    justifyContent: 'center',
+                    margin: '0',
+                    padding: '0',
                 }}
             >
                 <DepartmentDataTable />

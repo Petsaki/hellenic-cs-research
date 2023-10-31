@@ -9,8 +9,9 @@ import {
     Legend,
     ChartData,
     ArcElement,
+    Chart,
 } from 'chart.js';
-import { Chart, Pie } from 'react-chartjs-2';
+import { Pie } from 'react-chartjs-2';
 import Paper from '@mui/material/Paper';
 import { useSelector } from 'react-redux';
 import Skeleton from '@mui/material/Skeleton/Skeleton';
@@ -153,7 +154,7 @@ const TestPieChart = () => {
                 //     );
                 //     chart.update();
                 // },
-                onClick: (e, legendItem, legend) => {
+                onClick: (e: any, legendItem: any, legend: any) => {
                     console.log(legendItem.hidden);
                     console.log(legendItem.index);
                     console.log(legendItem);
@@ -178,7 +179,7 @@ const TestPieChart = () => {
             },
             tooltip: {
                 callbacks: {
-                    label: (d) => {
+                    label: (d: any) => {
                         console.log('MARIOS EDW: ', d);
                         console.log(
                             d.dataset.data.reduce(
@@ -285,8 +286,14 @@ const TestPieChart = () => {
         return (
             <Paper
                 sx={{
-                    height: '700px',
-                    p: '20px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    // height: '700px',
+                    width: { xs: '100%', lg: '60%' },
+                    aspectRatio: { xs: '4/3', xl: '3/4' },
+                    position: 'relative',
+                    maxHeight: '600px',
+                    p: { xs: '10px', md: '20px' },
                 }}
             >
                 <Pie ref={myChartRef} options={options} data={testData} />

@@ -48,10 +48,7 @@ const FilterAndDataComponent = () => {
                         xs
                         container
                         direction="column"
-                        rowSpacing={2}
                         sx={{
-                            padding: '0',
-                            margin: '0',
                             marginBottom: { xs: '4rem', md: '0' },
                         }}
                     >
@@ -67,7 +64,7 @@ const FilterAndDataComponent = () => {
                         <Grid2
                             container
                             direction="column"
-                            rowSpacing={2}
+                            rowSpacing={4}
                             sx={{
                                 width: '100%',
                                 justifyContent: 'center',

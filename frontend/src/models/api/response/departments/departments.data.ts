@@ -87,3 +87,16 @@ export interface IAcademicPositionTotals {
     inst: string;
     researchPerPosition: ResearchPerPosition[];
 }
+
+// getAcademicStaffResearchSummary
+export interface StaffResearchSummary {
+    id: string;
+    name: string;
+    publications: number;
+    citations: number;
+}
+
+export interface IAcademicStaffResearchSummary {
+    inst: string;
+    research: StaffResearchSummary[];
+}

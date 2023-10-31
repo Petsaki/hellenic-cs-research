@@ -6,6 +6,8 @@ export const Apis: IGeneralApis = {
     GetAcademicStaffData: '/departments/academicStaffData',
     GetDepartmentsData: '/departments/departmentAnalytics',
     getAcademicPositionTotals: '/departments/academicPositionTotals',
+    getAcademicStaffResearchSummary:
+        '/departments/academicStaffResearchSummary',
 
     // Publications
     getPublications: '/publications',
@@ -27,6 +29,7 @@ export interface IGeneralApis extends IApis {
     GetAcademicStaffData: string;
     GetDepartmentsData: string;
     getAcademicPositionTotals: string;
+    getAcademicStaffResearchSummary: string;
     // Publications
     getPublications: string;
     getPublicationsYears: string;

@@ -112,3 +112,11 @@ export const AcademicPositionTotalsSchema = z.object({
 });
 
 export type AcademicPositionTotalsRequest = z.infer<typeof AcademicPositionTotalsSchema>;
+
+
+export const AcademicStaffResearchSummarySchema = z.object({
+    departments: z.string().nonempty(),
+    positions: z.string().nonempty(),
+});
+
+export type AcademicStaffResearchSummaryRequest = z.infer<typeof AcademicStaffResearchSummarySchema>;

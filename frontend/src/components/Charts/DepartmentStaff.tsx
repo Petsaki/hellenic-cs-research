@@ -161,7 +161,7 @@ const DepartmentStaff = () => {
             <Paper
                 sx={{
                     height: '700px',
-                    p: '20px',
+                    p: { xs: '4px', md: '20px' },
                 }}
             >
                 <Bar options={options} data={testData} />

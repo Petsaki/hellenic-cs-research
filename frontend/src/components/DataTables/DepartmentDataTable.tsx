@@ -4,11 +4,12 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { RootState } from '../../app/store';
 import { useGetDepartmentsDataMutation } from '../../services/departmentApi';
 import { IDepartmentData } from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
-import StaffsTotalResearch from '../Charts/StaffsTotalResearch';
+import StaffsTotalResearch from '../StaffsTotalResearch';
 
 const tableStyle: SxProps<Theme> = (theme) => ({
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',
@@ -188,29 +189,36 @@ const DepartmentDataTable = () => {
 
     return (
         <>
-            <Paper
+            <Grid2
+                xs
                 sx={{
-                    height: '750px',
                     width: '100%',
                 }}
             >
-                <DataGrid
-                    slots={{
-                        loadingOverlay: LinearProgress,
-                        noRowsOverlay: EmptyData,
+                <Paper
+                    sx={{
+                        height: '750px',
+                        width: '100%',
                     }}
-                    sx={tableStyle(theme)}
-                    loading={isDepartmentDataLoading}
-                    rows={rows}
-                    columns={columns}
-                    initialState={{
-                        pagination: { paginationModel: { pageSize: 100 } },
-                    }}
-                    pageSizeOptions={[10, 25, 50, 100]}
-                    disableRowSelectionOnClick
-                    onRowClick={handleRowClick}
-                />
-            </Paper>
+                >
+                    <DataGrid
+                        slots={{
+                            loadingOverlay: LinearProgress,
+                            noRowsOverlay: EmptyData,
+                        }}
+                        sx={tableStyle(theme)}
+                        loading={isDepartmentDataLoading}
+                        rows={rows}
+                        columns={columns}
+                        initialState={{
+                            pagination: { paginationModel: { pageSize: 100 } },
+                        }}
+                        pageSizeOptions={[10, 25, 50, 100]}
+                        disableRowSelectionOnClick
+                        onRowClick={handleRowClick}
+                    />
+                </Paper>
+            </Grid2>
             <StaffsTotalResearch id={selectedDep} />
         </>
     );

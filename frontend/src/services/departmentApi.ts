@@ -4,6 +4,7 @@ import {
     DepartmentsData,
     IAcademicPositionTotals,
     IAcademicStaffData,
+    IAcademicStaffResearchSummary,
     IDepartments,
     IStatistics,
 } from '../models/api/response/departments/departments.data';
@@ -94,6 +95,21 @@ export const departmentApi = createApi({
                 method: 'GET',
             }),
         }),
+        getResearchSummary: builder.query<
+            ResponseData<IAcademicStaffResearchSummary[]>,
+            IFAcademicPositionTotals
+        >({
+            query: ({ departments, positions, years }) => ({
+                url: `${Apis.getAcademicStaffResearchSummary}?departments=${
+                    Array.isArray(departments)
+                        ? departments.join(',')
+                        : departments
+                }&positions=${
+                    Array.isArray(positions) ? positions.join(',') : positions
+                }&years=${years.join(',')}`,
+                method: 'GET',
+            }),
+        }),
     }),
 });
 
@@ -111,4 +127,5 @@ export const {
     useGetAcademicStaffDataMutation,
     useGetDepartmentsDataMutation,
     useGetAcademicPositionTotalsQuery,
+    useGetResearchSummaryQuery,
 } = departmentApi;

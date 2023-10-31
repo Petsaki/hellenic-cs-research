@@ -23,7 +23,8 @@ import colorMap from '../../app/untils/chartPositionsColors';
 
 export const dataTest = (
     data: IAcademicPositionTotals[],
-    theme: string
+    theme: string,
+    filter: TotalResearchFilter
 ): ChartData<'pie'> => {
     const bgColorOpacity = theme === 'dark' ? '0.7' : '0.9';
     const labels = data.length
@@ -55,7 +56,7 @@ export const dataTest = (
             label: '# of Academic Staff',
             data:
                 data[0]?.researchPerPosition?.map(
-                    (research) => research.citations
+                    (research) => research[filter]
                 ) ?? 0,
             backgroundColor: colors,
             borderColor: borderColors,
@@ -68,45 +69,30 @@ export const dataTest = (
     };
 };
 
-export interface StaffsTotalResearchProp {
+export type TotalResearchFilter = 'citations' | 'publications';
+
+export interface StaffsTotalResearchChartProp {
     id: string | undefined;
+    data: IAcademicPositionTotals[] | undefined;
+    filter: TotalResearchFilter;
 }
 
-const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
+const StaffsTotalResearchChart: React.FC<StaffsTotalResearchChartProp> = ({
     id,
-}: StaffsTotalResearchProp) => {
+    data,
+    filter,
+}: StaffsTotalResearchChartProp) => {
     // eslint-disable-next-line no-empty-pattern
     const theme = useTheme();
     const [colorMode, setColorMode] = useState(theme.palette.mode);
     const [positionsSum, setpositionsSum] = useState<number>();
-    const [runQuery, setRunQuery] = useState(false);
     const myChartRef = useRef<ChartJSOrUndefined<'pie'>>();
 
     const [labelTest, setLabelTest] = useState<IAcademicPositionTotals[]>([]);
 
-    const selectedPositions = useSelector(
-        (state: RootState) => state.filtersSlice.academicPos
-    );
-
-    const selectedyears = useSelector(
-        (state: RootState) => state.filtersSlice.yearsRange
-    );
-
-    const { data: academicPositionTotalsData } =
-        useGetAcademicPositionTotalsQuery(
-            {
-                departments: id ?? '',
-                positions: selectedPositions,
-                years: selectedyears,
-            },
-            {
-                skip: !runQuery, // Skip the query if runQuery is false
-            }
-        );
-
     const testData = useMemo(() => {
-        return dataTest(labelTest, colorMode);
-    }, [labelTest, colorMode]);
+        return dataTest(labelTest, colorMode, filter);
+    }, [labelTest, colorMode, filter]);
 
     const options = {
         response: true,
@@ -129,7 +115,9 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
             },
             title: {
                 display: true,
-                text: `${id}: Citations Per Academic Position Chart`,
+                text: `${id}: ${
+                    filter.charAt(0).toUpperCase() + filter.slice(1)
+                } Per Academic Position Chart`,
             },
             tooltip: {
                 callbacks: {
@@ -150,7 +138,6 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
     }, [theme.palette.mode]);
 
     useEffect(() => {
-        setRunQuery(!!id);
         if (myChartRef.current) {
             const myPie: Chart = myChartRef.current as Chart;
 
@@ -165,32 +152,23 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
     }, [id]);
 
     useEffect(() => {
-        if (academicPositionTotalsData?.data) {
-            setLabelTest(academicPositionTotalsData?.data);
+        if (data) {
+            console.log(data);
+
+            setLabelTest(data);
 
             const positionSums =
-                academicPositionTotalsData?.data[0]?.researchPerPosition?.reduce(
-                    (total, research) => total + (research.citations || 0),
+                data[0]?.researchPerPosition?.reduce(
+                    (total, research) => total + (research[filter] || 0),
                     0
                 ) || 0;
 
             setpositionsSum(positionSums || 0);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [academicPositionTotalsData]);
+    }, [data]);
 
-    if (!id) return null;
-
-    return (
-        <Paper
-            sx={{
-                height: '700px',
-                p: '20px',
-            }}
-        >
-            <Pie ref={myChartRef} options={options} data={testData} />
-        </Paper>
-    );
+    return <Pie ref={myChartRef} options={options} data={testData} />;
 };
 
-export default StaffsTotalResearch;
+export default StaffsTotalResearchChart;
