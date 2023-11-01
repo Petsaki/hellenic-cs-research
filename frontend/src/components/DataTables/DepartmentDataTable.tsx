@@ -17,6 +17,12 @@ const tableStyle: SxProps<Theme> = (theme) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
         color: 'white',
     },
+    '.dynamic-values--column': {
+        backgroundColor:
+            theme.palette.mode === 'dark'
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(0, 0, 0, 0.04)',
+    },
 });
 
 const columns: GridColDef[] = [
@@ -41,15 +47,19 @@ const columns: GridColDef[] = [
     },
     {
         field: 'publications',
-        headerName: 'Total Publications',
+        headerName: 'Total Publications*',
         width: 150,
         type: 'number',
+        cellClassName: 'dynamic-values--column',
+        description: 'Total Publications',
     },
     {
         field: 'citations',
-        headerName: 'Total Citations',
+        headerName: 'Total Citations*',
         width: 150,
         type: 'number',
+        cellClassName: 'dynamic-values--column',
+        description: 'Total Citations',
     },
     { field: 'count', headerName: 'Count', width: 150, type: 'number' },
     {
@@ -84,27 +94,35 @@ const columns: GridColDef[] = [
     },
     {
         field: 'maxPublications',
-        headerName: 'Max Publications',
+        headerName: 'Max Publications*',
         width: 150,
         type: 'number',
+        cellClassName: 'dynamic-values--column',
+        description: 'Max Publications',
     },
     {
         field: 'minPublications',
-        headerName: 'Min Publications',
+        headerName: 'Min Publications*',
         width: 150,
         type: 'number',
+        cellClassName: 'dynamic-values--column',
+        description: 'Min Publications',
     },
     {
         field: 'maxCitations',
-        headerName: 'Max Citations',
+        headerName: 'Max Citations*',
         width: 150,
         type: 'number',
+        cellClassName: 'dynamic-values--column',
+        description: 'Max Citations',
     },
     {
         field: 'minCitations',
-        headerName: 'Min Citations',
+        headerName: 'Min Citations*',
         width: 150,
         type: 'number',
+        cellClassName: 'dynamic-values--column',
+        description: 'Min Citations',
     },
     { field: 'maxH', headerName: 'Max H', width: 150, type: 'number' },
     { field: 'minH', headerName: 'Min H', width: 150, type: 'number' },
