@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
@@ -17,6 +17,7 @@ import {
 } from '../../models/api/response/departments/departments.data';
 import SectionTitle from '../SectionTitle';
 import PerYearStats from '../Charts/PerYearStats';
+import { PaginationType } from '../CitationsTableGroup';
 
 export enum ResearchFilterBy {
     Citations = 'Citations',
@@ -61,7 +62,7 @@ const tableStyle: SxProps<Theme> = (theme) => ({
     },
 });
 
-export interface ResearchActivityTableProp {
+export interface ResearchActivityTableProp extends PaginationType {
     data: IAcademicStaffData | undefined;
     loading: boolean;
     hidden: boolean;
@@ -71,8 +72,13 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
     data,
     loading,
     hidden,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
 }: ResearchActivityTableProp) => {
     const theme = useTheme();
+    const [rowCount, setRowCount] = useState<number>(0);
 
     const [researchFilterby, setresearchFilterby] = useState<ResearchFilterBy>(
         ResearchFilterBy.Citations
@@ -154,8 +160,17 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [yearsColumns]);
 
+    useEffect(() => {
+        if (data?.count) setRowCount(data.count);
+    }, [data]);
+
     const handleRowClick = (params: any) => {
         setPerYearData(params.row);
+    };
+
+    const handlePaginationClick = (params: GridPaginationModel) => {
+        setPage(params.page);
+        setPageSize(params.pageSize);
     };
 
     const filterResearchBy = (
@@ -242,12 +257,13 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
                     loading={loading}
                     rows={rows}
                     columns={columns}
-                    initialState={{
-                        pagination: { paginationModel: { pageSize: 100 } },
-                    }}
-                    pageSizeOptions={[10, 25, 50, 100]}
+                    pageSizeOptions={[25, 50, 75, 100]}
                     disableRowSelectionOnClick
                     onRowClick={handleRowClick}
+                    paginationModel={{ page, pageSize }}
+                    paginationMode="server"
+                    onPaginationModelChange={handlePaginationClick}
+                    rowCount={rowCount}
                 />
             </Paper>
             <PerYearStats data={perYearData} filterby={researchFilterby} />

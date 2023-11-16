@@ -1,9 +1,16 @@
 import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { useGetAcademicStaffDataMutation } from '../services/departmentApi';
 import { RootState } from '../app/store';
 import AcademicStaffDataTable from './DataTables/AcademicStaffDataTable';
 import ResearchActivityTable from './DataTables/ResearchActivityTable';
+
+export interface PaginationType {
+    page: number;
+    setPage: React.Dispatch<React.SetStateAction<number>>;
+    pageSize: number;
+    setPageSize: React.Dispatch<React.SetStateAction<number>>;
+}
 
 const CitationsTableGroup = () => {
     const [showTable, setShowTable] = useState(true);
@@ -23,20 +30,37 @@ const CitationsTableGroup = () => {
         (state: RootState) => state.filtersSlice.yearsRange
     );
 
-    useEffect(() => {
-        // When the 'data' changes, update 'labelTest' state with the transformed data
+    const [page, setPage] = useState(0);
+    const [pageSize, setPageSize] = useState(50);
+
+    const getAcademicStaffData = () => {
         if (selectedDeps.length && selectedYears.length) {
             academicStaffDataReq({
                 departments: selectedDeps,
                 positions: selectedPositions,
                 years: selectedYears,
+                page,
+                size: pageSize,
             });
             setShowTable(false);
         } else {
             setShowTable(true);
         }
+    };
+
+    useEffect(() => {
+        if (page) {
+            setPage(0);
+        } else {
+            getAcademicStaffData();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedDeps, selectedPositions, selectedYears]);
+    }, [selectedDeps, selectedPositions, selectedYears, pageSize]);
+
+    useEffect(() => {
+        getAcademicStaffData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page]);
 
     return (
         <>
@@ -44,12 +68,20 @@ const CitationsTableGroup = () => {
                 data={academicStaffData?.data}
                 loading={isAcademicStaffDataLoading}
                 hidden={showTable}
+                page={page}
+                setPage={setPage}
+                pageSize={pageSize}
+                setPageSize={setPageSize}
             />
 
             <ResearchActivityTable
                 data={academicStaffData?.data}
                 loading={isAcademicStaffDataLoading}
                 hidden={showTable}
+                page={page}
+                setPage={setPage}
+                pageSize={pageSize}
+                setPageSize={setPageSize}
             />
         </>
     );

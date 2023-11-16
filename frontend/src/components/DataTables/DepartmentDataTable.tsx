@@ -7,7 +7,10 @@ import Paper from '@mui/material/Paper';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { RootState } from '../../app/store';
 import { useGetDepartmentsDataMutation } from '../../services/departmentApi';
-import { IDepartmentData } from '../../models/api/response/departments/departments.data';
+import {
+    IDepartmentData,
+    IDepartments,
+} from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
 import StaffsTotalResearch from '../StaffsTotalResearch';
 
@@ -17,11 +20,21 @@ const tableStyle: SxProps<Theme> = (theme) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
         color: 'white',
     },
-    '.dynamic-values--column': {
-        backgroundColor:
-            theme.palette.mode === 'dark'
-                ? 'rgba(255, 255, 255, 0.08)'
-                : 'rgba(0, 0, 0, 0.04)',
+    '&.MuiDataGrid-custom': {
+        '.dynamic-values--column': {
+            backgroundColor:
+                theme.palette.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.08)'
+                    : 'rgba(0, 0, 0, 0.04)',
+        },
+    },
+    '&.loading': {
+        '.dynamic-values--column': {
+            backgroundColor:
+                theme.palette.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.06)'
+                    : 'rgba(0, 0, 0, 0.06)',
+        },
     },
 });
 
@@ -137,6 +150,10 @@ const DepartmentDataTable = () => {
 
     const [selectedDep, setSelectedDep] = useState<string>();
 
+    const [tableData, setTableData] = useState<IDepartments | undefined>(
+        undefined
+    );
+
     const selectedPositions = useSelector(
         (state: RootState) => state.filtersSlice.academicPos
     );
@@ -145,7 +162,7 @@ const DepartmentDataTable = () => {
     );
 
     const rows = useMemo(() => {
-        if (!departmentsData || !departmentsData?.data) {
+        if (!tableData) {
             return [];
         }
 
@@ -153,15 +170,13 @@ const DepartmentDataTable = () => {
             return [];
         }
 
-        const departmentIds: string[] = Object.keys(departmentsData.data);
+        const departmentIds: string[] = Object.keys(tableData);
 
         const rowData: any = [];
         departmentIds.forEach((departmentIndex) => {
-            const departmentID = Object.keys(
-                departmentsData.data[departmentIndex]
-            )[0];
+            const departmentID = Object.keys(tableData[departmentIndex])[0];
             const department = (
-                departmentsData.data[departmentIndex] as unknown as Record<
+                tableData[departmentIndex] as unknown as Record<
                     string,
                     IDepartmentData
                 >
@@ -186,7 +201,12 @@ const DepartmentDataTable = () => {
             });
         });
         return rowData;
-    }, [departmentsData, selectedPositions, selectedYears]);
+    }, [tableData, selectedPositions, selectedYears]);
+
+    useEffect(() => {
+        if (!isDepartmentDataLoading && departmentsData?.data)
+            setTableData(departmentsData.data);
+    }, [isDepartmentDataLoading, departmentsData]);
 
     const handleRowClick = (params: any) => {
         setSelectedDep(params.id);
@@ -220,6 +240,11 @@ const DepartmentDataTable = () => {
                     }}
                 >
                     <DataGrid
+                        className={
+                            isDepartmentDataLoading
+                                ? 'loading'
+                                : 'MuiDataGrid-custom'
+                        }
                         slots={{
                             loadingOverlay: LinearProgress,
                             noRowsOverlay: EmptyData,

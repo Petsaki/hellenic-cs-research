@@ -52,6 +52,7 @@ export interface AcademicData {
 export interface IAcademicStaffData {
     academic_data: AcademicData[];
     years_range: number[];
+    count: number;
 }
 
 // Departments Data Analytics

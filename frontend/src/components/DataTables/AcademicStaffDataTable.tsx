@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
@@ -13,6 +13,7 @@ import {
 } from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
 import SectionTitle from '../SectionTitle';
+import { PaginationType } from '../CitationsTableGroup';
 
 // Helper function to get the cell value for each dynamic column
 const getCellValue = (year: number, rowData: AcademicData) => {
@@ -42,7 +43,7 @@ const tableStyle: SxProps<Theme> = (theme) => ({
         color: 'white',
     },
 });
-export interface AcademicStaffDataTableProp {
+export interface AcademicStaffDataTableProp extends PaginationType {
     data: IAcademicStaffData | undefined;
     loading: boolean;
     hidden: boolean;
@@ -52,8 +53,13 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
     data,
     loading,
     hidden,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
 }: AcademicStaffDataTableProp) => {
     const theme = useTheme();
+    const [rowCount, setRowCount] = useState<number>(0);
 
     const rows = useMemo(() => {
         if (!data) {
@@ -160,12 +166,21 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
+    useEffect(() => {
+        if (data?.count) setRowCount(data.count);
+    }, [data]);
+
     const handleRowClick = (params: any) => {
         // Access the data for the clicked row using params.row
         const clickedRowData = params.row;
 
         // You can perform actions based on the clicked row data here
         console.log('Clicked row data:', clickedRowData);
+    };
+
+    const handlePaginationClick = (params: GridPaginationModel) => {
+        setPage(params.page);
+        setPageSize(params.pageSize);
     };
 
     if (hidden) return null;
@@ -189,12 +204,13 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
                     loading={loading}
                     rows={rows}
                     columns={columns}
-                    initialState={{
-                        pagination: { paginationModel: { pageSize: 100 } },
-                    }}
-                    pageSizeOptions={[10, 25, 50, 100]}
+                    pageSizeOptions={[25, 50, 75, 100]}
                     disableRowSelectionOnClick
                     onRowClick={handleRowClick}
+                    paginationModel={{ page, pageSize }}
+                    paginationMode="server"
+                    onPaginationModelChange={handlePaginationClick}
+                    rowCount={rowCount}
                 />
             </Paper>
         </>

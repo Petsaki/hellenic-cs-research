@@ -59,6 +59,15 @@ export const AcademicDataSchema = StatisticReqSchema.extend({
 });
 export type AcademicDataRequest = z.infer<typeof AcademicDataSchema>;
 
+
+// Academic Data required value Array WITH PAGINATION
+export const AcademicDataPaginationSchema = AcademicDataSchema.extend({
+    page: z.coerce.number().min(0),
+    size: z.coerce.number().min(1).max(500).default(25)
+});
+
+export type AcademicDataPaginationRequest = z.infer<typeof AcademicDataPaginationSchema>;
+
 // Department Analytics Array
 export const DepartmentsAnalyticsReqSchema = z.object({
     years: z.array(z.number()),

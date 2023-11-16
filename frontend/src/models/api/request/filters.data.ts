@@ -15,6 +15,8 @@ export interface IFAcademicStaff {
     departments: string[] | string;
     positions?: string[] | string;
     years: number[];
+    page: number;
+    size?: number;
 }
 
 export interface IFDepartmentsData {
