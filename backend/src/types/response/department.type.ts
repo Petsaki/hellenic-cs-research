@@ -68,3 +68,26 @@ export interface IAcademicStaffResearchSummary {
     inst: string;
     research: StaffResearchSummary[];
 }
+
+// getDepartmentsAnalyticsData
+export interface DepartmentsStaticStats {
+    staffCount: number,
+    avgPublicationsPerStaff: number,
+    avgCitationsPerStaff: number,
+    cvPublications: number,
+    cvCitations: number,
+    avgHIndex: number,
+    minHIndex: number,
+    maxHIndex: number
+}
+
+export interface DepartmentsDynamicStats {
+    totalCitations: number,
+    totalPublications: number,
+    maxPublicationsCount: number,
+    minPublicationsCount: number,
+    maxCitationsCount: number,
+    minCitationsCount: number
+}
+
+export interface DepartmentsStats extends DepartmentsStaticStats, DepartmentsDynamicStats { }

@@ -80,5 +80,6 @@ export const cacheTime = 1_800_000 // cache for 30 minutes
 export const reqCache: cacheData = {
     position: [],
     yearsRange: [],
-    departmentsID: []
+    departmentsID: [],
+    departmentsStaticStats: []
 };

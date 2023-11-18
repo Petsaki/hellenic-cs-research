@@ -277,8 +277,11 @@ const TestPieChart = () => {
             <Skeleton
                 animation="wave"
                 variant="rounded"
-                width="100%"
-                height={700}
+                sx={{
+                    width: { xs: '100%', lg: '60%' },
+                    aspectRatio: { xs: '4/3', xl: '3/4' },
+                    height: '600px',
+                }}
             />
         );
 

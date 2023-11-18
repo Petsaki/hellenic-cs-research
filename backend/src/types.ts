@@ -1,5 +1,6 @@
 import { Query, Send } from 'express-serve-static-core';
 import { InferAttributes, InferCreationAttributes, Model, ModelDefined, Optional } from "sequelize";
+import { DepartmentsDynamicStats, DepartmentsStaticStats } from './types/response/department.type';
 
 // Response Data interface
 export interface ResponseData<T> {
@@ -17,13 +18,15 @@ export interface ErrorData {
 export enum cacheKeysEnum {
     Position = 'position',
     YearsRange = 'yearsRange',
-    DepartmentsID = 'departmentsID'
+    DepartmentsID = 'departmentsID',
+    DepartmentsStaticStats = 'departmentsStaticStats'
 }
 
 export interface cacheData {
     position: IDep[],
     yearsRange: {year: number}[],
-    departmentsID: IDepartments[]
+    departmentsID: IDepartments[],
+    departmentsStaticStats: DepartmentsStaticStatsCache[]
 }
 
 /* This code is declaring a global namespace for the Express library in TypeScript. It is adding a new
@@ -140,3 +143,12 @@ export interface publicationsBaseModel {
 export interface publicationsModel extends Model<publicationsBaseModel,publicationsBaseModel> {}
 
 export interface IPublications extends publicationsBaseModel, Model<InferAttributes<IPublications>, InferCreationAttributes<IPublications>> {}
+
+// Departments Static Stats cache
+export interface DepartmentsStaticStatsCache extends DepartmentsStaticStats {
+    inst: string;
+}
+
+export interface DepartmentsDynamicStatsIDs extends DepartmentsDynamicStats {
+    inst: string;
+}

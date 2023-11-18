@@ -1,7 +1,7 @@
 import { Op, QueryTypes, Sequelize, WhereOptions } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Departments from '../models/department.model';
-import { omeaCitationsRes, omeaCitationsReqBody, IDepartments, IDep, omeaCitationsReqQuery, omeaCitationsReqBodyQuery } from '../types';
+import { omeaCitationsRes, omeaCitationsReqBody, IDepartments, IDep, omeaCitationsReqQuery, omeaCitationsReqBodyQuery, DepartmentsStaticStatsCache, cacheKeysEnum, DepartmentsDynamicStatsIDs } from '../types';
 import { tryCatch } from '../utils/tryCatch';
 import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq, AcademicPositionTotalsSchema, AcademicPositionTotalsRequest, AcademicStaffResearchSummaryRequest, AcademicStaffResearchSummarySchema, AcademicDataPaginationSchema, AcademicDataPaginationRequest } from '../types/request.types';
 import Dep from '../models/dep.model';
@@ -9,7 +9,9 @@ import sequelize from '../db/connection';
 import Publications from '../models/publication.model';
 import Citations from '../models/citation.model';
 import { departmentsValidation, positionsValidation, yearsValidation } from '../utils/validators';
-import { AcademicData, IAcademicPositionTotals, IAcademicStaffData, IAcademicStaffResearchSummary, IStatistics, IStatisticsPerDepartment, StaffResearchSummary } from '../types/response/department.type';
+import { AcademicData, DepartmentsDynamicStats, IAcademicPositionTotals, IAcademicStaffData, IAcademicStaffResearchSummary, IStatistics, IStatisticsPerDepartment, StaffResearchSummary } from '../types/response/department.type';
+import cache from 'memory-cache';
+import { cacheTime, reqCache } from '../server';
 
 const decimalPlaces = '2';
 
@@ -377,7 +379,7 @@ const roundNumberWithDecimalPlaces = (num: number, numOfDecimals: string = decim
 }
 
 export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReqBody<DepartmentsAnalyticsReq>, res: omeaCitationsRes<any>) => {
-    const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
+    const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache, departmentsStaticStats: depStatsCache} = req.cache;
     const {positions, years}: DepartmentsAnalyticsReq = DepartmentsAnalyticsReqSchema.parse(req.body);
     
     // Validation - Check if years exists in the database
@@ -425,9 +427,88 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
     // console.log('groupedData', groupedData);
     
     const eachDepActiveYears: any[] = [];
-    for (const dep of departmentArray) {
+    
+    if (!depStatsCache || !depStatsCache.length) {
+        const positionsArray = positionsCache.map((position) => position.position);
+        // console.log(positionsArray);
+        const yearsArray = [yearsCache[0].year, yearsCache[yearsCache.length - 1].year]
+        // console.log(yearsArray);
+        
+        await createDepartmentsAnalysis(departmentArray, positionsArray, yearsArray);
+    }
+    // console.log(reqCache.departmentsStaticStats);
+    const depsDynamicStats = await createDepartmentsAnalysis(departmentArray, positionArray, years, where);
+    if (depsDynamicStats && reqCache?.departmentsStaticStats?.length) {
+        // console.log(depsDynamicStats);
+
+        const combinedObjects = {};
+
+        departmentArray.forEach((inst) => {
+            // Find the objects with the same inst ID in both arrays
+            const dynamicData = depsDynamicStats?.find(obj => obj.inst === inst);
+            const staticData = reqCache?.departmentsStaticStats?.find(obj => obj.inst === inst);
+
+            if (dynamicData && staticData) {
+                // Combine the objects
+                const departmentStats = {
+                totalCitations: dynamicData.totalCitations,
+                totalPublications: dynamicData.totalPublications,
+                staffCount: staticData.staffCount,
+                avgPublicationsPerStaff: staticData.avgPublicationsPerStaff,
+                avgCitationsPerStaff: staticData.avgCitationsPerStaff,
+                maxPublicationsCount: dynamicData.maxPublicationsCount,
+                minPublicationsCount: dynamicData.minPublicationsCount,
+                maxCitationsCount: dynamicData.maxCitationsCount,
+                minCitationsCount: dynamicData.minCitationsCount,
+                cvPublications: staticData.cvPublications,
+                cvCitations: staticData.cvCitations,
+                avgHIndex: staticData.avgHIndex,
+                minHIndex: staticData.minHIndex,
+                maxHIndex: staticData.maxHIndex
+                };
+                eachDepActiveYears.push({[inst]: departmentStats})
+            }
+        });
+
+        // console.log(combinedObjects);
+
+    }
+
+    res.json(sendResponse<any>(200,'All good.', eachDepActiveYears));
+});
+
+export const createDepartmentsAnalysis = async (departments: string[], positions: string[], yearsRange: number[], where: WhereOptions<any> = {}): Promise<void | DepartmentsDynamicStatsIDs[]> => {
+    // Empty where means that it will create the Static data for departments and they will be cached
+    const isDynamicData = !!Object.keys(where).length;
+
+    const academicData = await Dep.findAll({
+        where,
+        raw: true,
+        attributes: ['inst', 'id', 'position']
+    });
+
+    // console.log(academicData);
+    
+    const groupedData: {[inst: string]: string[]} = {};
+
+    academicData.forEach((item) => {
+        if (!groupedData[item.inst]) {
+            groupedData[item.inst] = [];
+        }
+
+        groupedData[item.inst].push(item.id);
+    });
+
+    const departmentsStaticStats: DepartmentsStaticStatsCache[] = [];
+
+    const departmentsDynamicStats: DepartmentsDynamicStatsIDs[] = [];
+
+
+    for (const dep of departments) {
         // Get the active years array
-        const activeYearsData = await activeYears(dep, positions, years);
+        const activeYearsData = await activeYears(dep, positions, yearsRange);
+        // console.log(activeYearsData);
+        
 
         const currentDepStaffsIDs = groupedData[dep];
 
@@ -459,18 +540,18 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
             let minPublicationsStaff;
             let maxPublicationsCount = -Infinity;
             let minPublicationsCount = Infinity;
-
-            for (const id in publicationsTotalPerStaff) {
-                if (publicationsTotalPerStaff[id] > maxPublicationsCount) {
-                    maxPublicationsCount = publicationsTotalPerStaff[id];
-                    maxPublicationsStaff = id;
+            if (isDynamicData) {
+                for (const id in publicationsTotalPerStaff) {
+                    if (publicationsTotalPerStaff[id] > maxPublicationsCount) {
+                        maxPublicationsCount = publicationsTotalPerStaff[id];
+                        maxPublicationsStaff = id;
+                    }
+                    if (publicationsTotalPerStaff[id] < minPublicationsCount) {
+                        minPublicationsCount = publicationsTotalPerStaff[id];
+                        minPublicationsStaff = id;
+                    }
                 }
-                if (publicationsTotalPerStaff[id] < minPublicationsCount) {
-                    minPublicationsCount = publicationsTotalPerStaff[id];
-                    minPublicationsStaff = id;
-                }
-            }
-            
+            }    
         
             const citationData = await Citations.findAll({
                 where: {
@@ -497,15 +578,16 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
             let minCitationsStaff;
             let maxCitationsCount = -Infinity;
             let minCitationsCount = Infinity;
-
-            for (const id in citationsTotalPerStaff) {
-                if (citationsTotalPerStaff[id] > maxCitationsCount) {
-                    maxCitationsCount = citationsTotalPerStaff[id];
-                    maxCitationsStaff = id;
-                }
-                if (citationsTotalPerStaff[id] < minCitationsCount) {
-                    minCitationsCount = citationsTotalPerStaff[id];
-                    minCitationsStaff = id;
+            if (isDynamicData) {
+                for (const id in citationsTotalPerStaff) {
+                    if (citationsTotalPerStaff[id] > maxCitationsCount) {
+                        maxCitationsCount = citationsTotalPerStaff[id];
+                        maxCitationsStaff = id;
+                    }
+                    if (citationsTotalPerStaff[id] < minCitationsCount) {
+                        minCitationsCount = citationsTotalPerStaff[id];
+                        minCitationsStaff = id;
+                    }
                 }
             }
             
@@ -515,109 +597,115 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
             // Calculate the sum of citations and publications
             const totalCitations = citationData.reduce((acc, item) => acc + item.counter, 0);
             const totalPublications = publicationData.reduce((acc, item) => acc + item.counter, 0);
-          
-            // Count the number of staff
-            const staffCount = currentDepStaffsIDs.length;
-          
-            // Calculate the average publications per year and citations per year
-            //                              totalPublications
-            const avgPublicationsPerStaff = totalPublications / staffCount;
-            //                           totalPublications
-            const avgCitationsPerStaff = totalCitations / staffCount;
-
-            // Calculate the CV for publications
-            // Calculate squared differences and sum them
-            //                                                           publicationsTotalPerStaff
-            const publicationsSquaredDifferencesSum: any = Object.values(publicationsTotalPerStaff).reduce((sum: any, publications: any) => {
-                const difference = publications - avgPublicationsPerStaff;
-                return sum + difference * difference;
-            }, 0);
-            
-            // Calculate the variance
-            const publicationsVariance = publicationsSquaredDifferencesSum / staffCount;
-            
-            // Calculate the standard deviation
-            const publicationsStandardDeviation = Math.sqrt(publicationsVariance);
-            const cvPublications = (publicationsStandardDeviation / avgPublicationsPerStaff) * 100;
-
-            // Calculate the CV for citations
-            // Calculate squared differences and sum them
-            //                                                        citationsTotalPerStaff
-            const citationsSquaredDifferencesSum: any = Object.values(citationsTotalPerStaff).reduce((sum: any, citations: any) => {
-                const difference = citations - avgCitationsPerStaff;
-                return sum + difference * difference;
-            }, 0);
-            
-            // Calculate the variance
-            const citationsVariance = citationsSquaredDifferencesSum / staffCount;
-            
-            // Calculate the standard deviation
-            const citationsStandardDeviation = Math.sqrt(citationsVariance);
-
-            const cvCitations = (citationsStandardDeviation / avgCitationsPerStaff) * 100;
-
-
-
-            //CALCULATE H INDEX
-            const dataByResearchers: ResearcherData = {};
-
-            //citationData 
-            citationData.forEach(citation => {
-              const { id, year, counter } = citation;
-              if (!dataByResearchers[id]) {
-                dataByResearchers[id] = [];
-              }
-              dataByResearchers[id].push({ year, counter });
-            });
-            
-            const departmentHIndices: number[] = [];
-            
-            for (const id in dataByResearchers) {
-              const researcherCitations = dataByResearchers[id];
-              const hIndex = calculateHIndex(researcherCitations);
-              departmentHIndices.push(hIndex);
+            if (!isDynamicData) {
+                // Count the number of staff
+                const staffCount = currentDepStaffsIDs.length;
+              
+                // Calculate the average publications per year and citations per year
+                //                              totalPublications
+                const avgPublicationsPerStaff = totalPublications / staffCount;
+                //                           totalPublications
+                const avgCitationsPerStaff = totalCitations / staffCount;
+    
+                // Calculate the CV for publications
+                // Calculate squared differences and sum them
+                //                                                           publicationsTotalPerStaff
+                const publicationsSquaredDifferencesSum: any = Object.values(publicationsTotalPerStaff).reduce((sum: any, publications: any) => {
+                    const difference = publications - avgPublicationsPerStaff;
+                    return sum + difference * difference;
+                }, 0);
+                
+                // Calculate the variance
+                const publicationsVariance = publicationsSquaredDifferencesSum / staffCount;
+                
+                // Calculate the standard deviation
+                const publicationsStandardDeviation = Math.sqrt(publicationsVariance);
+                const cvPublications = (publicationsStandardDeviation / avgPublicationsPerStaff) * 100;
+    
+                // Calculate the CV for citations
+                // Calculate squared differences and sum them
+                //                                                        citationsTotalPerStaff
+                const citationsSquaredDifferencesSum: any = Object.values(citationsTotalPerStaff).reduce((sum: any, citations: any) => {
+                    const difference = citations - avgCitationsPerStaff;
+                    return sum + difference * difference;
+                }, 0);
+                
+                // Calculate the variance
+                const citationsVariance = citationsSquaredDifferencesSum / staffCount;
+                
+                // Calculate the standard deviation
+                const citationsStandardDeviation = Math.sqrt(citationsVariance);
+    
+                const cvCitations = (citationsStandardDeviation / avgCitationsPerStaff) * 100;
+    
+    
+    
+                //CALCULATE H INDEX
+                const dataByResearchers: ResearcherData = {};
+    
+                //citationData 
+                citationData.forEach(citation => {
+                  const { id, year, counter } = citation;
+                  if (!dataByResearchers[id]) {
+                    dataByResearchers[id] = [];
+                  }
+                  dataByResearchers[id].push({ year, counter });
+                });
+                
+                const departmentHIndices: number[] = [];
+                
+                for (const id in dataByResearchers) {
+                  const researcherCitations = dataByResearchers[id];
+                  const hIndex = calculateHIndex(researcherCitations);
+                  departmentHIndices.push(hIndex);
+                }
+                
+                const totalHIndex = departmentHIndices.reduce((sum, hIndex) => sum + hIndex, 0);
+                const avgHIndex = totalHIndex / staffCount;
+                
+                // console.log(`Average H-index for the department: ${avgHIndex}`);
+    
+                // Calculate the minimum and maximum H-indices for the department
+                const minHIndex = Math.min(...departmentHIndices);
+                const maxHIndex = Math.max(...departmentHIndices);
+    
+                // Create an object to store the aggregated data
+                const depStaticStats: DepartmentsStaticStatsCache = {
+                  staffCount,
+                  avgPublicationsPerStaff: roundNumberWithDecimalPlaces(avgPublicationsPerStaff, '1'),
+                  avgCitationsPerStaff: roundNumberWithDecimalPlaces(avgCitationsPerStaff, '1'),
+                  cvPublications: roundNumberWithDecimalPlaces(cvPublications, '1'),
+                  cvCitations: roundNumberWithDecimalPlaces(cvCitations, '1'),
+                  avgHIndex: roundNumberWithDecimalPlaces(avgHIndex),
+                  minHIndex,
+                  maxHIndex,
+                  inst: dep
+                };
+        
+                departmentsStaticStats.push(depStaticStats)
+            } else {
+                const depDynamicStats: DepartmentsDynamicStatsIDs = {
+                    totalCitations,
+                    totalPublications,
+                    maxPublicationsCount,
+                    minPublicationsCount,
+                    maxCitationsCount,
+                    minCitationsCount,
+                    inst: dep
+                }
+                departmentsDynamicStats.push(depDynamicStats);
             }
             
-            const totalHIndex = departmentHIndices.reduce((sum, hIndex) => sum + hIndex, 0);
-            const avgHIndex = totalHIndex / staffCount;
-            
-            // console.log(`Average H-index for the department: ${avgHIndex}`);
-
-            // Calculate the minimum and maximum H-indices for the department
-            const minHIndex = Math.min(...departmentHIndices);
-            const maxHIndex = Math.max(...departmentHIndices);
-
-            // Create an object to store the aggregated data
-            const departmentStats = {
-              totalCitations,
-              totalPublications,
-              staffCount,
-              avgPublicationsPerStaff: roundNumberWithDecimalPlaces(avgPublicationsPerStaff, '1'),
-              avgCitationsPerStaff: roundNumberWithDecimalPlaces(avgCitationsPerStaff, '1'),
-              maxPublicationsCount,
-              minPublicationsCount,
-              maxCitationsCount,
-              minCitationsCount,
-              cvPublications: roundNumberWithDecimalPlaces(cvPublications, '1'),
-              cvCitations: roundNumberWithDecimalPlaces(cvCitations, '1'),
-              avgHIndex: roundNumberWithDecimalPlaces(avgHIndex),
-              minHIndex,
-              maxHIndex
-            };
-    
-            eachDepActiveYears.push({[dep]: departmentStats})
-            
-        } else {
-            eachDepActiveYears.push({[dep]: {
-                citationData: [],
-                publicationData: []
-            }})
         }
-        
-    }; 
-
-    res.json(sendResponse<any>(200,'All good.', eachDepActiveYears));
-});
+    };
+    if (!isDynamicData) {
+        cache.put(cacheKeysEnum.DepartmentsStaticStats, departmentsStaticStats, cacheTime);
+        reqCache.departmentsStaticStats = departmentsStaticStats;
+        return;
+    } else {
+        return departmentsDynamicStats;
+    }
+}
 
 export const getAcademicPositionTotals = tryCatch(async (req: omeaCitationsReqQuery<AcademicPositionTotalsRequest>, res: omeaCitationsRes<IAcademicPositionTotals[]>) => {
     const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
