@@ -7,7 +7,7 @@ import { ZodError, z } from "zod";
 const deparmentFilterEnum = z.enum(["id"]);
 
 export const FilterSchema = z.object({
-    filter: z.string()
+    filter: z.string().optional()
 })
 
 export type Filter = z.infer<typeof FilterSchema>;

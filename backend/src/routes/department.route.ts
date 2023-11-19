@@ -6,7 +6,26 @@ import { getCacheAllPositions } from '../middlewares/getAllPositions';
 
 const router = Router();
 
-router.post('/', getCacheDepartmentsID, getDepartments);
+/** 
+ * @openapi
+ * /api/departments/:
+ *   get: 
+ *     description: Returns an array of Departments. Can modify the object that returns base of filter query
+ *     parameters:
+ *       - name: filter
+ *         in: query
+ *         required: false
+ *         scema:
+ *           type: string
+ *         description: What objects to return
+ *     responses:  
+ *       200: 
+ *         description: It's all good man! 
+ *     tags:
+ *       - OMEA
+ *   
+ */ 
+router.get('/', getCacheDepartmentsID, getDepartments);
 
 // Academic-staff data
 router.post('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAcademicStaffData);

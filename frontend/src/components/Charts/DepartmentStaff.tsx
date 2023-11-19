@@ -91,7 +91,7 @@ const DepartmentStaff = () => {
     const [colorMode, setColorMode] = useState(theme.palette.mode);
     // AMA deis na kanei loading ksana auto to component. na ksereis ftaiei to FixCheckBox epeidh kaloun to idio endpoint kai auto to blepei
     const { data, isLoading: isFetching } = useGetDepartmentsQuery({
-        filter: 'id',
+        filter: ['id', 'url'],
     });
 
     const [

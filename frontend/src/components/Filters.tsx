@@ -76,7 +76,7 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
         isLoading: isDepartmenentDataFetching,
         isError: isDepartmenentDataError,
     } = useGetDepartmentsQuery({
-        filter: 'id',
+        filter: ['id', 'url'],
     });
 
     const location = useLocation();

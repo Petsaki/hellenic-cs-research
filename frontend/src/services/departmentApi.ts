@@ -44,10 +44,15 @@ export const departmentApi = createApi({
             ResponseData<DepartmentsData[]>,
             Partial<IFilter>
         >({
-            query: (body) => ({
-                url: Apis.GetDepartments,
-                method: 'POST',
-                body,
+            query: ({ filter }) => ({
+                url: `${Apis.GetDepartments}${
+                    filter
+                        ? `?filter=${
+                              Array.isArray(filter) ? filter.join(',') : filter
+                          }`
+                        : ''
+                }`,
+                method: 'GET',
             }),
         }),
         getStatistics: builder.mutation<

@@ -34,7 +34,7 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
         isLoading: isDepartmenentDataLoading,
         isError: isDepartmenentDataError,
     } = useGetDepartmentsQuery({
-        filter: 'id',
+        filter: ['id', 'url'],
     });
 
     const { isLoading: isYearsDataLoading, isError: isYearsDataError } =

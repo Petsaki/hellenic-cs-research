@@ -101,3 +101,5 @@ export interface IAcademicStaffResearchSummary {
     inst: string;
     research: StaffResearchSummary[];
 }
+
+export type YearsArray = number[];

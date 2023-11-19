@@ -6,9 +6,9 @@ import { SxProps, useTheme, Theme } from '@mui/material';
 import FormLabel from '@mui/material/FormLabel/FormLabel';
 import FormControl from '@mui/material/FormControl/FormControl';
 import FormGroup from '@mui/material/FormGroup/FormGroup';
-import { PublicationsYear } from '../../models/api/response/publications/publications.data';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 import { stringToYearArray } from '../../app/untils/yearsRange';
+import { YearsArray } from '../../models/api/response/departments/departments.data';
 
 // Style
 const slider: SxProps = {
@@ -31,15 +31,15 @@ interface ISliderMark {
 }
 
 export const createMarks = (
-    years: PublicationsYear[] | undefined
+    years: YearsArray | undefined
 ): Array<ISliderMark> => {
     console.log(years);
     const marks: Array<ISliderMark> = [];
     years?.map((year, index) => {
         if (index === 0 || years.length - 1 === index) {
-            return marks.push({ value: year.year, label: year.year });
+            return marks.push({ value: year, label: year });
         }
-        return marks.push({ value: year.year });
+        return marks.push({ value: year });
     });
     console.log(marks);
 
@@ -49,7 +49,7 @@ export const createMarks = (
 let sliderTimeout: ReturnType<typeof setTimeout>;
 
 export interface FixSliderProp {
-    data: PublicationsYear[];
+    data: YearsArray;
 }
 const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
     const theme = useTheme();
@@ -68,7 +68,7 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
             setValue(yearsRangeArray);
             console.log('DO I HAVE DATA??? ', data);
         } else {
-            setValue([data[0].year, data[data.length - 1].year]);
+            setValue([data[0], data[data.length - 1]]);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [paramValue]);
@@ -117,8 +117,8 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
                                 valueLabelDisplay="auto"
                                 marks={sliderMarks}
                                 step={null}
-                                min={data[0].year}
-                                max={data[data.length - 1].year}
+                                min={data[0]}
+                                max={data[data.length - 1]}
                             />
                         </Box>
                     </FormGroup>

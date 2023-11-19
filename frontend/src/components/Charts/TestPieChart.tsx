@@ -106,7 +106,7 @@ const TestPieChart = () => {
     const [positionsSum, setpositionsSum] = useState<number>();
     // AMA deis na kanei loading ksana auto to component. na ksereis ftaiei to FixCheckBox epeidh kaloun to idio endpoint kai auto to blepei
     const { data, isLoading: isFetching } = useGetDepartmentsQuery({
-        filter: 'id',
+        filter: ['id', 'url'],
     });
     // const defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
     // const pieDoughnutLegendClickHandler = Chart.controllers.doughnut.overrides.plugins.legend.onClick;

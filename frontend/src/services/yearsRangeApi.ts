@@ -6,7 +6,7 @@ export const yearsRangeApi = createApi({
     reducerPath: 'yearsRangeApi',
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
     endpoints: (builder) => ({
-        getYearsRange: builder.query<ResponseData<{ year: number }[]>, void>({
+        getYearsRange: builder.query<ResponseData<number[]>, void>({
             query: () => Apis.getYearsRange,
         }),
     }),

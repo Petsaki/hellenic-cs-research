@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
-import { PublicationsYear } from '../../models/api/response/publications/publications.data';
 import {
     addDepartment,
     setAcademicPos,
@@ -10,14 +9,17 @@ import {
     setYearsRange,
 } from '../slices/filtersSlice';
 import {
-    PublicationsYearValidation,
-    isPublicationsYear,
+    YearsValidation,
+    isYearsArray,
     isyearRangeMaxValue,
     stringToYearArray,
 } from '../untils/yearsRange';
 import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
 import { academicPosValidation, isAcademicPos } from '../untils/academicPos';
-import { DepartmentId } from '../../models/api/response/departments/departments.data';
+import {
+    DepartmentId,
+    YearsArray,
+} from '../../models/api/response/departments/departments.data';
 import { departmentValidation, isDepartment } from '../untils/departments';
 import useDynamicSelector from './useDynamicSelector';
 
@@ -35,7 +37,7 @@ export enum ParamNames {
 }
 
 export type FilterData =
-    | PublicationsYear[]
+    | YearsArray
     | AcademicStaffPosition[]
     | DepartmentId[]
     | ParamNames;
@@ -85,7 +87,7 @@ const useUrlParams = ({
         console.log(paraSlice.join('-'));
         console.log(param);
 
-        if (isPublicationsYear(data) && years) {
+        if (isYearsArray(data) && years) {
             if (isyearRangeMaxValue(years, data)) {
                 searchParams.delete(name);
                 setSearchParams(searchParams);
@@ -181,27 +183,21 @@ const useUrlParams = ({
 
     // INIT/RESET - YEARS RANGE
     const initYearsRange = (): void => {
-        if (isPublicationsYear(data)) {
+        if (isYearsArray(data)) {
             if (param) {
-                const validyearData = PublicationsYearValidation(param, data);
+                const validyearData = YearsValidation(param, data);
                 handleInputChange({ years: validyearData });
                 setParamValue(validyearData);
             } else if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
-                dispatch(
-                    setYearsRange([data[0].year, data[data.length - 1].year])
-                );
+                dispatch(setYearsRange([data[0], data[data.length - 1]]));
             }
-            dispatch(
-                setMaxYearsRange([data[0].year, data[data.length - 1].year])
-            );
+            dispatch(setMaxYearsRange([data[0], data[data.length - 1]]));
         }
     };
 
     const resetYearsRange = (): void => {
-        if (isPublicationsYear(data)) {
-            const defaultyearData = `${data[0].year}-${
-                data[data.length - 1].year
-            }`;
+        if (isYearsArray(data)) {
+            const defaultyearData = `${data[0]}-${data[data.length - 1]}`;
             console.log(defaultyearData);
             setParamValue((prevValue) => (prevValue ? null : defaultyearData));
             updateYearsRangeSlice(defaultyearData);
@@ -277,7 +273,7 @@ const useUrlParams = ({
         if (!param) {
             switch (name) {
                 case ParamNames.YearsRange:
-                    if (!isPublicationsYear(data)) return;
+                    if (!isYearsArray(data)) return;
                     if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
                         resetYearsRange();
                     }
@@ -324,13 +320,11 @@ const useUrlParams = ({
                         !(!param && !paraSlice.join('-')) &&
                         paraSlice.join('-') !== param
                     ) {
-                        if (isPublicationsYear(data)) {
+                        if (isYearsArray(data)) {
                             setParamValue(
                                 param || (paramValue === null ? '' : null)
                             );
-                            updateYearsRangeSlice(
-                                PublicationsYearValidation(param, data)
-                            );
+                            updateYearsRangeSlice(YearsValidation(param, data));
                         }
                     }
 

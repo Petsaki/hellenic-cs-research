@@ -6,6 +6,7 @@ import {
 } from '../models/api/response/publications/publications.data';
 import { ResponseData } from '../models/api/response/response.data';
 
+// NOT IS USE
 export const publicationApi = createApi({
     reducerPath: 'publicationApi',
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),

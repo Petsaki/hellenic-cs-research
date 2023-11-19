@@ -1,4 +1,4 @@
-import { Op, QueryTypes, Sequelize, WhereOptions } from 'sequelize';
+import { FindAttributeOptions, Op, QueryTypes, Sequelize, WhereOptions } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Departments from '../models/department.model';
 import { omeaCitationsRes, omeaCitationsReqBody, IDepartments, IDep, omeaCitationsReqQuery, omeaCitationsReqBodyQuery, DepartmentsStaticStatsCache, cacheKeysEnum, DepartmentsDynamicStatsIDs } from '../types';
@@ -16,13 +16,15 @@ import { cacheTime, reqCache } from '../server';
 const decimalPlaces = '2';
 
 // I can put type on getDepartments if i return the res.json but is useless because express and my custom types already checks what i am going to return
-export const getDepartments = tryCatch(async (req: omeaCitationsReqBody<Filter>, res: omeaCitationsRes<IDepartments[]>) => {
-    const {filter}: Filter = FilterSchema.parse(req.body);
-
-    if (filter === 'id') {
+export const getDepartments = tryCatch(async (req: omeaCitationsReqQuery<Filter>, res: omeaCitationsRes<IDepartments[]>) => {
+    const {filter}: Filter = FilterSchema.parse(req.query);
+    const filterArray = filter ? filter.trim().split(',').filter(Boolean) : undefined;
+    if (filterArray && filterArray.length === 2 && ['id', 'url'].every((expectedValue) => filterArray.includes(expectedValue))) {
+        console.log('CACHE');
+        
         return res.json(sendResponse<IDepartments[]>(200, 'All good.', req.cache.departmentsID));
     }
-    const deparmentsList = await getDepartmentsData(filter);
+    const deparmentsList = await getDepartmentsData(filterArray);
     
     return res.json(sendResponse<IDepartments[]>(200, 'All good.', deparmentsList));
 });
@@ -42,12 +44,11 @@ export const getDepartment = tryCatch(async (req: omeaCitationsReqBodyQuery<{id:
     return res.json(sendResponse<IDepartments>(200,'All good.', department));
 });
 
-export const getDepartmentsData = async (filter: string): Promise<IDepartments[]> => {
-    if (filter) {
+export const getDepartmentsData = async (filters: string[] | undefined): Promise<IDepartments[]> => {
+    if (filters) {
+        console.log('MPHKA EDW');
         return await Departments.findAll({
-            attributes: [
-                [Sequelize.fn('DISTINCT', Sequelize.col(filter)), filter]
-            ]
+            attributes: filters
         });
     }
     
@@ -431,7 +432,7 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
     if (!depStatsCache || !depStatsCache.length) {
         const positionsArray = positionsCache.map((position) => position.position);
         // console.log(positionsArray);
-        const yearsArray = [yearsCache[0].year, yearsCache[yearsCache.length - 1].year]
+        const yearsArray = [yearsCache[0], yearsCache[yearsCache.length - 1]]
         // console.log(yearsArray);
         
         await createDepartmentsAnalysis(departmentArray, positionsArray, yearsArray);

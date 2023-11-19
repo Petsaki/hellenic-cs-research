@@ -5,6 +5,7 @@ import Publications from '../models/publication.model';
 import { IPublications, omeaCitationsReq, omeaCitationsReqBody, omeaCitationsRes } from '../types';
 import { tryCatch } from '../utils/tryCatch';
 
+// NOT IN USE
 export const getPublications = tryCatch(async (req: omeaCitationsReqBody<unknown>, res: omeaCitationsRes<IPublications[]>) => {
     const publicationsList = await Publications.findAll();
     res.json(sendResponse<IPublications[]>(200, 'All good.', publicationsList));

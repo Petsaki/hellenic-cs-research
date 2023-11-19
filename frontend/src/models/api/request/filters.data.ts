@@ -1,5 +1,5 @@
 export interface IFilter {
-    filter: string;
+    filter: string[] | string;
 }
 
 export interface IFDepartment {

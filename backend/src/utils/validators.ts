@@ -14,8 +14,8 @@ export const positionsValidation = (positions: string | string[], cachePositions
     }
 }
 
-export const yearsValidation = (years: number[], cacheYears: {year: number}[]) => {
-    if (!years.every((year) => cacheYears.some((obj) => obj.year === year))) {
+export const yearsValidation = (years: number[], cacheYears: number[]) => {
+    if (!years.every((year) => cacheYears.includes(year))) {
         throw new Error(`No data for this years exists.`);
     }
 }

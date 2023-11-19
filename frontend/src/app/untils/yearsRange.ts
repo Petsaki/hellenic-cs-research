@@ -1,4 +1,4 @@
-import { PublicationsYear } from '../../models/api/response/publications/publications.data';
+import { YearsArray } from '../../models/api/response/departments/departments.data';
 import { FilterData } from '../hooks/useUrlParams';
 
 export const stringToYearArray = (years: string): Array<number> => {
@@ -8,18 +8,18 @@ export const stringToYearArray = (years: string): Array<number> => {
         .sort();
 };
 
-export const PublicationsYearValidation = (
+export const YearsValidation = (
     param: string | null,
-    data: PublicationsYear[]
+    data: YearsArray
 ): string => {
     console.log(data);
-    let validyearData = `${data[0].year}-${data[data.length - 1].year}`;
+    let validyearData = `${data[0]}-${data[data.length - 1]}`;
     if (param) {
         const yearsRangeArray = stringToYearArray(param);
         if (
             yearsRangeArray.length === 2 &&
-            data.some((year) => year.year === yearsRangeArray[0]) &&
-            data.some((year) => year.year === yearsRangeArray[1])
+            data.some((year) => year === yearsRangeArray[0]) &&
+            data.some((year) => year === yearsRangeArray[1])
         ) {
             validyearData = `${yearsRangeArray[0]}-${
                 yearsRangeArray[yearsRangeArray.length - 1]
@@ -30,20 +30,15 @@ export const PublicationsYearValidation = (
     return validyearData;
 };
 
-export const isyearRangeMaxValue = (
-    value: string,
-    data: PublicationsYear[]
-) => {
+export const isyearRangeMaxValue = (value: string, data: YearsArray) => {
     const yearsRangeArray = stringToYearArray(value);
     return (
-        yearsRangeArray[0] === data[0].year &&
-        yearsRangeArray[1] === data[data.length - 1].year
+        yearsRangeArray[0] === data[0] &&
+        yearsRangeArray[1] === data[data.length - 1]
     );
 };
 
 // Type guard
-export const isPublicationsYear = (
-    data: FilterData
-): data is PublicationsYear[] => {
+export const isYearsArray = (data: FilterData): data is YearsArray => {
     return Array.isArray(data);
 };
