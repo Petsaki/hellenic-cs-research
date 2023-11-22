@@ -430,12 +430,11 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
     const eachDepActiveYears: any[] = [];
     
     if (!depStatsCache || !depStatsCache.length) {
-        const positionsArray = positionsCache.map((position) => position.position);
-        // console.log(positionsArray);
+        // console.log(positionsCache);
         const yearsArray = [yearsCache[0], yearsCache[yearsCache.length - 1]]
         // console.log(yearsArray);
         
-        await createDepartmentsAnalysis(departmentArray, positionsArray, yearsArray);
+        await createDepartmentsAnalysis(departmentArray, positionsCache, yearsArray);
     }
     // console.log(reqCache.departmentsStaticStats);
     const depsDynamicStats = await createDepartmentsAnalysis(departmentArray, positionArray, years, where);

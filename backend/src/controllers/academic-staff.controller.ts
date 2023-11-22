@@ -7,24 +7,26 @@ import { Departments as DepartmentsReq, DepartmentsSchema, PositionsCountByDepsR
 import { IPositionsCountByDepartment } from '../types/response/academic-staff.type';
 import { departmentsValidation } from '../utils/validators';
 
-export const getAllPositions = async (): Promise<IDep[]> => {
-  return await Dep.findAll({
+export const getAllPositions = async (): Promise<string[]> => {
+  const positions = await Dep.findAll({
     attributes: [
         [Sequelize.fn('DISTINCT', Sequelize.col('position')), 'position']
     ],
     raw: true,
   });
+
+  return positions.map((dep) => dep.position);
 };
 
-export const getPositions = tryCatch(async (req: omeaCitationsReqBody<null>, res: omeaCitationsRes<IDep[]>) => {
+export const getPositions = tryCatch(async (req: omeaCitationsReqBody<null>, res: omeaCitationsRes<string[]>) => {
     const positions = req.cache.position;
-    res.json(sendResponse<IDep[]>(200,'All good.', positions));
+    res.json(sendResponse<string[]>(200,'All good.', positions));
 });
 
 // It can be a generic controller that it will accept 2 fields for the body
 // The second field it will be the column that i want to sum with
 export const getPositionsCountByDepartment = tryCatch(async (req: omeaCitationsReqQuery<PositionsCountByDepsRequest>, res: omeaCitationsRes<IPositionsCountByDepartment[]>) => {
-    const {departmentsID: departmentsCache} = req.cache;
+    const {departmentsID: departmentsCache, position: positionsCache } = req.cache;
     const {departments: departmentsZod}: DepartmentsReq = PositionsCountByDepsSchema.parse(req.query);
     const departments = departmentsZod.split(',');
 
@@ -49,13 +51,6 @@ export const getPositionsCountByDepartment = tryCatch(async (req: omeaCitationsR
       where,
       raw: true,
     }) as DepCountResult[];
-
-    const positions = req.cache.position;
-
-    const positionArray = positions.map((position) => position.position)
-      .filter((position) => position !== undefined && position !== null) as string[];
-
-    console.log(positionArray);
       
     // Create a map to hold the counts for each inst
     const countsByInst = new Map<string, Record<string, number>>();
@@ -73,7 +68,7 @@ export const getPositionsCountByDepartment = tryCatch(async (req: omeaCitationsR
     
     // Add 0 counts for any missing positions for each inst
     for (const [inst, counts] of countsByInst) {
-      for (const position of positionArray) {
+      for (const position of positionsCache) {
         if (!(position in counts)) {
           counts[position] = 0;
         }

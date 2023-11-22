@@ -23,7 +23,7 @@ export enum cacheKeysEnum {
 }
 
 export interface cacheData {
-    position: IDep[],
+    position: string[],
     yearsRange: number[],
     departmentsID: IDepartments[],
     departmentsStaticStats: DepartmentsStaticStatsCache[]

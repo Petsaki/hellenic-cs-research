@@ -9,8 +9,8 @@ import { cacheTime, reqCache } from '../server';
 /* Handles caching of academic staff positions.
 It uses the `tryCatch` utility function to handle any errors that may
 occur during execution. */
-export const getCacheAllPositions = tryCatch(async (req: omeaCitationsReqBody<unknown>, res: omeaCitationsRes<IDep[]>, next: NextFunction) => {
-    const cachedData: IDep[] = cache.get(cacheKeysEnum.Position);
+export const getCacheAllPositions = tryCatch(async (req: omeaCitationsReqBody<unknown>, res: omeaCitationsRes<string[]>, next: NextFunction) => {
+    const cachedData: string[] = cache.get(cacheKeysEnum.Position);
     if (!cachedData) {
         const result = await getAllPositions();
         cache.put(cacheKeysEnum.Position, result, cacheTime);

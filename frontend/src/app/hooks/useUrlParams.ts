@@ -36,11 +36,7 @@ export enum ParamNames {
     Departments = 'departments',
 }
 
-export type FilterData =
-    | YearsArray
-    | AcademicStaffPosition[]
-    | DepartmentId[]
-    | ParamNames;
+export type FilterData = YearsArray | string[] | DepartmentId[] | ParamNames;
 
 export interface ICheckBoxValue {
     id: string;
@@ -49,7 +45,7 @@ export interface ICheckBoxValue {
 export interface IInputValue {
     years?: string;
     checkbox?: ICheckBoxValue;
-    checkboxList2?: Array<DepartmentId | AcademicStaffPosition>;
+    checkboxList2?: Array<DepartmentId | string>;
     checkboxList?: Array<string>;
 }
 

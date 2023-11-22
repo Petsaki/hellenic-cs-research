@@ -11,10 +11,7 @@ export const academicStaffApi = createApi({
     reducerPath: 'academicStaffApi',
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
     endpoints: (builder) => ({
-        getAcademicStaffPositions: builder.query<
-            ResponseData<AcademicStaffPosition[]>,
-            void
-        >({
+        getAcademicStaffPositions: builder.query<ResponseData<string[]>, void>({
             query: () => Apis.getAcademicPositions,
         }),
         getPositionsByDepartments: builder.mutation<

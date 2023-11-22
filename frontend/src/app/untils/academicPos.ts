@@ -15,21 +15,19 @@ export const removeAcademicPosForUrlParam = (
 
 export const academicPosValidation = (
     param: string | null,
-    data: AcademicStaffPosition[]
+    data: string[]
 ): string[] => {
     let validAcademisData: string[] = [];
     if (param) {
         const academics = param.split(',');
         validAcademisData = academics.filter((academic) =>
-            data.some((dataItem) => dataItem.position === academic)
+            data.some((position) => position === academic)
         );
     }
     return validAcademisData;
 };
 
 // Type guard
-export const isAcademicPos = (
-    data: FilterData
-): data is AcademicStaffPosition[] => {
+export const isAcademicPos = (data: FilterData): data is string[] => {
     return Array.isArray(data);
 };

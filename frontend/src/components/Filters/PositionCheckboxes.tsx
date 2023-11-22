@@ -12,7 +12,7 @@ import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 let academicPosTimeout: ReturnType<typeof setTimeout>;
 
 export interface PositionCheckboxesProp {
-    data: AcademicStaffPosition[];
+    data: string[];
 }
 
 const PositionCheckboxes: React.FC<PositionCheckboxesProp> = ({
@@ -87,17 +87,15 @@ const PositionCheckboxes: React.FC<PositionCheckboxesProp> = ({
                                     mr: '0',
                                 }}
                                 labelPlacement="start"
-                                key={depID.position}
+                                key={depID}
                                 control={
                                     <Checkbox
-                                        name={depID.position}
+                                        name={depID}
                                         onChange={handleCheckboxChange}
-                                        checked={checked.includes(
-                                            depID.position
-                                        )}
+                                        checked={checked.includes(depID)}
                                     />
                                 }
-                                label={depID.position}
+                                label={depID}
                             />
                         ))}
                     </FormGroup>

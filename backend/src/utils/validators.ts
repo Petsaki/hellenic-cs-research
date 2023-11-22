@@ -7,9 +7,9 @@ export const departmentsValidation = async (departments: string[] | string, cach
     }
 };
 
-export const positionsValidation = (positions: string | string[], cachePositions: IDep[]) => {
+export const positionsValidation = (positions: string | string[], cachePositions: string[]) => {
     const targetPositions = Array.isArray(positions) ? positions : [positions];
-    if (!targetPositions.every((targetPosition) => cachePositions.some((obj) => obj.position === targetPosition))) {
+    if (!targetPositions.every((targetPosition) => cachePositions.some((position) => position === targetPosition))) {
         throw new Error(`Wrong positions names.`);
     }
 }
