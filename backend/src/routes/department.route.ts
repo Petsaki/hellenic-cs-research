@@ -27,8 +27,51 @@ const router = Router();
  */ 
 router.get('/', getCacheDepartmentsID, getDepartments);
 
+/** 
+ * @openapi
+ * /api/departments/academicStaffData:
+ *   get: 
+ *     description: Return an object with the data of academic staff citations/publications per year.
+ *     parameters:
+ *       - name: departments
+ *         in: query
+ *         required: true
+ *         scema:
+ *           type: string
+ *         description: Department's ids. Accepts multi values with comma(,).
+ *       - name: years
+ *         in: query
+ *         required: true
+ *         scema:
+ *           type: string
+ *         description: Years range. Accepts multi values with comma(,). Max 2 values.
+ *       - name: page
+ *         in: query
+ *         required: true
+ *         scema:
+ *           type: number
+ *         description: Page's number.
+ *       - name: size
+ *         in: query
+ *         required: true
+ *         scema:
+ *           type: number
+ *         description: Offset's number.
+ *       - name: positions
+ *         in: query
+ *         required: false
+ *         scema:
+ *           type: string
+ *         description: Academic positions. Accepts multi values with comma(,).
+ *     responses:  
+ *       200: 
+ *         description: It's all good man! 
+ *     tags:
+ *       - OMEA
+ *   
+ */
 // Academic-staff data
-router.post('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAcademicStaffData);
+router.get('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAcademicStaffData);
 
 // statistics
 router.post('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartmentsID, getStatisticsPerDepartments);

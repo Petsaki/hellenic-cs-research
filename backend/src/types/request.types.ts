@@ -60,14 +60,6 @@ export const AcademicDataSchema = StatisticReqSchema.extend({
 export type AcademicDataRequest = z.infer<typeof AcademicDataSchema>;
 
 
-// Academic Data required value Array WITH PAGINATION
-export const AcademicDataPaginationSchema = AcademicDataSchema.extend({
-    page: z.coerce.number().min(0),
-    size: z.coerce.number().min(1).max(500).default(25)
-});
-
-export type AcademicDataPaginationRequest = z.infer<typeof AcademicDataPaginationSchema>;
-
 // Department Analytics Array
 export const DepartmentsAnalyticsReqSchema = z.object({
     years: z.array(z.number()),
@@ -136,3 +128,81 @@ export const PositionsCountByDepsSchema = z.object({
 });
 
 export type PositionsCountByDepsRequest = z.infer<typeof PositionsCountByDepsSchema>;
+
+
+// Academic Data required value Array WITH PAGINATION
+const customPageValidation = (pageString: string): string | ZodError => {
+
+    const page = parseInt(pageString, 10);
+    
+    if (page !== 0 && isNaN(page)) {
+      throw new ZodError([
+        {
+            code: "invalid_type",
+            expected: "number",
+            received: "string",
+            path: ["page"],
+            message: "expected number, received string",
+        },
+      ]);
+    }
+
+    if (page < 0) {
+        throw new ZodError([
+          {
+              code: "too_small",
+              minimum: 0,
+              inclusive: true,
+              type: 'number',
+              path: ["page"],
+              message: "Page must be a non-negative number.",
+          },
+        ]);
+      }
+  
+    return page.toString();
+};
+
+const customSizeValidation = (sizeString: string): string | ZodError => {
+
+    // Default 25
+    if (sizeString == null) return '25';
+
+    const size = parseInt(sizeString, 10);
+
+    if (isNaN(size)) {
+      throw new ZodError([
+        {
+            code: "invalid_type",
+            expected: "number",
+            received: "string",
+            path: ["size"],
+            message: "expected number, received string",
+        },
+      ]);
+    }
+
+    if (size < 1 || size > 500) {
+        throw new ZodError([
+          {
+              code: size < 1 ? "too_small" : "too_big",
+              minimum: 1,
+              maximum: 500,
+              inclusive: true,
+              type: 'number',
+              path: ["size"],
+              message: "Size must be 0 < size < 501",
+          },
+        ]);
+      }
+  
+    return size.toString();
+};
+
+export const AcademicDataPaginationSchema = AcademicPositionTotalsSchema.extend({
+    page: z.string().nonempty().refine(customPageValidation),
+    size: z.string().refine(customSizeValidation).default('25'),
+    positions: z.string().optional(),
+});
+
+export type AcademicDataPaginationRequest = z.infer<typeof AcademicDataPaginationSchema>;

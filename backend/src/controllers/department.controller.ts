@@ -248,11 +248,13 @@ const activeYears = async (departments: string | string[], positions?: string | 
 }
 
 // Departments academic staff data
-export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitationsReqBody<AcademicDataPaginationRequest>, res: omeaCitationsRes<IAcademicStaffData>) => {
+export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitationsReqQuery<AcademicDataPaginationRequest>, res: omeaCitationsRes<IAcademicStaffData>) => {
     const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
-    const {departments, positions, years, page, size}: AcademicDataPaginationRequest = AcademicDataPaginationSchema.parse(req.body);
-    
+    const {departments: departmentsZod, positions: positionsZod, years: yearsString, page, size}: AcademicDataPaginationRequest = AcademicDataPaginationSchema.parse(req.query);
+    const years = yearsString.split(',').map((item) => parseInt(item, 10));
+    const departments = departmentsZod.split(',');
     // Validation - Check if departments exists in the database
+    const positions = positionsZod && positionsZod.split(',');
     await departmentsValidation(departments, departmentsCache);
     // Validation - Check if years exists in the database
     await yearsValidation(years, yearsCache);
@@ -280,8 +282,8 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
       const academicData = await Dep.findAndCountAll({
         where,
         raw: true,
-        limit: size,
-        offset: page * size,
+        limit: +size,
+        offset: +page * +size,
       });
 
     //   console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',academicData);
