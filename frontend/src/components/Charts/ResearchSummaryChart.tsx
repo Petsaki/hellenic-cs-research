@@ -19,7 +19,6 @@ import {
     useGetResearchSummaryQuery,
 } from '../../services/departmentApi';
 import { RootState } from '../../app/store';
-import { useGetPositionsByDepartmentsMutation } from '../../services/academicStaffApi';
 import { PositionsByDepartment } from '../../models/api/response/academicStaff/academicStaff.data';
 import { StaffResearchSummary } from '../../models/api/response/departments/departments.data';
 

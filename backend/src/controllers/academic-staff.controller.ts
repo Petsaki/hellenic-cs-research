@@ -1,10 +1,11 @@
 import { Sequelize } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Dep from '../models/dep.model';
-import { IDep, omeaCitationsReqBody, omeaCitationsRes } from '../types';
+import { IDep, omeaCitationsReqBody, omeaCitationsReqQuery, omeaCitationsRes } from '../types';
 import { tryCatch } from '../utils/tryCatch';
-import { Departments as DepartmentsReq, DepartmentsSchema } from '../types/request.types';
+import { Departments as DepartmentsReq, DepartmentsSchema, PositionsCountByDepsRequest, PositionsCountByDepsSchema } from '../types/request.types';
 import { IPositionsCountByDepartment } from '../types/response/academic-staff.type';
+import { departmentsValidation } from '../utils/validators';
 
 export const getAllPositions = async (): Promise<IDep[]> => {
   return await Dep.findAll({
@@ -15,15 +16,20 @@ export const getAllPositions = async (): Promise<IDep[]> => {
   });
 };
 
-export const getPositions = tryCatch(async (req: omeaCitationsReqBody<undefined>, res: omeaCitationsRes<IDep[]>) => {
+export const getPositions = tryCatch(async (req: omeaCitationsReqBody<null>, res: omeaCitationsRes<IDep[]>) => {
     const positions = req.cache.position;
     res.json(sendResponse<IDep[]>(200,'All good.', positions));
 });
 
 // It can be a generic controller that it will accept 2 fields for the body
 // The second field it will be the column that i want to sum with
-export const getPositionsCountByDepartment = tryCatch(async (req: omeaCitationsReqBody<DepartmentsReq>, res: omeaCitationsRes<IPositionsCountByDepartment[]>) => {
-    const {departments}: DepartmentsReq = DepartmentsSchema.parse(req.body);
+export const getPositionsCountByDepartment = tryCatch(async (req: omeaCitationsReqQuery<PositionsCountByDepsRequest>, res: omeaCitationsRes<IPositionsCountByDepartment[]>) => {
+    const {departmentsID: departmentsCache} = req.cache;
+    const {departments: departmentsZod}: DepartmentsReq = PositionsCountByDepsSchema.parse(req.query);
+    const departments = departmentsZod.split(',');
+
+    // Validation - Check if departments exists in the database
+    await departmentsValidation(departments, departmentsCache);
     console.log(departments);
 
     let where = {};

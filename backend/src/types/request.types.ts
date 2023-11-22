@@ -129,3 +129,10 @@ export const AcademicStaffResearchSummarySchema = z.object({
 });
 
 export type AcademicStaffResearchSummaryRequest = z.infer<typeof AcademicStaffResearchSummarySchema>;
+
+// getPositionsCountByDepartment
+export const PositionsCountByDepsSchema = z.object({
+    departments: z.string().nonempty()
+});
+
+export type PositionsCountByDepsRequest = z.infer<typeof PositionsCountByDepsSchema>;

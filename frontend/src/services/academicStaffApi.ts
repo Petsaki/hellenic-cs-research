@@ -21,10 +21,13 @@ export const academicStaffApi = createApi({
             ResponseData<PositionsByDepartment[]>,
             Partial<IFDepartment>
         >({
-            query: (body) => ({
-                url: Apis.getPositionsByDepartments,
-                method: 'POST',
-                body,
+            query: ({ departments }) => ({
+                url: `${Apis.getPositionsByDepartments}?departments=${
+                    Array.isArray(departments)
+                        ? departments.join(',')
+                        : departments
+                }`,
+                method: 'GET',
             }),
         }),
     }),
