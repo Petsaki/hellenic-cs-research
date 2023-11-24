@@ -199,7 +199,7 @@ const activeYears = async (departments: string | string[], positions?: string | 
           [Op.in]: departmentArray, // Use Op.in to filter by multiple department IDs
         },
       };
-      if (positionArray && positionArray.length) {
+      if (positions && positionArray.length) {
         where.position = {
           [Op.in]: positionArray,
         };

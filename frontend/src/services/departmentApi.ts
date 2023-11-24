@@ -69,10 +69,17 @@ export const departmentApi = createApi({
             ResponseData<IAcademicStaffData>,
             Partial<IFAcademicStaff>
         >({
-            query: (body) => ({
-                url: Apis.GetAcademicStaffData,
-                method: 'POST',
-                body,
+            query: ({ departments, page, positions, size, years }) => ({
+                url: `${Apis.GetAcademicStaffData}?departments=${
+                    Array.isArray(departments)
+                        ? departments.join(',')
+                        : departments
+                }&positions=${
+                    Array.isArray(positions) ? positions.join(',') : positions
+                }${years && `&years=${years.join(',')}`}&page=${page}${
+                    size != null && `&size=${size}`
+                }`,
+                method: 'GET',
             }),
         }),
         getDepartmentsData: builder.mutation<
