@@ -111,7 +111,7 @@ const TestPieChart = () => {
     // const defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
     // const pieDoughnutLegendClickHandler = Chart.controllers.doughnut.overrides.plugins.legend.onClick;
 
-    console.log(Chart);
+    // console.log(Chart);
 
     const [
         departments,

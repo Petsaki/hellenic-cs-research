@@ -61,12 +61,9 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
     const [value, setValue] = useState<number[]>([0, 0]);
 
     useEffect(() => {
-        console.log('Parameter value:', paramValue);
         if (paramValue) {
             const yearsRangeArray = stringToYearArray(paramValue);
-            console.log(yearsRangeArray);
             setValue(yearsRangeArray);
-            console.log('DO I HAVE DATA??? ', data);
         } else {
             setValue([data[0], data[data.length - 1]]);
         }

@@ -282,10 +282,22 @@ const useUrlParams = ({
                         !(!param && !paraSlice.join(',')) &&
                         paraSlice.join(',') !== param
                     ) {
-                        setParamValue(
-                            param || (paramValue === null ? '' : null)
-                        );
-                        updateAcademicPosSlice(param ? param.split(',') : []);
+                        if (isAcademicPos(data)) {
+                            const validAcademicPosData = academicPosValidation(
+                                param,
+                                data
+                            ).join(',');
+
+                            setParamValue(
+                                validAcademicPosData ||
+                                    (paramValue === null ? '' : null)
+                            );
+                            updateAcademicPosSlice(
+                                validAcademicPosData
+                                    ? validAcademicPosData.split(',')
+                                    : []
+                            );
+                        }
                     }
 
                     break;
@@ -297,10 +309,20 @@ const useUrlParams = ({
                         !(!param && !paraSlice.join(',')) &&
                         paraSlice.join(',') !== param
                     ) {
-                        setParamValue(
-                            param || (paramValue === null ? '' : null)
-                        );
-                        updateDepartmentSlice(param ? param.split(',') : []);
+                        if (isDepartment(data)) {
+                            const validDepartmentData = departmentValidation(
+                                param,
+                                data
+                            ).join(',');
+
+                            setParamValue(
+                                validDepartmentData ||
+                                    (paramValue === null ? '' : null)
+                            );
+                            updateDepartmentSlice(
+                                validDepartmentData.split(',') || []
+                            );
+                        }
                     }
                     break;
                 default:
@@ -317,10 +339,12 @@ const useUrlParams = ({
                         paraSlice.join('-') !== param
                     ) {
                         if (isYearsArray(data)) {
+                            const validyearData = YearsValidation(param, data);
                             setParamValue(
-                                param || (paramValue === null ? '' : null)
+                                validyearData ||
+                                    (paramValue === null ? '' : null)
                             );
-                            updateYearsRangeSlice(YearsValidation(param, data));
+                            updateYearsRangeSlice(validyearData);
                         }
                     }
 
@@ -333,10 +357,22 @@ const useUrlParams = ({
                         !(!param && !paraSlice.join(',')) &&
                         paraSlice.join(',') !== param
                     ) {
-                        setParamValue(
-                            param || (paramValue === null ? '' : null)
-                        );
-                        updateAcademicPosSlice(param ? param.split(',') : []);
+                        if (isAcademicPos(data)) {
+                            const validAcademicPosData = academicPosValidation(
+                                param,
+                                data
+                            ).join(',');
+
+                            setParamValue(
+                                validAcademicPosData ||
+                                    (paramValue === null ? '' : null)
+                            );
+                            updateAcademicPosSlice(
+                                validAcademicPosData
+                                    ? validAcademicPosData.split(',')
+                                    : []
+                            );
+                        }
                     }
 
                     break;
@@ -348,10 +384,20 @@ const useUrlParams = ({
                         !(!param && !paraSlice.join(',')) &&
                         paraSlice.join(',') !== param
                     ) {
-                        setParamValue(
-                            param || (paramValue === null ? '' : null)
-                        );
-                        updateDepartmentSlice(param ? param.split(',') : []);
+                        if (isDepartment(data)) {
+                            const validDepartmentData = departmentValidation(
+                                param,
+                                data
+                            ).join(',');
+
+                            setParamValue(
+                                validDepartmentData ||
+                                    (paramValue === null ? '' : null)
+                            );
+                            updateDepartmentSlice(
+                                validDepartmentData.split(',') || []
+                            );
+                        }
                     }
                     break;
                 default:

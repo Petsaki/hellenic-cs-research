@@ -36,6 +36,12 @@ const tableStyle: SxProps<Theme> = (theme) => ({
                     : 'rgba(0, 0, 0, 0.06)',
         },
     },
+    '& .MuiDataGrid-footerContainer .MuiDataGrid-selectedRowCount': {
+        display: 'none',
+    },
+    '& .MuiDataGrid-row.Mui-selected': {
+        backgroundColor: 'rgba(85, 161, 229, 0.25)',
+    },
 });
 
 const columns: GridColDef[] = [
@@ -249,7 +255,6 @@ const DepartmentDataTable = () => {
                             pagination: { paginationModel: { pageSize: 100 } },
                         }}
                         pageSizeOptions={[10, 25, 50, 100]}
-                        disableRowSelectionOnClick
                         onRowClick={handleRowClick}
                     />
                 </Paper>

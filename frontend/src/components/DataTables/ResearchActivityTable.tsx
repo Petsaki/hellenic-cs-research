@@ -60,6 +60,12 @@ const tableStyle: SxProps<Theme> = (theme) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
         color: 'white',
     },
+    '& .MuiDataGrid-footerContainer .MuiDataGrid-selectedRowCount': {
+        display: 'none',
+    },
+    '& .MuiDataGrid-row.Mui-selected': {
+        backgroundColor: 'rgba(85, 161, 229, 0.25)',
+    },
 });
 
 export interface ResearchActivityTableProp extends PaginationType {
@@ -258,7 +264,6 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
                     rows={rows}
                     columns={columns}
                     pageSizeOptions={[25, 50, 75, 100]}
-                    disableRowSelectionOnClick
                     onRowClick={handleRowClick}
                     paginationModel={{ page, pageSize }}
                     paginationMode="server"
