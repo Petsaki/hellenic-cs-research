@@ -320,7 +320,9 @@ const useUrlParams = ({
                                     (paramValue === null ? '' : null)
                             );
                             updateDepartmentSlice(
-                                validDepartmentData.split(',') || []
+                                validDepartmentData
+                                    ? validDepartmentData.split(',')
+                                    : []
                             );
                         }
                     }
@@ -395,7 +397,9 @@ const useUrlParams = ({
                                     (paramValue === null ? '' : null)
                             );
                             updateDepartmentSlice(
-                                validDepartmentData.split(',') || []
+                                validDepartmentData
+                                    ? validDepartmentData.split(',')
+                                    : []
                             );
                         }
                     }

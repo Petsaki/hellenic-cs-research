@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
+import {
+    DataGrid,
+    GridColDef,
+    GridPaginationModel,
+    GridRowSelectionModel,
+} from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
@@ -92,6 +97,9 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
 
     const [perYearData, setPerYearData] = useState<any>();
 
+    const [rowSelectionModel, setRowSelectionModel] =
+        useState<GridRowSelectionModel>([]);
+
     const rows = useMemo(() => {
         if (!data) {
             return [];
@@ -172,6 +180,7 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
 
     const handleRowClick = (params: any) => {
         setPerYearData(params.row);
+        setRowSelectionModel([params?.row?.id]);
     };
 
     const handlePaginationClick = (params: GridPaginationModel) => {
@@ -191,7 +200,7 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
             const academicStaff = (rows as Array<any>).find(
                 (staff) => staff?.id === perYearData?.id
             );
-
+            setRowSelectionModel([academicStaff?.id]);
             setPerYearData(academicStaff);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -268,6 +277,7 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
                     paginationModel={{ page, pageSize }}
                     paginationMode="server"
                     onPaginationModelChange={handlePaginationClick}
+                    rowSelectionModel={rowSelectionModel}
                     rowCount={rowCount}
                 />
             </Paper>
