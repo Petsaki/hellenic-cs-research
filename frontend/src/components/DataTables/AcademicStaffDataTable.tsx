@@ -42,6 +42,11 @@ const tableStyle: SxProps<Theme> = (theme) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
         color: 'white',
     },
+    '& .MuiDataGrid-footerContainer .MuiDataGrid-selectedRowCount': {
+        visibility: 'hidden',
+        width: '0',
+        height: '0',
+    },
     '& .MuiDataGrid-row.Mui-selected': {
         backgroundColor: 'rgba(85, 161, 229, 0.25)',
     },
