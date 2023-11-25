@@ -8,7 +8,7 @@ const options: swaggerJSDoc.Options = {
     definition: {
         openapi: "3.1.0",
         info: {
-            title: "OMEA Citations API Docs",
+            title: "OMEA API Docs",
             version: pjson.version
         },
          

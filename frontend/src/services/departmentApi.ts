@@ -5,6 +5,7 @@ import {
     IAcademicPositionTotals,
     IAcademicStaffData,
     IAcademicStaffResearchSummary,
+    IDepartmentData,
     IDepartments,
     IStatistics,
 } from '../models/api/response/departments/departments.data';
@@ -16,6 +17,7 @@ import {
     IFStatistics,
     IFilter,
 } from '../models/api/request/filters.data';
+import constructQueryString from '../app/untils/queryConstructor';
 
 // Δεν έχω βάλει invalidatesTags, οπότε κάνει caching, δηλαδή ότι πρέπει για αυτήν την εφαρμογή γιατί
 // τα δεδομένα στην βάση δεν πρόκειτε να αλλάξουν
@@ -59,10 +61,15 @@ export const departmentApi = createApi({
             ResponseData<IStatistics>,
             Partial<IFStatistics>
         >({
-            query: (body) => ({
-                url: Apis.GetStatistics,
-                method: 'POST',
-                body,
+            query: ({ departments, positions }) => ({
+                url: `${Apis.GetStatistics}?departments=${
+                    Array.isArray(departments)
+                        ? departments.join(',')
+                        : departments
+                }&positions=${
+                    Array.isArray(positions) ? positions.join(',') : positions
+                }`,
+                method: 'GET',
             }),
         }),
         getAcademicStaffData: builder.mutation<
@@ -83,13 +90,16 @@ export const departmentApi = createApi({
             }),
         }),
         getDepartmentsData: builder.mutation<
-            ResponseData<IDepartments>,
+            ResponseData<IDepartmentData[]>,
             Partial<IFDepartmentsData>
         >({
-            query: (body) => ({
-                url: Apis.GetDepartmentsData,
-                method: 'POST',
-                body,
+            query: ({ years, departments, positions }) => ({
+                url: `${Apis.GetDepartmentsData}?${constructQueryString({
+                    departments,
+                    positions,
+                    years: years ? years.map(String) : undefined,
+                })}`,
+                method: 'GET',
             }),
         }),
         getAcademicPositionTotals: builder.query<

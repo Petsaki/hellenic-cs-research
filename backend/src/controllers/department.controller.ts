@@ -3,13 +3,13 @@ import { sendResponse } from '../api/common';
 import Departments from '../models/department.model';
 import { omeaCitationsRes, omeaCitationsReqBody, IDepartments, IDep, omeaCitationsReqQuery, omeaCitationsReqBodyQuery, DepartmentsStaticStatsCache, cacheKeysEnum, DepartmentsDynamicStatsIDs } from '../types';
 import { tryCatch } from '../utils/tryCatch';
-import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq, AcademicPositionTotalsSchema, AcademicPositionTotalsRequest, AcademicStaffResearchSummaryRequest, AcademicStaffResearchSummarySchema, AcademicDataPaginationSchema, AcademicDataPaginationRequest } from '../types/request.types';
+import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq, AcademicPositionTotalsSchema, AcademicPositionTotalsRequest, AcademicStaffResearchSummaryRequest, AcademicStaffResearchSummarySchema, AcademicDataPaginationSchema, AcademicDataPaginationRequest, DepartmentWithOptionalPositions, DepartmentWithOptionalPositionsSchema } from '../types/request.types';
 import Dep from '../models/dep.model';
 import sequelize from '../db/connection';
 import Publications from '../models/publication.model';
 import Citations from '../models/citation.model';
 import { departmentsValidation, positionsValidation, yearsValidation } from '../utils/validators';
-import { AcademicData, DepartmentsDynamicStats, IAcademicPositionTotals, IAcademicStaffData, IAcademicStaffResearchSummary, IStatistics, IStatisticsPerDepartment, StaffResearchSummary } from '../types/response/department.type';
+import { AcademicData, DepartmentsDynamicStats, DepartmentsStats, IAcademicPositionTotals, IAcademicStaffData, IAcademicStaffResearchSummary, IStatistics, IStatisticsPerDepartment, StaffResearchSummary } from '../types/response/department.type';
 import cache from 'memory-cache';
 import { cacheTime, reqCache } from '../server';
 
@@ -57,9 +57,11 @@ export const getDepartmentsData = async (filters: string[] | undefined): Promise
 
 
 // STATISTICS
-export const getStatistics = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<IStatistics>) => {
+export const getStatistics = tryCatch(async (req: omeaCitationsReqQuery<DepartmentWithOptionalPositions>, res: omeaCitationsRes<IStatistics>) => {
     const {position: positionsCache, departmentsID: departmentsCache} = req.cache;
-    const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
+    const {departments: departmentsZod, positions: positionsZod}: DepartmentWithOptionalPositions = DepartmentWithOptionalPositionsSchema.parse(req.query);
+    const departments = departmentsZod.split(',');
+    const positions = positionsZod && positionsZod.split(',');
 
     // Validation - Check if departments exists in the database
     await departmentsValidation(departments, departmentsCache);
@@ -122,10 +124,12 @@ export const getStatistics = tryCatch(async (req: omeaCitationsReqBody<Statistic
     res.json(sendResponse<IStatistics>(200,'All good.', statistics));
 });
   
-export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<IStatisticsPerDepartment[]>) => {
+export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReqQuery<DepartmentWithOptionalPositions>, res: omeaCitationsRes<IStatisticsPerDepartment[]>) => {
     const {position: positionsCache, departmentsID: departmentsCache} = req.cache;
-    const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
-    
+    const {departments: departmentsZod, positions: positionsZod}: DepartmentWithOptionalPositions = DepartmentWithOptionalPositionsSchema.parse(req.query);
+    const departments = departmentsZod.split(',');
+    const positions = positionsZod && positionsZod.split(',');
+
     // Validation - Check if departments exists in the database
     await departmentsValidation(departments, departmentsCache);
     // Validation - Check if positions exists in the database
@@ -171,9 +175,11 @@ export const getStatisticsPerDepartments = tryCatch(async (req: omeaCitationsReq
 });
 
 // Department's active years
-export const getDepartmentsActiveYears = tryCatch(async (req: omeaCitationsReqBody<StatisticReq>, res: omeaCitationsRes<number[]>) => {
+export const getDepartmentsActiveYears = tryCatch(async (req: omeaCitationsReqQuery<DepartmentWithOptionalPositions>, res: omeaCitationsRes<number[]>) => {
     const {position: positionsCache, departmentsID: departmentsCache} = req.cache;
-    const {departments, positions}: StatisticReq = StatisticReqSchema.parse(req.body);
+    const {departments: departmentsZod, positions: positionsZod}: DepartmentWithOptionalPositions = DepartmentWithOptionalPositionsSchema.parse(req.query);
+    const departments = departmentsZod.split(',');
+    const positions = positionsZod && positionsZod.split(',');
     
     // Validation - Check if departments exists in the database
     await departmentsValidation(departments, departmentsCache);
@@ -253,8 +259,9 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
     const {departments: departmentsZod, positions: positionsZod, years: yearsString, page, size}: AcademicDataPaginationRequest = AcademicDataPaginationSchema.parse(req.query);
     const years = yearsString.split(',').map((item) => parseInt(item, 10));
     const departments = departmentsZod.split(',');
-    // Validation - Check if departments exists in the database
     const positions = positionsZod && positionsZod.split(',');
+
+    // Validation - Check if departments exists in the database
     await departmentsValidation(departments, departmentsCache);
     // Validation - Check if years exists in the database
     await yearsValidation(years, yearsCache);
@@ -381,22 +388,28 @@ const roundNumberWithDecimalPlaces = (num: number, numOfDecimals: string = decim
     return +(Math.round(+(num + 'e+' + numOfDecimals))  + 'e-' + numOfDecimals) || 0;
 }
 
-export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReqBody<DepartmentsAnalyticsReq>, res: omeaCitationsRes<any>) => {
+export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReqQuery<DepartmentsAnalyticsReq>, res: omeaCitationsRes<DepartmentsStats[]>) => {
     const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache, departmentsStaticStats: depStatsCache} = req.cache;
-    const {positions, years}: DepartmentsAnalyticsReq = DepartmentsAnalyticsReqSchema.parse(req.body);
-    
+    const {departments: departmentsZod, positions: positionsZod, years: yearsString}: DepartmentsAnalyticsReq = DepartmentsAnalyticsReqSchema.parse(req.query);
+    const departments = departmentsZod ? departmentsZod?.split(',') : undefined;
+    const positions = positionsZod ? positionsZod.split(',') : undefined;
+
+    const years = yearsString.split(',').map((item) => parseInt(item, 10));
+
     // Validation - Check if years exists in the database
     await yearsValidation(years, yearsCache);
     // Validation - Check if positions exists in the database
     if (positions) {
-        positionsValidation(positions, positionsCache)
+        await positionsValidation(positions, positionsCache)
+    }
+    
+    if (departments) {
+        await departmentsValidation(departments, departmentsCache);
     }
 
-    const departmentArray = departmentsCache.map((dep) => dep.id);
-
-    const positionArray = Array.isArray(positions) ? positions : [positions];
-
-
+    const departmentArray = departments ? departments : departmentsCache.map((dep) => dep.id);
+    const positionArray = positions ? positions : positionsCache;
+    
     // Sequelize has very bad typescript support. It is better to let it as any.
     const where: WhereOptions<any> = {
         inst: {
@@ -429,21 +442,19 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
 
     // console.log('groupedData', groupedData);
     
-    const eachDepActiveYears: any[] = [];
+    const eachDepActiveYears: DepartmentsStats[] = [];
     
     if (!depStatsCache || !depStatsCache.length) {
         // console.log(positionsCache);
         const yearsArray = [yearsCache[0], yearsCache[yearsCache.length - 1]]
         // console.log(yearsArray);
-        
-        await createDepartmentsAnalysis(departmentArray, positionsCache, yearsArray);
+        // const departmentsIDs = departmentsCache.map((dep) => dep.id);
+        await createDepartmentsAnalysis(departmentsCache.map((dep) => dep.id), positionsCache, yearsArray);
     }
     // console.log(reqCache.departmentsStaticStats);
     const depsDynamicStats = await createDepartmentsAnalysis(departmentArray, positionArray, years, where);
     if (depsDynamicStats && reqCache?.departmentsStaticStats?.length) {
         // console.log(depsDynamicStats);
-
-        const combinedObjects = {};
 
         departmentArray.forEach((inst) => {
             // Find the objects with the same inst ID in both arrays
@@ -452,31 +463,29 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
 
             if (dynamicData && staticData) {
                 // Combine the objects
-                const departmentStats = {
-                totalCitations: dynamicData.totalCitations,
-                totalPublications: dynamicData.totalPublications,
-                staffCount: staticData.staffCount,
-                avgPublicationsPerStaff: staticData.avgPublicationsPerStaff,
-                avgCitationsPerStaff: staticData.avgCitationsPerStaff,
-                maxPublicationsCount: dynamicData.maxPublicationsCount,
-                minPublicationsCount: dynamicData.minPublicationsCount,
-                maxCitationsCount: dynamicData.maxCitationsCount,
-                minCitationsCount: dynamicData.minCitationsCount,
-                cvPublications: staticData.cvPublications,
-                cvCitations: staticData.cvCitations,
-                avgHIndex: staticData.avgHIndex,
-                minHIndex: staticData.minHIndex,
-                maxHIndex: staticData.maxHIndex
+                const departmentStats: DepartmentsStats = {
+                    inst: inst,
+                    totalCitations: dynamicData.totalCitations,
+                    totalPublications: dynamicData.totalPublications,
+                    staffCount: staticData.staffCount,
+                    avgPublicationsPerStaff: staticData.avgPublicationsPerStaff,
+                    avgCitationsPerStaff: staticData.avgCitationsPerStaff,
+                    maxPublicationsCount: dynamicData.maxPublicationsCount,
+                    minPublicationsCount: dynamicData.minPublicationsCount,
+                    maxCitationsCount: dynamicData.maxCitationsCount,
+                    minCitationsCount: dynamicData.minCitationsCount,
+                    cvPublications: staticData.cvPublications,
+                    cvCitations: staticData.cvCitations,
+                    avgHIndex: staticData.avgHIndex,
+                    minHIndex: staticData.minHIndex,
+                    maxHIndex: staticData.maxHIndex
                 };
-                eachDepActiveYears.push({[inst]: departmentStats})
+                eachDepActiveYears.push(departmentStats);
             }
         });
-
-        // console.log(combinedObjects);
-
     }
 
-    res.json(sendResponse<any>(200,'All good.', eachDepActiveYears));
+    res.json(sendResponse<DepartmentsStats[]>(200,'All good.', eachDepActiveYears));
 });
 
 export const createDepartmentsAnalysis = async (departments: string[], positions: string[], yearsRange: number[], where: WhereOptions<any> = {}): Promise<void | DepartmentsDynamicStatsIDs[]> => {

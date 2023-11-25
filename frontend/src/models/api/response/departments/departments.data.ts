@@ -57,6 +57,7 @@ export interface IAcademicStaffData {
 
 // Departments Data Analytics
 export interface IDepartmentData {
+    inst: string;
     totalCitations: number;
     totalPublications: number;
     staffCount: number;

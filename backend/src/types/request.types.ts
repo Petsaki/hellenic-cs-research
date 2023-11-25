@@ -59,15 +59,6 @@ export const AcademicDataSchema = StatisticReqSchema.extend({
 });
 export type AcademicDataRequest = z.infer<typeof AcademicDataSchema>;
 
-
-// Department Analytics Array
-export const DepartmentsAnalyticsReqSchema = z.object({
-    years: z.array(z.number()),
-    positions: z.union([z.string(), z.array(z.string())])
-});
-
-export type DepartmentsAnalyticsReq = z.infer<typeof DepartmentsAnalyticsReqSchema>;
-
 // Express Query
 
 const customYearsValidation = (years: string): number[] | ZodError => {
@@ -206,3 +197,19 @@ export const AcademicDataPaginationSchema = AcademicPositionTotalsSchema.extend(
 });
 
 export type AcademicDataPaginationRequest = z.infer<typeof AcademicDataPaginationSchema>;
+
+// DepartmentWithOptionalPositions - it is using by many endpoints
+export const DepartmentWithOptionalPositionsSchema = z.object({
+    departments: z.string().nonempty(),
+    positions: z.string().optional()
+});
+
+export type DepartmentWithOptionalPositions = z.infer<typeof DepartmentWithOptionalPositionsSchema>;
+
+// DepartmentsAnalyticsData
+export const DepartmentsAnalyticsReqSchema = AcademicPositionTotalsSchema.extend({
+    departments: z.string().optional(),
+    positions: z.string().optional()
+});
+
+export type DepartmentsAnalyticsReq = z.infer<typeof DepartmentsAnalyticsReqSchema>;

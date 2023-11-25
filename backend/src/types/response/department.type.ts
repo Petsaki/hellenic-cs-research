@@ -78,7 +78,8 @@ export interface DepartmentsStaticStats {
     cvCitations: number,
     avgHIndex: number,
     minHIndex: number,
-    maxHIndex: number
+    maxHIndex: number,
+    inst: string;
 }
 
 export interface DepartmentsDynamicStats {

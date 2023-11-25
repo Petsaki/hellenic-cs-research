@@ -150,7 +150,7 @@ const DepartmentDataTable = () => {
 
     const [selectedDep, setSelectedDep] = useState<string>();
 
-    const [tableData, setTableData] = useState<IDepartments | undefined>(
+    const [tableData, setTableData] = useState<IDepartmentData[] | undefined>(
         undefined
     );
 
@@ -173,31 +173,23 @@ const DepartmentDataTable = () => {
         const departmentIds: string[] = Object.keys(tableData);
 
         const rowData: any = [];
-        departmentIds.forEach((departmentIndex) => {
-            const departmentID = Object.keys(tableData[departmentIndex])[0];
-            const department = (
-                tableData[departmentIndex] as unknown as Record<
-                    string,
-                    IDepartmentData
-                >
-            )[departmentID];
-
+        tableData.forEach((departmentData) => {
             rowData.push({
-                id: departmentID,
-                publications: department.totalPublications,
-                citations: department.totalCitations,
-                count: department.staffCount,
-                averagePublication: department.avgPublicationsPerStaff,
-                averageCitation: department.avgCitationsPerStaff,
-                averageH: department.avgHIndex,
-                cvPublications: department.cvPublications,
-                cvCitations: department.cvCitations,
-                maxPublications: department.maxPublicationsCount,
-                minPublications: department.minPublicationsCount,
-                maxCitations: department.maxCitationsCount,
-                minCitations: department.minCitationsCount,
-                maxH: department.maxHIndex,
-                minH: department.minHIndex,
+                id: departmentData.inst,
+                publications: departmentData.totalPublications,
+                citations: departmentData.totalCitations,
+                count: departmentData.staffCount,
+                averagePublication: departmentData.avgPublicationsPerStaff,
+                averageCitation: departmentData.avgCitationsPerStaff,
+                averageH: departmentData.avgHIndex,
+                cvPublications: departmentData.cvPublications,
+                cvCitations: departmentData.cvCitations,
+                maxPublications: departmentData.maxPublicationsCount,
+                minPublications: departmentData.minPublicationsCount,
+                maxCitations: departmentData.maxCitationsCount,
+                minCitations: departmentData.minCitationsCount,
+                maxH: departmentData.maxHIndex,
+                minH: departmentData.minHIndex,
             });
         });
         return rowData;
