@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import { createContext, useEffect, useState } from 'react';
+import { GridRowSelectionModel } from '@mui/x-data-grid';
 import { useGetAcademicStaffDataMutation } from '../services/departmentApi';
 import { RootState } from '../app/store';
 import AcademicStaffDataTable from './DataTables/AcademicStaffDataTable';
@@ -10,6 +11,10 @@ export interface PaginationType {
     setPage: React.Dispatch<React.SetStateAction<number>>;
     pageSize: number;
     setPageSize: React.Dispatch<React.SetStateAction<number>>;
+    rowSelectionModel: GridRowSelectionModel;
+    setRowSelectionModel: React.Dispatch<
+        React.SetStateAction<GridRowSelectionModel>
+    >;
 }
 
 const CitationsTableGroup = () => {
@@ -32,6 +37,8 @@ const CitationsTableGroup = () => {
 
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(50);
+    const [rowSelectionModel, setRowSelectionModel] =
+        useState<GridRowSelectionModel>([]);
 
     const getAcademicStaffData = () => {
         if (selectedDeps.length && selectedYears.length) {
@@ -72,6 +79,8 @@ const CitationsTableGroup = () => {
                 setPage={setPage}
                 pageSize={pageSize}
                 setPageSize={setPageSize}
+                rowSelectionModel={rowSelectionModel}
+                setRowSelectionModel={setRowSelectionModel}
             />
 
             <ResearchActivityTable
@@ -82,6 +91,8 @@ const CitationsTableGroup = () => {
                 setPage={setPage}
                 pageSize={pageSize}
                 setPageSize={setPageSize}
+                rowSelectionModel={rowSelectionModel}
+                setRowSelectionModel={setRowSelectionModel}
             />
         </>
     );

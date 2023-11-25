@@ -66,7 +66,9 @@ const tableStyle: SxProps<Theme> = (theme) => ({
         color: 'white',
     },
     '& .MuiDataGrid-footerContainer .MuiDataGrid-selectedRowCount': {
-        display: 'none',
+        visibility: 'hidden',
+        width: '0',
+        height: '0',
     },
     '& .MuiDataGrid-row.Mui-selected': {
         backgroundColor: 'rgba(85, 161, 229, 0.25)',
@@ -87,6 +89,8 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
     setPage,
     pageSize,
     setPageSize,
+    rowSelectionModel,
+    setRowSelectionModel,
 }: ResearchActivityTableProp) => {
     const theme = useTheme();
     const [rowCount, setRowCount] = useState<number>(0);
@@ -96,9 +100,6 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
     );
 
     const [perYearData, setPerYearData] = useState<any>();
-
-    const [rowSelectionModel, setRowSelectionModel] =
-        useState<GridRowSelectionModel>([]);
 
     const rows = useMemo(() => {
         if (!data) {
@@ -178,8 +179,16 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
         if (data?.count) setRowCount(data.count);
     }, [data]);
 
+    useEffect(() => {
+        const academicStaff = (rows as Array<any>).find(
+            (staff) => staff?.id === rowSelectionModel[0]
+        );
+        setPerYearData(academicStaff);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rowSelectionModel]);
+
     const handleRowClick = (params: any) => {
-        setPerYearData(params.row);
+        // setPerYearData(params.row);
         setRowSelectionModel([params?.row?.id]);
     };
 
@@ -200,8 +209,9 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
             const academicStaff = (rows as Array<any>).find(
                 (staff) => staff?.id === perYearData?.id
             );
-            setRowSelectionModel([academicStaff?.id]);
-            setPerYearData(academicStaff);
+
+            setRowSelectionModel(academicStaff ? [academicStaff?.id] : []);
+            // setPerYearData(academicStaff);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rows]);

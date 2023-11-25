@@ -145,6 +145,13 @@ const useThemeConfiguration = ({ mode }: ThemeConfiguration) => {
                         },
                     },
                 },
+                MuiAppBar: {
+                    styleOverrides: {
+                        root: {
+                            paddingRight: '0px !important',
+                        },
+                    },
+                },
             },
         });
 

@@ -13,6 +13,7 @@ import {
 } from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
 import StaffsTotalResearch from '../StaffsTotalResearch';
+import SectionTitle from '../SectionTitle';
 
 const tableStyle: SxProps<Theme> = (theme) => ({
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',
@@ -37,7 +38,9 @@ const tableStyle: SxProps<Theme> = (theme) => ({
         },
     },
     '& .MuiDataGrid-footerContainer .MuiDataGrid-selectedRowCount': {
-        display: 'none',
+        visibility: 'hidden',
+        width: '0',
+        height: '0',
     },
     '& .MuiDataGrid-row.Mui-selected': {
         backgroundColor: 'rgba(85, 161, 229, 0.25)',
@@ -176,8 +179,6 @@ const DepartmentDataTable = () => {
             return [];
         }
 
-        const departmentIds: string[] = Object.keys(tableData);
-
         const rowData: any = [];
         tableData.forEach((departmentData) => {
             rowData.push({
@@ -231,6 +232,7 @@ const DepartmentDataTable = () => {
                     width: '100%',
                 }}
             >
+                <SectionTitle titleText="Departments Statistics" />
                 <Paper
                     sx={{
                         height: '750px',

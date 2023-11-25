@@ -42,6 +42,9 @@ const tableStyle: SxProps<Theme> = (theme) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
         color: 'white',
     },
+    '& .MuiDataGrid-row.Mui-selected': {
+        backgroundColor: 'rgba(85, 161, 229, 0.25)',
+    },
 });
 export interface AcademicStaffDataTableProp extends PaginationType {
     data: IAcademicStaffData | undefined;
@@ -57,6 +60,8 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
     setPage,
     pageSize,
     setPageSize,
+    rowSelectionModel,
+    setRowSelectionModel,
 }: AcademicStaffDataTableProp) => {
     const theme = useTheme();
     const [rowCount, setRowCount] = useState<number>(0);
@@ -173,6 +178,7 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
     const handleRowClick = (params: any) => {
         // Access the data for the clicked row using params.row
         const clickedRowData = params.row;
+        setRowSelectionModel([params?.row?.id]);
 
         // You can perform actions based on the clicked row data here
         console.log('Clicked row data:', clickedRowData);
@@ -210,6 +216,7 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
                     paginationModel={{ page, pageSize }}
                     paginationMode="server"
                     onPaginationModelChange={handlePaginationClick}
+                    rowSelectionModel={rowSelectionModel}
                     rowCount={rowCount}
                 />
             </Paper>
