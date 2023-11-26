@@ -12,7 +12,7 @@ const router = Router();
  *     description: Returns all positions that a academic staff can be.
  *     responses:  
  *       200: 
- *         description: It's all good man!
+ *         description: Success
  *     tags:
  *       - OMEA
  *   
@@ -28,12 +28,51 @@ router.get('/positions', getCacheAllPositions, getPositions);
  *       - name: departments
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Department's ids. Accepts multi values with comma(,).
  *     responses:  
  *       200: 
- *         description: It's all good man!
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Response'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           inst:
+ *                             type: string
+ *                           positions:
+ *                             type: object
+ *                             properties:
+ *                               Assistant Professor:
+ *                                 type: integer
+ *                               Associate Professor:
+ *                                 type: integer
+ *                               Lab Lecturer:
+ *                                 type: integer
+ *                               Professor:
+ *                                 type: integer
+ *                               Lecturer:
+ *                                 type: integer
+ *             example:
+ *               code: 200
+ *               data:
+ *                 - inst: "iee@ihu"
+ *                   positions:
+ *                     Assistant Professor: 6
+ *                     Associate Professor: 5
+ *                     Lab Lecturer: 3
+ *                     Professor: 16
+ *                     Lecturer: 0
+ *               description: "All good."
+ *               success: true
  *     tags:
  *       - OMEA
  *   

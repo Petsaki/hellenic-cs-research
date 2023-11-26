@@ -11,7 +11,7 @@ const router = Router();
  *     description: Returns the years range of the database
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success
  *     tags:
  *       - OMEA
  *   

@@ -15,12 +15,12 @@ const router = Router();
  *       - name: filter
  *         in: query
  *         required: false
- *         scema:
+ *         schema:
  *           type: string
  *         description: What objects to return
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success 
  *     tags:
  *       - OMEA
  *   
@@ -36,36 +36,36 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *       - name: departments
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Department's ids. Accepts multi values with comma(,).
  *       - name: years
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Years range. Accepts multi values with comma(,). Max 2 values.
  *       - name: page
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: number
  *         description: Page's number.
  *       - name: size
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: number
  *         description: Offset's number.
  *       - name: positions
  *         in: query
  *         required: false
- *         scema:
+ *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,).
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success 
  *     tags:
  *       - OMEA
  *   
@@ -82,18 +82,18 @@ router.get('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCa
  *       - name: departments
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Departments. Accepts multi values with comma(,).
  *       - name: positions
  *         in: query
  *         required: false
- *         scema:
+ *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,).
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success 
  *     tags:
  *       - OMEA
  *   
@@ -110,18 +110,18 @@ router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartments
  *       - name: departments
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Departments. Accepts multi values with comma(,).
  *       - name: positions
  *         in: query
  *         required: false
- *         scema:
+ *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,).
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success 
  *     tags:
  *       - OMEA
  *   
@@ -137,18 +137,18 @@ router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatis
  *       - name: departments
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Departments. Accepts multi values with comma(,).
  *       - name: positions
  *         in: query
  *         required: false
- *         scema:
+ *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,).
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success 
  *     tags:
  *       - OMEA
  *   
@@ -165,24 +165,24 @@ router.get('/active-years', getCacheAllPositions, getCacheDepartmentsID, getDepa
  *       - name: departments
  *         in: query
  *         required: false
- *         scema:
+ *         schema:
  *           type: string
  *         description: Department's ids. Accepts multi values with comma(,). If is empty it will return for all.
  *       - name: years
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Years range. Accepts multi values with comma(,). Max 2 values.
  *       - name: positions
  *         in: query
  *         required: false
- *         scema:
+ *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,). If is empty it will return for all.
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success 
  *     tags:
  *       - OMEA
  *   
@@ -199,24 +199,24 @@ router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, get
  *       - name: departments
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Department's ids. Accepts multi values with comma(,). If is empty it will return for all.
  *       - name: years
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Years range. Accepts multi values with comma(,). Max 2 values.
  *       - name: positions
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,). If is empty it will return for all.
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success 
  *     tags:
  *       - OMEA
  *   
@@ -233,24 +233,24 @@ router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, 
  *       - name: departments
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Department's ids. Accepts multi values with comma(,). If is empty it will return for all.
  *       - name: years
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Years range. Accepts multi values with comma(,). Max 2 values.
  *       - name: positions
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,). If is empty it will return for all.
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success 
  *     tags:
  *       - OMEA
  *   
@@ -267,24 +267,24 @@ router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCa
  *       - name: departments
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Department's ids. Accepts multi values with comma(,). If is empty it will return for all.
  *       - name: years
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Years range. Accepts multi values with comma(,). Max 2 values.
  *       - name: positions
  *         in: query
  *         required: true
- *         scema:
+ *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,). If is empty it will return for all.
  *     responses:  
  *       200: 
- *         description: It's all good man! 
+ *         description: Success 
  *     tags:
  *       - OMEA
  *   
