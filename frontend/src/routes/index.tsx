@@ -19,7 +19,7 @@ function Paths() {
                     <Route path="/" element={<FilterAndDataComponent />}>
                         <Route path="/citations" element={<Citations />} />
                         <Route
-                            path="/departments-stats"
+                            path="/departments"
                             element={<DepartmentsStats />}
                         />
                     </Route>

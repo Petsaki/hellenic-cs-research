@@ -53,7 +53,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
     const location = useLocation();
     const [buttonConfig, setButtonConfig] = useState<IDynamicLinkButton>({
         to: '/',
-        text: "Departments Stat's",
+        text: 'Departments Stats',
     });
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -72,18 +72,18 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
     useEffect(() => {
         if (location.pathname === '/citations') {
             setButtonConfig({
-                to: '/departments-stats',
-                text: "Departments Stat's",
+                to: '/departments',
+                text: 'Departments Stats',
             });
-        } else if (location.pathname === '/departments-stats') {
+        } else if (location.pathname === '/departments') {
             setButtonConfig({
                 to: 'citations',
-                text: "Citations Stat's",
+                text: 'Citations Stats',
             });
         } else {
             setButtonConfig({
                 to: 'citations',
-                text: "Citations Stat's",
+                text: 'Citations Stats',
             });
         }
     }, [location.pathname]);
