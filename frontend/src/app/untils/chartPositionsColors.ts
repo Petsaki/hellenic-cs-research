@@ -28,4 +28,9 @@ colorMap.set('Lecturer', {
     backgroundColor: `rgba(44, 160, 44, opacity)`,
 });
 
+colorMap.set('Former', {
+    borderColor: `rgba(128, 128, 128, 1)`, // Gray
+    backgroundColor: `rgba(128, 128, 128, opacity)`,
+});
+
 export default colorMap;

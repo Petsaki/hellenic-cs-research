@@ -176,7 +176,9 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
     }, [yearsColumns]);
 
     useEffect(() => {
+        if (!data?.count && !loading) setRowSelectionModel([]);
         if (data?.count) setRowCount(data.count);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
     useEffect(() => {

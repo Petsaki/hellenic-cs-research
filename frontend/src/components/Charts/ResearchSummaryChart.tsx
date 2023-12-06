@@ -143,10 +143,8 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
     }, [theme.palette.mode]);
 
     useEffect(() => {
-        if (depResearchSummary?.data) {
-            console.log(depResearchSummary?.data[0].research);
-
-            setLabelTest(depResearchSummary?.data[0].research);
+        if (depResearchSummary?.data.length) {
+            setLabelTest(depResearchSummary?.data[0]?.research);
         }
     }, [depResearchSummary]);
 

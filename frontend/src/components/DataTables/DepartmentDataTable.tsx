@@ -203,8 +203,19 @@ const DepartmentDataTable = () => {
     }, [tableData, selectedPositions, selectedYears]);
 
     useEffect(() => {
-        if (!isDepartmentDataLoading && departmentsData?.data)
+        if (!isDepartmentDataLoading && departmentsData?.data?.length) {
             setTableData(departmentsData.data);
+            if (
+                !departmentsData?.data.some((department) => {
+                    return department.inst === selectedDep;
+                })
+            ) {
+                setSelectedDep(undefined);
+            }
+        } else if (!isDepartmentDataLoading && !departmentsData?.data.length) {
+            setSelectedDep(undefined);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isDepartmentDataLoading, departmentsData]);
 
     const handleRowClick = (params: any) => {
