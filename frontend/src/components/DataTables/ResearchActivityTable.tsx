@@ -23,6 +23,7 @@ import {
 import SectionTitle from '../SectionTitle';
 import PerYearStats from '../Charts/PerYearStats';
 import { PaginationType } from '../CitationsTableGroup';
+import ResizableTable from '../ResizableTable';
 
 export enum ResearchFilterBy {
     Citations = 'Citations',
@@ -271,31 +272,34 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
                     }}
                 />
             </Box>
-            <Paper
-                sx={{
-                    height: '600px',
-                    width: '100%',
-                    marginBottom: '24px',
-                }}
-            >
-                <DataGrid
-                    slots={{
-                        loadingOverlay: LinearProgress,
-                        noRowsOverlay: EmptyData,
-                    }}
-                    sx={tableStyle(theme)}
-                    loading={loading}
-                    rows={rows}
-                    columns={columns}
-                    pageSizeOptions={[25, 50, 75, 100]}
-                    onRowClick={handleRowClick}
-                    paginationModel={{ page, pageSize }}
-                    paginationMode="server"
-                    onPaginationModelChange={handlePaginationClick}
-                    rowSelectionModel={rowSelectionModel}
-                    rowCount={rowCount}
-                />
-            </Paper>
+            <ResizableTable initialHeight={600}>
+                {(height) => (
+                    <Paper
+                        sx={{
+                            height: `${height}px`,
+                            width: '100%',
+                        }}
+                    >
+                        <DataGrid
+                            slots={{
+                                loadingOverlay: LinearProgress,
+                                noRowsOverlay: EmptyData,
+                            }}
+                            sx={tableStyle(theme)}
+                            loading={loading}
+                            rows={rows}
+                            columns={columns}
+                            pageSizeOptions={[25, 50, 75, 100]}
+                            onRowClick={handleRowClick}
+                            paginationModel={{ page, pageSize }}
+                            paginationMode="server"
+                            onPaginationModelChange={handlePaginationClick}
+                            rowSelectionModel={rowSelectionModel}
+                            rowCount={rowCount}
+                        />
+                    </Paper>
+                )}
+            </ResizableTable>
             <PerYearStats data={perYearData} filterby={researchFilterby} />
         </Box>
     );

@@ -21,6 +21,7 @@ const speedDial: SxProps<Theme> = (theme) => ({
 const mainContainer: SxProps = {
     mt: { xs: 1, md: 2, lg: 3 },
     padding: { xs: '8px', sm: '12px', lg: '24px' },
+    mb: 10,
 };
 
 const FilterAndDataComponent = () => {

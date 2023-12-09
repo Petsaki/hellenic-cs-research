@@ -1,0 +1,49 @@
+import { useState, ReactNode, SyntheticEvent } from 'react';
+import { useTheme } from '@mui/material/styles';
+import { ResizableBox } from 'react-resizable';
+
+interface ResizeCallbackData {
+    size: {
+        width: number;
+        height: number;
+    };
+}
+
+interface ResizableTableProps {
+    initialHeight: number;
+    children: (height: number) => ReactNode;
+}
+
+const ResizableTable: React.FC<ResizableTableProps> = ({
+    initialHeight,
+    children,
+}: ResizableTableProps) => {
+    const [height, setHeight] = useState(initialHeight);
+    const theme = useTheme();
+
+    const handleResize = (
+        event: SyntheticEvent,
+        { size }: ResizeCallbackData
+    ) => {
+        setHeight(size.height);
+    };
+
+    return (
+        <ResizableBox
+            height={height}
+            width={Infinity}
+            onResize={handleResize}
+            resizeHandles={['s']}
+            minConstraints={[Infinity, 326]}
+            maxConstraints={[Infinity, 3030]}
+            draggableOpts={{ grid: [52, 52] }}
+            className={`react-resizable react-resizable_${
+                theme.palette.mode === 'dark' ? 'dark' : 'light'
+            }`}
+        >
+            {children(height)}
+        </ResizableBox>
+    );
+};
+
+export default ResizableTable;

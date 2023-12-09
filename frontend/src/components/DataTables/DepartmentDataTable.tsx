@@ -14,6 +14,7 @@ import {
 import EmptyData from './EmptyData';
 import StaffsTotalResearch from '../StaffsTotalResearch';
 import SectionTitle from '../SectionTitle';
+import ResizableTable from '../ResizableTable';
 
 const tableStyle: SxProps<Theme> = (theme) => ({
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',
@@ -244,33 +245,39 @@ const DepartmentDataTable = () => {
                 }}
             >
                 <SectionTitle titleText="Departments Statistics" />
-                <Paper
-                    sx={{
-                        height: '750px',
-                        width: '100%',
-                    }}
-                >
-                    <DataGrid
-                        className={
-                            isDepartmentDataLoading
-                                ? 'loading'
-                                : 'MuiDataGrid-custom'
-                        }
-                        slots={{
-                            loadingOverlay: LinearProgress,
-                            noRowsOverlay: EmptyData,
-                        }}
-                        sx={tableStyle(theme)}
-                        loading={isDepartmentDataLoading}
-                        rows={rows}
-                        columns={columns}
-                        initialState={{
-                            pagination: { paginationModel: { pageSize: 100 } },
-                        }}
-                        pageSizeOptions={[10, 25, 50, 100]}
-                        onRowClick={handleRowClick}
-                    />
-                </Paper>
+                <ResizableTable initialHeight={600}>
+                    {(height) => (
+                        <Paper
+                            sx={{
+                                height: `${height}px`,
+                                width: '100%',
+                            }}
+                        >
+                            <DataGrid
+                                className={
+                                    isDepartmentDataLoading
+                                        ? 'loading'
+                                        : 'MuiDataGrid-custom'
+                                }
+                                slots={{
+                                    loadingOverlay: LinearProgress,
+                                    noRowsOverlay: EmptyData,
+                                }}
+                                sx={tableStyle(theme)}
+                                loading={isDepartmentDataLoading}
+                                rows={rows}
+                                columns={columns}
+                                initialState={{
+                                    pagination: {
+                                        paginationModel: { pageSize: 100 },
+                                    },
+                                }}
+                                pageSizeOptions={[10, 25, 50, 100]}
+                                onRowClick={handleRowClick}
+                            />
+                        </Paper>
+                    )}
+                </ResizableTable>
             </Grid2>
             <StaffsTotalResearch id={selectedDep} />
         </>

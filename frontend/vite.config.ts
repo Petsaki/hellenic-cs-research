@@ -7,5 +7,9 @@ export default defineConfig({
   envDir: './src/env',
   server: {
     host: true
-  }
+  },
+  // Vite is trolling hard..
+  optimizeDeps: {
+    include: ['@mui/material/Tooltip', '@mui/material/Unstable_Grid2', '@mui/icons-material'],
+  },
 })

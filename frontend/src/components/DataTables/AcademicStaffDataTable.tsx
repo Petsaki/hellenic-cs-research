@@ -4,6 +4,7 @@ import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
+import { Resizable, ResizableBox } from 'react-resizable';
 import { RootState } from '../../app/store';
 import { useGetAcademicStaffDataMutation } from '../../services/departmentApi';
 import {
@@ -14,6 +15,7 @@ import {
 import EmptyData from './EmptyData';
 import SectionTitle from '../SectionTitle';
 import { PaginationType } from '../CitationsTableGroup';
+import ResizableTable from '../ResizableTable';
 
 // Helper function to get the cell value for each dynamic column
 const getCellValue = (year: number, rowData: AcademicData) => {
@@ -201,33 +203,35 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
     return (
         <>
             <SectionTitle titleText="Academic Staff Data" />
-
-            <Paper
-                sx={{
-                    height: '600px',
-                    width: '100%',
-                    marginBottom: '24px',
-                }}
-            >
-                <DataGrid
-                    slots={{
-                        loadingOverlay: LinearProgress,
-                        noRowsOverlay: EmptyData,
-                    }}
-                    sx={tableStyle(theme)}
-                    loading={loading}
-                    rows={rows}
-                    columns={columns}
-                    pageSizeOptions={[25, 50, 75, 100]}
-                    disableRowSelectionOnClick
-                    onRowClick={handleRowClick}
-                    paginationModel={{ page, pageSize }}
-                    paginationMode="server"
-                    onPaginationModelChange={handlePaginationClick}
-                    rowSelectionModel={rowSelectionModel}
-                    rowCount={rowCount}
-                />
-            </Paper>
+            <ResizableTable initialHeight={600}>
+                {(height) => (
+                    <Paper
+                        sx={{
+                            height: `${height}px`,
+                            width: '100%',
+                        }}
+                    >
+                        <DataGrid
+                            slots={{
+                                loadingOverlay: LinearProgress,
+                                noRowsOverlay: EmptyData,
+                            }}
+                            sx={tableStyle(theme)}
+                            loading={loading}
+                            rows={rows}
+                            columns={columns}
+                            pageSizeOptions={[25, 50, 75, 100]}
+                            disableRowSelectionOnClick
+                            onRowClick={handleRowClick}
+                            paginationModel={{ page, pageSize }}
+                            paginationMode="server"
+                            onPaginationModelChange={handlePaginationClick}
+                            rowSelectionModel={rowSelectionModel}
+                            rowCount={rowCount}
+                        />
+                    </Paper>
+                )}
+            </ResizableTable>
         </>
     );
 };
