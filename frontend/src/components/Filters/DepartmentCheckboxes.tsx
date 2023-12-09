@@ -6,8 +6,10 @@ import FormLabel from '@mui/material/FormLabel/FormLabel';
 import React, { useEffect, useState } from 'react';
 import TextField from '@mui/material/TextField/TextField';
 import Box from '@mui/material/Box/Box';
+import { useSearchParams } from 'react-router-dom';
 import { DepartmentId } from '../../models/api/response/departments/departments.data';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
+import ClearButton from '../ClearButton';
 
 // TODO - Maybe it will broke when deploy
 let departmentTimeout: ReturnType<typeof setTimeout>;
@@ -25,6 +27,7 @@ const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
     });
     const [searchQuery, setSearchQuery] = useState('');
     const [checked, setChecked] = useState<Array<string>>([]);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const filteredDepsArray = data
         ? data.filter((dep) =>
@@ -75,7 +78,34 @@ const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
             component="fieldset"
             variant="standard"
         >
-            <FormLabel component="legend">Departments</FormLabel>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '0.75rem',
+                    paddingTop: '0.5rem',
+                    paddingBottom: '0.8rem',
+                    alignItems: 'flex-end',
+                }}
+            >
+                <FormLabel
+                    sx={{ padding: '0', lineHeight: 'normal' }}
+                    component="legend"
+                >
+                    Departments
+                </FormLabel>
+                <ClearButton
+                    sx={{ fontSize: '0.78rem' }}
+                    onClick={() =>
+                        setSearchParams((prevSearchParams) => {
+                            searchParams.delete(ParamNames.Departments);
+                            return prevSearchParams;
+                        })
+                    }
+                >
+                    clear
+                </ClearButton>
+            </Box>
             <TextField
                 hiddenLabel
                 id="filled-hidden-label-small"

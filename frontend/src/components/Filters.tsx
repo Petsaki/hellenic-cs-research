@@ -16,6 +16,7 @@ import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi'
 import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
 import DepartmentCheckboxes from './Filters/DepartmentCheckboxes';
 import PositionCheckboxes from './Filters/PositionCheckboxes';
+import ClearButton from './ClearButton';
 
 const drawerStyle: SxProps = {
     '& .MuiDrawer-paper': {
@@ -32,17 +33,6 @@ const drawerStyle: SxProps = {
     },
     '& .MuiGrid2-root': {
         padding: 0,
-    },
-};
-
-const clearStyle: SxProps = {
-    color: '#7096d6',
-    fontSize: '0.8rem',
-    p: 0,
-    '&.MuiButtonBase-root:hover': {
-        bgcolor: 'transparent',
-        textDecoration: 'underline',
-        filter: 'brightness(85%)',
     },
 };
 
@@ -115,7 +105,7 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                     sx={{
                         display: 'flex',
                         alignItems: 'baseline',
-                        gap: '4px',
+                        gap: '0.75rem',
                         mb: 2,
                     }}
                 >
@@ -129,17 +119,13 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                     >
                         Filters
                     </Typography>
-                    <Button
-                        disableElevation
-                        disableRipple
-                        variant="text"
-                        sx={clearStyle}
+                    <ClearButton
                         onClick={() => {
                             setSearchParams({});
                         }}
                     >
                         Clear
-                    </Button>
+                    </ClearButton>
                 </Box>
                 <FixSlide data={yearsData.data} />
                 <Divider sx={filterDivider} />

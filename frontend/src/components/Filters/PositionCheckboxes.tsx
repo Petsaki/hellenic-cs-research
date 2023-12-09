@@ -5,8 +5,10 @@ import FormGroup from '@mui/material/FormGroup/FormGroup';
 import FormLabel from '@mui/material/FormLabel/FormLabel';
 import React, { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box/Box';
+import { useSearchParams } from 'react-router-dom';
 import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
+import ClearButton from '../ClearButton';
 
 // TODO - Maybe it will broke when deploy
 let academicPosTimeout: ReturnType<typeof setTimeout>;
@@ -23,6 +25,7 @@ const PositionCheckboxes: React.FC<PositionCheckboxesProp> = ({
         data,
     });
     const [checked, setChecked] = useState<Array<string>>([]);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const handleCheckboxChange = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -76,7 +79,34 @@ const PositionCheckboxes: React.FC<PositionCheckboxesProp> = ({
                 component="fieldset"
                 variant="standard"
             >
-                <FormLabel component="legend">Academic Positions</FormLabel>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: '0.75rem',
+                        paddingTop: '0.5rem',
+                        paddingBottom: '0.8rem',
+                        alignItems: 'flex-end',
+                    }}
+                >
+                    <FormLabel
+                        component="legend"
+                        sx={{ padding: '0', lineHeight: 'normal' }}
+                    >
+                        Academic Positions
+                    </FormLabel>
+                    <ClearButton
+                        sx={{ fontSize: '0.78rem' }}
+                        onClick={() =>
+                            setSearchParams((prevSearchParams) => {
+                                searchParams.delete(ParamNames.AcademicPos);
+                                return prevSearchParams;
+                            })
+                        }
+                    >
+                        clear
+                    </ClearButton>
+                </Box>
                 {data && (
                     <FormGroup>
                         {data.map((depID) => (
