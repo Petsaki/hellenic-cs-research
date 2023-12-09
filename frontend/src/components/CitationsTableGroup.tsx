@@ -6,6 +6,11 @@ import { RootState } from '../app/store';
 import AcademicStaffDataTable from './DataTables/AcademicStaffDataTable';
 import ResearchActivityTable from './DataTables/ResearchActivityTable';
 
+export interface IPagination {
+    page: number;
+    pageSize: number;
+}
+
 export interface PaginationType {
     page: number;
     setPage: React.Dispatch<React.SetStateAction<number>>;
@@ -37,6 +42,10 @@ const CitationsTableGroup = () => {
 
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(50);
+    const [pagination, setPagination] = useState<IPagination>({
+        page: 0,
+        pageSize: 50,
+    });
     const [rowSelectionModel, setRowSelectionModel] =
         useState<GridRowSelectionModel>([]);
 
@@ -46,8 +55,8 @@ const CitationsTableGroup = () => {
                 departments: selectedDeps,
                 positions: selectedPositions,
                 years: selectedYears,
-                page,
-                size: pageSize,
+                page: pagination.page,
+                size: pagination.pageSize,
             });
             setShowTable(false);
         } else {
@@ -56,18 +65,23 @@ const CitationsTableGroup = () => {
     };
 
     useEffect(() => {
-        if (page) {
-            setPage(0);
+        if (!page) {
+            setPagination({ pageSize, page: 0 });
         } else {
-            getAcademicStaffData();
+            setPage(0);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedDeps, selectedPositions, selectedYears, pageSize]);
 
     useEffect(() => {
-        getAcademicStaffData();
+        setPagination({ pageSize, page });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page]);
+
+    useEffect(() => {
+        getAcademicStaffData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pagination]);
 
     return (
         <>

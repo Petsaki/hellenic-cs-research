@@ -195,8 +195,11 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
     };
 
     const handlePaginationClick = (params: GridPaginationModel) => {
-        setPage(params.page);
-        setPageSize(params.pageSize);
+        if (pageSize !== params.pageSize) {
+            setPageSize(params.pageSize);
+        } else {
+            setPage(params.page);
+        }
     };
 
     const filterResearchBy = (
