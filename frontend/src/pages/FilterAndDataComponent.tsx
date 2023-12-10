@@ -1,11 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import SpeedDial from '@mui/material/SpeedDial/SpeedDial';
 import TuneIcon from '@mui/icons-material/Tune';
-import { Container, SxProps, Theme, useTheme } from '@mui/material';
+import {
+    Collapse,
+    Container,
+    Divider,
+    IconButton,
+    SxProps,
+    Theme,
+    useTheme,
+} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import TheChipArray from '../components/TheChipArray';
 import Filters from '../components/Filters';
+import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
+import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
+import { useGetDepartmentsQuery } from '../services/departmentApi';
 
 const speedDial: SxProps<Theme> = (theme) => ({
     position: 'fixed',
@@ -18,6 +31,23 @@ const speedDial: SxProps<Theme> = (theme) => ({
     },
 });
 
+const collaspeButton: SxProps<Theme> = (theme) => ({
+    color: 'white',
+    top: '28px',
+    height: 'fit-content',
+    transform: 'translateX(-50%)',
+    backgroundColor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
+    borderRadius: '4px',
+    zIndex: '1',
+    '&:hover': {
+        backgroundColor: theme.palette.mode === 'dark' ? '#323232' : '#188acb',
+    },
+    '& .MuiSvgIcon-root': {
+        width: '0.65em',
+        height: '0.65em',
+    },
+});
+
 const mainContainer: SxProps = {
     mt: { xs: 1, md: 2, lg: 3 },
     padding: { xs: '8px', sm: '12px', lg: '24px' },
@@ -27,6 +57,37 @@ const mainContainer: SxProps = {
 const FilterAndDataComponent = () => {
     const theme = useTheme();
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const location = useLocation();
+
+    const [checked, setChecked] = useState(true);
+    const [height, setHeight] = useState(0);
+    const ref = useRef<HTMLDivElement | null>(null);
+
+    const { isLoading: isYearsDataLoading, isError: isYearsDataError } =
+        useGetYearsRangeQuery();
+
+    const { isLoading: isPositionsDataLoading, isError: isPositionsDataError } =
+        useGetAcademicStaffPositionsQuery();
+
+    const {
+        isLoading: isDepartmenentDataFetching,
+        isError: isDepartmenentDataError,
+    } = useGetDepartmentsQuery({
+        filter: ['id', 'url'],
+    });
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        setHeight(ref?.current?.clientHeight || 0);
+    });
+
+    useEffect(() => {
+        setHeight(ref?.current?.clientHeight || 0);
+    }, [location]);
+
+    const handleChange = () => {
+        setChecked((prev) => !prev);
+    };
 
     return (
         <>
@@ -35,15 +96,69 @@ const FilterAndDataComponent = () => {
                 maxWidth="xl"
                 sx={mainContainer}
             >
-                <Grid2 container columnSpacing={{ xs: 0, md: 3 }}>
-                    <Grid2
+                <Grid2
+                    container
+                    columnSpacing={{ xs: 0, md: 3 }}
+                    sx={{ position: 'relative' }}
+                >
+                    <Collapse
+                        orientation="horizontal"
+                        in={checked}
+                        collapsedSize={20}
                         sx={{
-                            display: { sx: 'none', md: 'block' },
-                            width: { sx: '0px', md: '240px' },
+                            display: { xs: 'none', md: 'block' },
                         }}
                     >
-                        <Filters drawerStatus={drawerOpen} />
-                    </Grid2>
+                        <Grid2
+                            ref={ref}
+                            sx={{
+                                visibility: checked ? 'visible' : 'hidden',
+                                width: { xs: '0px', md: '240px' },
+                                transition: 'visibility 280ms',
+                            }}
+                        >
+                            <Filters drawerStatus={drawerOpen} />
+                        </Grid2>
+                    </Collapse>
+                    {!isYearsDataLoading &&
+                    !isPositionsDataLoading &&
+                    !isDepartmenentDataFetching &&
+                    !isYearsDataError &&
+                    !isPositionsDataError &&
+                    !isDepartmenentDataError ? (
+                        <Grid2
+                            sx={{
+                                width: '0',
+                                overflow: 'visible',
+                                padding: '0',
+                                display: { xs: 'none', md: 'block' },
+                            }}
+                        >
+                            <IconButton
+                                sx={collaspeButton(theme)}
+                                onClick={handleChange}
+                                disableRipple
+                                disableTouchRipple
+                                size="small"
+                            >
+                                {checked ? (
+                                    <ArrowBackIosNewIcon />
+                                ) : (
+                                    <ArrowForwardIosIcon />
+                                )}
+                            </IconButton>
+                            <Divider
+                                orientation="vertical"
+                                sx={{
+                                    height,
+                                    position: 'absolute',
+                                    top: '0',
+                                    borderRightWidth: '2px',
+                                    transform: 'translateX(-50%)',
+                                }}
+                            />
+                        </Grid2>
+                    ) : null}
 
                     <Grid2
                         xs
@@ -51,6 +166,9 @@ const FilterAndDataComponent = () => {
                         direction="column"
                         sx={{
                             marginBottom: { xs: '4rem', md: '0' },
+                            padding: '0',
+                            marginRight: '0',
+                            marginLeft: '0',
                         }}
                     >
                         <Grid2
