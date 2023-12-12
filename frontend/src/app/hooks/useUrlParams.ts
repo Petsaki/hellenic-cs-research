@@ -6,10 +6,12 @@ import {
     addDepartment,
     setAcademicPos,
     setMaxYearsRange,
+    setUnknownYear,
     setYearsRange,
 } from '../slices/filtersSlice';
 import {
     YearsValidation,
+    isBoolean,
     isYearsArray,
     isyearRangeMaxValue,
     stringToYearArray,
@@ -30,13 +32,23 @@ const compareTwoArrays = (
     return JSON.stringify(array1) === JSON.stringify(array2);
 };
 
+export const isStringArray = (data: FilterData): data is string[] => {
+    return Array.isArray(data);
+};
+
 export enum ParamNames {
     YearsRange = 'yearsRange',
     AcademicPos = 'academicPos',
     Departments = 'departments',
+    UnknownYear = 'unknownYear',
 }
 
-export type FilterData = YearsArray | string[] | DepartmentId[] | ParamNames;
+export type FilterData =
+    | YearsArray
+    | string[]
+    | DepartmentId[]
+    | ParamNames
+    | boolean;
 
 export interface ICheckBoxValue {
     id: string;
@@ -47,6 +59,7 @@ export interface IInputValue {
     checkbox?: ICheckBoxValue;
     checkboxList2?: Array<DepartmentId | string>;
     checkboxList?: Array<string>;
+    unknownYear?: boolean;
 }
 
 export interface SearchParamProp {
@@ -59,7 +72,7 @@ const useUrlParams = ({
     data,
 }: SearchParamProp): [string | null, (value: IInputValue) => void] => {
     const dispatch = useDispatch();
-    const paraSlice = useDynamicSelector(name);
+    const paramSlice = useDynamicSelector(name);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [paramValue, setParamValue] = useState<string | null>('');
@@ -80,7 +93,7 @@ const useUrlParams = ({
     const updateYearsRangeURL = (years?: string): void => {
         console.log('updateYearsRangeURL');
         console.log(years);
-        console.log(paraSlice.join('-'));
+        console.log((paramSlice as number[]).join('-'));
         console.log(param);
 
         if (isYearsArray(data) && years) {
@@ -93,7 +106,7 @@ const useUrlParams = ({
                     return prevSearchParams;
                 });
             }
-            if (years !== paraSlice.join('-')) {
+            if (isYearsArray(paramSlice) && years !== paramSlice.join('-')) {
                 updateYearsRangeSlice(years);
             }
         }
@@ -109,8 +122,9 @@ const useUrlParams = ({
 
         if (
             isAcademicPos(data) &&
+            isAcademicPos(paramSlice) &&
             academicPos &&
-            !compareTwoArrays(paraSlice, academicPos)
+            !compareTwoArrays(paramSlice, academicPos)
         ) {
             if (
                 academicPos.toString() === param ||
@@ -138,8 +152,9 @@ const useUrlParams = ({
     const updateDepartmentsURL = (department?: string[]): void => {
         if (
             isDepartment(data) &&
+            isStringArray(paramSlice) &&
             department &&
-            !compareTwoArrays(paraSlice, department)
+            !compareTwoArrays(paramSlice, department)
         ) {
             if (
                 department.toString() === param ||
@@ -159,9 +174,34 @@ const useUrlParams = ({
         }
     };
 
+    // UPDATE - UNKNOWN YEAR
+    const updateUnknownYearSlice = (value: boolean) => {
+        dispatch(setUnknownYear(value));
+    };
+
+    const updateUnknownYearURL = (unknownYear?: boolean): void => {
+        if (
+            typeof unknownYear === 'boolean' &&
+            isBoolean(paramSlice) &&
+            unknownYear !== paramSlice
+        ) {
+            if (unknownYear) {
+                if (unknownYear.toString() === param) return;
+                setSearchParams((prevSearchParams) => {
+                    prevSearchParams.set(name, unknownYear.toString());
+                    return prevSearchParams;
+                });
+            } else {
+                searchParams.delete(name);
+                setSearchParams(searchParams);
+            }
+            updateUnknownYearSlice(unknownYear);
+        }
+    };
+
     const handleInputChange = (value: IInputValue) => {
         console.log(value);
-        console.log(paraSlice);
+        console.log(paramSlice);
         switch (name) {
             case ParamNames.YearsRange:
                 updateYearsRangeURL(value.years);
@@ -172,6 +212,9 @@ const useUrlParams = ({
             case ParamNames.Departments:
                 updateDepartmentsURL(value.checkboxList);
                 break;
+            case ParamNames.UnknownYear:
+                updateUnknownYearURL(value.unknownYear);
+                break;
             default:
                 break;
         }
@@ -179,12 +222,12 @@ const useUrlParams = ({
 
     // INIT/RESET - YEARS RANGE
     const initYearsRange = (): void => {
-        if (isYearsArray(data)) {
+        if (isYearsArray(data) && isYearsArray(paramSlice)) {
             if (param) {
                 const validyearData = YearsValidation(param, data);
                 handleInputChange({ years: validyearData });
                 setParamValue(validyearData);
-            } else if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
+            } else if (!isyearRangeMaxValue(paramSlice.join('-'), data)) {
                 dispatch(setYearsRange([data[0], data[data.length - 1]]));
             }
             dispatch(setMaxYearsRange([data[0], data[data.length - 1]]));
@@ -204,7 +247,7 @@ const useUrlParams = ({
     const initAcademicPos = (): void => {
         console.log('initAcademicPos');
 
-        if (isAcademicPos(data)) {
+        if (isAcademicPos(data) && isAcademicPos(paramSlice)) {
             console.log(param);
 
             if (param) {
@@ -215,7 +258,7 @@ const useUrlParams = ({
                 console.log('initAcademicPos', validAcademicPosData);
                 if (validAcademicPosData.length) {
                     setParamValue(validAcademicPosData.join(','));
-                    if (!compareTwoArrays(paraSlice, validAcademicPosData)) {
+                    if (!compareTwoArrays(paramSlice, validAcademicPosData)) {
                         dispatch(setAcademicPos(validAcademicPosData));
                     }
                 } else {
@@ -228,13 +271,13 @@ const useUrlParams = ({
 
     // INIT/RESET - DEPARTMENTS
     const initDepartments = (): void => {
-        if (isDepartment(data)) {
+        if (isDepartment(data) && isStringArray(paramSlice)) {
             if (param) {
                 const validDepartmentData = departmentValidation(param, data);
                 console.log('initDepartments', validDepartmentData);
                 if (validDepartmentData.length) {
                     setParamValue(validDepartmentData.join(','));
-                    if (!compareTwoArrays(paraSlice, validDepartmentData)) {
+                    if (!compareTwoArrays(paramSlice, validDepartmentData)) {
                         dispatch(addDepartment(validDepartmentData));
                     }
                 } else {
@@ -243,6 +286,29 @@ const useUrlParams = ({
                 }
             }
         }
+    };
+
+    // INIT/RESET - UNKNOWN YEAR
+    const initUnknownYear = (): void => {
+        if (isBoolean(paramSlice)) {
+            if (param) {
+                const validUnknownYear = param.toLocaleLowerCase() === 'true';
+                setParamValue(validUnknownYear.toString());
+                if (validUnknownYear) {
+                    if (paramSlice !== validUnknownYear) {
+                        dispatch(setUnknownYear(validUnknownYear));
+                    }
+                } else {
+                    searchParams.delete(name);
+                    setSearchParams(searchParams);
+                }
+            }
+        }
+    };
+
+    const resetUnknownYear = (): void => {
+        setParamValue('false');
+        updateUnknownYearSlice(false);
     };
 
     useEffect(() => {
@@ -259,6 +325,9 @@ const useUrlParams = ({
             case ParamNames.Departments:
                 initDepartments();
                 break;
+            case ParamNames.UnknownYear:
+                initUnknownYear();
+                break;
             default:
                 break;
         }
@@ -270,17 +339,21 @@ const useUrlParams = ({
             switch (name) {
                 case ParamNames.YearsRange:
                     if (!isYearsArray(data)) return;
-                    if (!isyearRangeMaxValue(paraSlice.join('-'), data)) {
+                    if (
+                        isYearsArray(paramSlice) &&
+                        !isyearRangeMaxValue(paramSlice.join('-'), data)
+                    ) {
                         resetYearsRange();
                     }
                     break;
                 case ParamNames.AcademicPos:
-                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
-                        or `paraSlice` is not empty.
+                    /* The expression `!(!param && !paramSlice.join(','))` is checking if either `param`
+                        or `paramSlice` is not empty.
                         A NAND LOGIC GATE */
                     if (
-                        !(!param && !paraSlice.join(',')) &&
-                        paraSlice.join(',') !== param
+                        isAcademicPos(paramSlice) &&
+                        !(!param && !paramSlice.join(',')) &&
+                        paramSlice.join(',') !== param
                     ) {
                         if (isAcademicPos(data)) {
                             const validAcademicPosData = academicPosValidation(
@@ -302,12 +375,13 @@ const useUrlParams = ({
 
                     break;
                 case ParamNames.Departments:
-                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
-                        or `paraSlice` is not empty.
+                    /* The expression `!(!param && !paramSlice.join(','))` is checking if either `param`
+                        or `paramSlice` is not empty.
                         A NAND LOGIC GATE */
                     if (
-                        !(!param && !paraSlice.join(',')) &&
-                        paraSlice.join(',') !== param
+                        isStringArray(paramSlice) &&
+                        !(!param && !paramSlice.join(',')) &&
+                        paramSlice.join(',') !== param
                     ) {
                         if (isDepartment(data)) {
                             const validDepartmentData = departmentValidation(
@@ -327,18 +401,24 @@ const useUrlParams = ({
                         }
                     }
                     break;
+                case ParamNames.UnknownYear:
+                    if (isBoolean(paramSlice)) {
+                        resetUnknownYear();
+                    }
+                    break;
                 default:
                     break;
             }
         } else {
             switch (name) {
                 case ParamNames.YearsRange:
-                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
-                    or `paraSlice` is not empty.
+                    /* The expression `!(!param && !paramSlice.join(','))` is checking if either `param`
+                    or `paramSlice` is not empty.
                     A NAND LOGIC GATE */
                     if (
-                        !(!param && !paraSlice.join('-')) &&
-                        paraSlice.join('-') !== param
+                        isYearsArray(paramSlice) &&
+                        !(!param && !paramSlice.join('-')) &&
+                        paramSlice.join('-') !== param
                     ) {
                         if (isYearsArray(data)) {
                             const validyearData = YearsValidation(param, data);
@@ -352,12 +432,13 @@ const useUrlParams = ({
 
                     break;
                 case ParamNames.AcademicPos:
-                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
-                    or `paraSlice` is not empty.
+                    /* The expression `!(!param && !paramSlice.join(','))` is checking if either `param`
+                    or `paramSlice` is not empty.
                     A NAND LOGIC GATE */
                     if (
-                        !(!param && !paraSlice.join(',')) &&
-                        paraSlice.join(',') !== param
+                        isAcademicPos(paramSlice) &&
+                        !(!param && !paramSlice.join(',')) &&
+                        paramSlice.join(',') !== param
                     ) {
                         if (isAcademicPos(data)) {
                             const validAcademicPosData = academicPosValidation(
@@ -379,12 +460,13 @@ const useUrlParams = ({
 
                     break;
                 case ParamNames.Departments:
-                    /* The expression `!(!param && !paraSlice.join(','))` is checking if either `param`
-                    or `paraSlice` is not empty.
+                    /* The expression `!(!param && !paramSlice.join(','))` is checking if either `param`
+                    or `paramSlice` is not empty.
                     A NAND LOGIC GATE */
                     if (
-                        !(!param && !paraSlice.join(',')) &&
-                        paraSlice.join(',') !== param
+                        isStringArray(paramSlice) &&
+                        !(!param && !paramSlice.join(',')) &&
+                        paramSlice.join(',') !== param
                     ) {
                         if (isDepartment(data)) {
                             const validDepartmentData = departmentValidation(
@@ -403,6 +485,18 @@ const useUrlParams = ({
                             );
                         }
                     }
+                    break;
+                case ParamNames.UnknownYear:
+                    if (
+                        isBoolean(paramSlice) &&
+                        paramSlice.toString() !== param.toLocaleLowerCase()
+                    ) {
+                        const validUnknownYear =
+                            param.toLocaleLowerCase() === 'true';
+                        setParamValue(validUnknownYear.toString());
+                        updateUnknownYearSlice(validUnknownYear);
+                    }
+
                     break;
                 default:
                     break;

@@ -5,6 +5,7 @@ export interface IFilterSlice {
     academicPos: string[];
     departments: string[];
     maxYearsRange: number[];
+    unknownYear: boolean;
 }
 
 const initialState: IFilterSlice = {
@@ -12,6 +13,7 @@ const initialState: IFilterSlice = {
     academicPos: [],
     departments: [],
     maxYearsRange: [],
+    unknownYear: false,
 };
 
 const resetState = (yearsRange: number[]): IFilterSlice => {
@@ -24,7 +26,6 @@ export const filtersSlice = createSlice({
     name: 'filtersSlice',
     initialState,
     reducers: {
-        // ? Logout the user by returning the initial state
         reset: (state, yearsRange: PayloadAction<number[]>) =>
             resetState(yearsRange.payload),
         setYearsRange: (state, yearsRange: PayloadAction<number[]>) => {
@@ -39,6 +40,9 @@ export const filtersSlice = createSlice({
         addDepartment: (state, departments: PayloadAction<Array<string>>) => {
             state.departments = departments.payload;
         },
+        setUnknownYear: (state, unknownYear: PayloadAction<boolean>) => {
+            state.unknownYear = unknownYear.payload;
+        },
     },
 });
 
@@ -48,6 +52,7 @@ export const {
     setMaxYearsRange,
     setAcademicPos,
     addDepartment,
+    setUnknownYear,
 } = filtersSlice.actions;
 
 export default filtersSlice.reducer;

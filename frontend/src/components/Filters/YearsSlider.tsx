@@ -2,7 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box/Box';
 import Slider from '@mui/material/Slider/Slider';
 import Typography from '@mui/material/Typography/Typography';
-import { SxProps, useTheme, Theme } from '@mui/material';
+import {
+    SxProps,
+    useTheme,
+    Theme,
+    FormControlLabel,
+    Checkbox,
+    Tooltip,
+} from '@mui/material';
 import FormLabel from '@mui/material/FormLabel/FormLabel';
 import FormControl from '@mui/material/FormControl/FormControl';
 import FormGroup from '@mui/material/FormGroup/FormGroup';
@@ -47,6 +54,7 @@ export const createMarks = (
 };
 
 let sliderTimeout: ReturnType<typeof setTimeout>;
+let unknownYearTimeout: ReturnType<typeof setTimeout>;
 
 export interface FixSliderProp {
     data: YearsArray;
@@ -58,7 +66,13 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
         data,
     });
 
+    const [unknownYearParamValue, handleInputChangeunknownYear] = useUrlParams({
+        name: ParamNames.UnknownYear,
+        data: true,
+    });
+
     const [value, setValue] = useState<number[]>([0, 0]);
+    const [unknownYearValue, setUnknownYearValue] = useState<boolean>(false);
 
     useEffect(() => {
         if (paramValue) {
@@ -69,6 +83,10 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [paramValue]);
+
+    useEffect(() => {
+        setUnknownYearValue(unknownYearParamValue === 'true');
+    }, [unknownYearParamValue]);
 
     const sliderMarks = useMemo((): Array<ISliderMark> => {
         return createMarks(data);
@@ -85,6 +103,14 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
             }
         }, 450);
     };
+
+    useEffect(() => {
+        clearTimeout(unknownYearTimeout);
+        unknownYearTimeout = setTimeout(() => {
+            handleInputChangeunknownYear({ unknownYear: unknownYearValue });
+        }, 450);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [unknownYearValue]);
 
     return (
         <Box
@@ -139,6 +165,29 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
                     </Typography>
                 </Box>
             </FormControl>
+            <Tooltip
+                title={`It will fetch citations and publications that they don't year`}
+                enterDelay={1300}
+                enterNextDelay={300}
+            >
+                <FormControlLabel
+                    sx={{
+                        margin: '1rem 0.5rem 0 0.75rem',
+                        justifyContent: 'space-between',
+                    }}
+                    value={unknownYearValue}
+                    labelPlacement="start"
+                    control={
+                        <Checkbox
+                            onClick={() =>
+                                setUnknownYearValue(!unknownYearValue)
+                            }
+                            checked={unknownYearValue}
+                        />
+                    }
+                    label="Unknown year"
+                />
+            </Tooltip>
         </Box>
     );
 };

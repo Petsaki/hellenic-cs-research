@@ -42,3 +42,7 @@ export const isyearRangeMaxValue = (value: string, data: YearsArray) => {
 export const isYearsArray = (data: FilterData): data is YearsArray => {
     return Array.isArray(data);
 };
+
+export const isBoolean = (data: FilterData): boolean => {
+    return typeof data === 'boolean';
+};
