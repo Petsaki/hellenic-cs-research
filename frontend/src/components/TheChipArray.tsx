@@ -11,6 +11,7 @@ enum ChipKey {
     YearsRange = 'YearsRange',
     Position = 'Position',
     Department = 'Department',
+    UnknownYear = 'UnknownYear',
 }
 
 interface ChipData {
@@ -52,6 +53,13 @@ const TheChipArray = () => {
             });
         }
 
+        if (filtersSliceData.unknownYear) {
+            chipDataTemp.push({
+                key: `${ChipKey.UnknownYear}`,
+                label: 'unknown year',
+            });
+        }
+
         filtersSliceData.academicPos.forEach((pos) => {
             chipDataTemp.push({
                 key: `${ChipKey.Position}-${pos}`,
@@ -72,6 +80,9 @@ const TheChipArray = () => {
     const handleDelete = (deletedChip: ChipData) => () => {
         if (deletedChip.key.startsWith(ChipKey.YearsRange)) {
             searchParams.delete(ParamNames.YearsRange);
+            setSearchParams(searchParams);
+        } else if (deletedChip.key.startsWith(ChipKey.UnknownYear)) {
+            searchParams.delete(ParamNames.UnknownYear);
             setSearchParams(searchParams);
         } else if (deletedChip.key.startsWith(ChipKey.Position)) {
             const academicPosURL = searchParams

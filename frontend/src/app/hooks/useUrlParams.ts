@@ -307,7 +307,7 @@ const useUrlParams = ({
     };
 
     const resetUnknownYear = (): void => {
-        setParamValue('false');
+        setParamValue(paramValue === null ? '' : null);
         updateUnknownYearSlice(false);
     };
 
@@ -403,6 +403,8 @@ const useUrlParams = ({
                     break;
                 case ParamNames.UnknownYear:
                     if (isBoolean(paramSlice)) {
+                        console.log('edw');
+
                         resetUnknownYear();
                     }
                     break;
