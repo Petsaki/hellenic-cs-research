@@ -76,14 +76,26 @@ const FilterAndDataComponent = () => {
         filter: ['id', 'url'],
     });
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        setHeight(ref?.current?.clientHeight || 0);
-    });
+        const resizeObserver = new ResizeObserver((entries) => {
+            entries.filter((entry) => {
+                return setHeight(entry.contentRect.height);
+            });
+        });
 
-    useEffect(() => {
-        setHeight(ref?.current?.clientHeight || 0);
-    }, [location]);
+        const node = ref.current;
+
+        if (node) {
+            resizeObserver.observe(node);
+            setHeight(node.clientHeight);
+        }
+
+        return () => {
+            if (node) {
+                resizeObserver.unobserve(node);
+            }
+        };
+    }, []);
 
     const handleChange = () => {
         setChecked((prev) => !prev);
@@ -110,7 +122,11 @@ const FilterAndDataComponent = () => {
                         }}
                     >
                         <Grid2
-                            ref={ref}
+                            ref={(node) => {
+                                if (node !== null) {
+                                    ref.current = node;
+                                }
+                            }}
                             sx={{
                                 visibility: checked ? 'visible' : 'hidden',
                                 width: { xs: '0px', md: '240px' },
@@ -150,7 +166,7 @@ const FilterAndDataComponent = () => {
                             <Divider
                                 orientation="vertical"
                                 sx={{
-                                    height,
+                                    height: ref?.current?.clientHeight,
                                     position: 'absolute',
                                     top: '0',
                                     borderRightWidth: '2px',

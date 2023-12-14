@@ -196,7 +196,7 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *       - OMEA
  */
 // Academic-staff data
-router.get('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAcademicStaffData);
+router.get('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAcademicStaffData); // ΑΥΤΟ
 
 /**
  * @openapi
@@ -273,7 +273,7 @@ router.get('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCa
  *       - OMEA
  */
 // statistics
-router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartmentsID, getStatisticsPerDepartments);
+router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartmentsID, getStatisticsPerDepartments); // ΑΥΤΟ
 
 /**
  * @openapi
@@ -344,7 +344,7 @@ router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartments
  *     tags:
  *       - OMEA
  */
-router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatistics);
+router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatistics); // ΑΥΤΟ
 
 /**
  * @openapi
@@ -516,7 +516,7 @@ router.get('/active-years', getCacheAllPositions, getCacheDepartmentsID, getDepa
  *       - OMEA
  */
 // department-analytics
-router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAnalyticsData);
+router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAnalyticsData); // ΑΥΤΟ
 
 /**
  * @openapi
@@ -596,7 +596,7 @@ router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, get
  *       - OMEA
  */
 // citations and publications per academic position per department
-router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getAcademicPositionTotals);
+router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getAcademicPositionTotals); // ΑΥΤΟ
 
 /**
  * @openapi
@@ -689,7 +689,7 @@ router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, 
  *       - OMEA
  */
 // citations and publicattions per staff per department 
-router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getScholarlyProfiles);
+router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getScholarlyProfiles); // ΑΥΤΟ
 
 /**
  * @openapi
@@ -761,7 +761,7 @@ router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCa
  */
 //  Academic staff's citations and publications per academic position per department
 // IS THE SAME DATA AS /scholarlyProfiles BUT DIFFERENT STRUCTURE AT DATA
-router.get('/academicStaffResearchSummary', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getAcademicStaffResearchSummary);
+router.get('/academicStaffResearchSummary', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getAcademicStaffResearchSummary); // ΑΥΤΟ
 
 // Only for test. Is useless because the / can return the same value as this
 router.get('/:id', getDepartment);
