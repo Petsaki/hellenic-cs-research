@@ -83,6 +83,8 @@ const CitationsTableGroup = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pagination]);
 
+    if (!selectedDeps.length) return null;
+
     return (
         <>
             <AcademicStaffDataTable
