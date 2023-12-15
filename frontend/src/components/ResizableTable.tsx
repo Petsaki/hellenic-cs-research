@@ -47,7 +47,7 @@ const ResizableTable: React.FC<ResizableTableProps> = ({
                     className={`react-resizable-handle react-resizable-handle-${h}`}
                     ref={ref}
                 >
-                    <DragHandleIcon />
+                    <DragHandleIcon sx={{ color: 'white' }} />
                 </span>
             )}
         >

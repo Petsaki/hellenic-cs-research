@@ -50,14 +50,14 @@ const getCellValue = (
 
     if (publicationCount) {
         if (citationCount) {
-            return `${publicationCount}|${citationCount}`;
+            return `${publicationCount} / ${citationCount}`;
         }
-        return `${publicationCount}|0`;
+        return `${publicationCount} / 0`;
     }
     if (citationCount) {
-        return `0|${citationCount}`;
+        return `0 / ${citationCount}`;
     }
-    return '-';
+    return '0 / 0';
 };
 
 const tableStyle: SxProps<Theme> = (theme) => ({

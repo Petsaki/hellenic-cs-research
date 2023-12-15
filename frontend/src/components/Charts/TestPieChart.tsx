@@ -278,7 +278,7 @@ const TestPieChart = () => {
                 animation="wave"
                 variant="rounded"
                 sx={{
-                    width: { xs: '100%', lg: '60%' },
+                    width: { xs: '100%', lg: '55%' },
                     aspectRatio: { xs: '4/3', xl: '3/4' },
                     height: '600px',
                 }}
@@ -292,7 +292,7 @@ const TestPieChart = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     // height: '700px',
-                    width: { xs: '100%', lg: '60%' },
+                    width: { xs: '100%', lg: '55%' },
                     aspectRatio: { xs: '4/3', xl: '3/4' },
                     position: 'relative',
                     maxHeight: '600px',

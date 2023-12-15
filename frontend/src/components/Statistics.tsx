@@ -18,6 +18,7 @@ const statisticsCardGrid: SxProps = {
         sm: '190px',
         lg: '225px',
     },
+    maxWidth: '300px',
 };
 
 const Statistics = () => {
