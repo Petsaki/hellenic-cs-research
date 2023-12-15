@@ -182,7 +182,6 @@ const FilterAndDataComponent = () => {
                         direction="column"
                         sx={{
                             marginBottom: { xs: '4rem', md: '0' },
-                            padding: '0',
                             marginRight: '0',
                             marginLeft: '0',
                         }}
