@@ -1,6 +1,7 @@
 import { useState, ReactNode, SyntheticEvent } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { ResizableBox } from 'react-resizable';
+import DragHandleIcon from '@mui/icons-material/DragHandle';
 
 interface ResizeCallbackData {
     size: {
@@ -40,6 +41,15 @@ const ResizableTable: React.FC<ResizableTableProps> = ({
             className={`react-resizable react-resizable_${
                 theme.palette.mode === 'dark' ? 'dark' : 'light'
             }`}
+            // eslint-disable-next-line react/no-unstable-nested-components
+            handle={(h, ref) => (
+                <span
+                    className={`react-resizable-handle react-resizable-handle-${h}`}
+                    ref={ref}
+                >
+                    <DragHandleIcon />
+                </span>
+            )}
         >
             {children(height)}
         </ResizableBox>
