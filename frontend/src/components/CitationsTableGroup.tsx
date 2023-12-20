@@ -39,6 +39,9 @@ const CitationsTableGroup = () => {
     const selectedYears = useSelector(
         (state: RootState) => state.filtersSlice.yearsRange
     );
+    const selectedUnknownYear = useSelector(
+        (state: RootState) => state.filtersSlice.unknownYear
+    );
 
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(50);
@@ -57,6 +60,7 @@ const CitationsTableGroup = () => {
                 years: selectedYears,
                 page: pagination.page,
                 size: pagination.pageSize,
+                unknown_year: selectedUnknownYear,
             });
             setShowTable(false);
         } else {
@@ -71,7 +75,13 @@ const CitationsTableGroup = () => {
             setPage(0);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedDeps, selectedPositions, selectedYears, pageSize]);
+    }, [
+        selectedDeps,
+        selectedPositions,
+        selectedYears,
+        pageSize,
+        selectedUnknownYear,
+    ]);
 
     useEffect(() => {
         setPagination({ pageSize, page });

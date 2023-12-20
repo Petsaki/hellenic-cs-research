@@ -92,8 +92,9 @@ export const generateChartData = (
 
     const bgColorOpacity = theme === 'dark' ? '0.7' : '0.9';
     const labels = Object.keys(tempData ?? {});
-    // const renderBoth = data && data[0].split('|');
+    // const renderBoth = data && data[0].split('/');
     // console.log(renderBoth);
+    console.log(labels);
 
     const colorMap = new Map<
         ResearchFilterBy,
@@ -111,6 +112,33 @@ export const generateChartData = (
     //     `rgba(255, 99, 132,${bgColorOpacity})`,
     //     `rgba(53, 162, 235,${bgColorOpacity})`,
     // ];
+
+    const sortedYearsArray = labels.sort((a, b) => {
+        const numA = parseInt(a, 10);
+        const numB = parseInt(b, 10);
+
+        if (numA === -1) return -1;
+        if (numB === -1) return 1;
+
+        return numA - numB;
+    });
+
+    // Remove the property with key '-1' and get its value
+    const deletedValue = tempData['-1'];
+    delete tempData['-1'];
+
+    // Create a new object without the property with key '-1'
+    const newObject: Record<string, string> = {
+        '0': deletedValue,
+        ...tempData,
+    };
+
+    // Add the value from the deleted property to another object
+    const anotherObject: Record<string, string> = { '-1': deletedValue };
+
+    console.log(newObject);
+    console.log(anotherObject);
+
     const test = [];
     if (!filterby) {
         Object.values(ResearchFilterBy).forEach(
@@ -119,10 +147,10 @@ export const generateChartData = (
                 test.push({
                     fill: true,
                     label: filter,
-                    data: Object.values(tempData).map((value: string) => {
+                    data: Object.values(newObject).map((value: string) => {
                         if (value === '-') return 0;
 
-                        return Number(value.split('|')[index]) ?? 0;
+                        return Number(value.split('/')[index]) ?? 0;
                     }),
                     borderColor: colors?.borderColor,
                     backgroundColor: colors?.backgroundColor,
@@ -134,7 +162,7 @@ export const generateChartData = (
         test.push({
             fill: true,
             label: filterby,
-            data: Object.values(tempData).map((value: string) => {
+            data: Object.values(newObject).map((value: string) => {
                 if (value === '-') return 0;
 
                 return Number(value);
@@ -155,27 +183,8 @@ export const generateChartData = (
     //     : [];
     // console.log(datasets);
 
-    const datasets = [
-        {
-            // Marios - remove that for the fill
-            // fill: true,
-            label: 'Dataset 1',
-            data: labels.map(() => Math.floor(Math.random() * 1000)),
-            borderColor: 'rgb(255, 99, 132)',
-            backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        },
-        {
-            // Marios - remove that for the fill
-            // fill: true,
-            label: 'Dataset 2',
-            data: labels.map(() => Math.floor(Math.random() * 1000)),
-            borderColor: 'rgb(53, 162, 235)',
-            backgroundColor: 'rgba(53, 162, 235, 0.5)',
-        },
-    ];
-
     return {
-        labels: labels || [],
+        labels: sortedYearsArray || [],
         datasets: test,
     };
 };

@@ -175,6 +175,12 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
                         margin: '1rem 0.5rem 0 0.75rem',
                         justifyContent: 'space-between',
                     }}
+                    disabled={
+                        !(
+                            data[0] === value[0] &&
+                            data[data.length - 1] === value[1]
+                        )
+                    }
                     value={unknownYearValue}
                     labelPlacement="start"
                     control={

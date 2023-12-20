@@ -17,6 +17,7 @@ export interface IFAcademicStaff {
     years: number[];
     page: number;
     size?: number;
+    unknown_year: boolean;
 }
 
 export interface IFDepartmentsData {

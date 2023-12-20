@@ -76,7 +76,14 @@ export const departmentApi = createApi({
             ResponseData<IAcademicStaffData>,
             Partial<IFAcademicStaff>
         >({
-            query: ({ departments, page, positions, size, years }) => ({
+            query: ({
+                departments,
+                page,
+                positions,
+                size,
+                years,
+                unknown_year,
+            }) => ({
                 url: `${Apis.GetAcademicStaffData}?departments=${
                     Array.isArray(departments)
                         ? departments.join(',')
@@ -84,8 +91,8 @@ export const departmentApi = createApi({
                 }&positions=${
                     Array.isArray(positions) ? positions.join(',') : positions
                 }${years && `&years=${years.join(',')}`}&page=${page}${
-                    size != null && `&size=${size}`
-                }`,
+                    size != null ? `&size=${size}` : ''
+                }${unknown_year ? `&unknown_year=${unknown_year}` : ''}`,
                 method: 'GET',
             }),
         }),

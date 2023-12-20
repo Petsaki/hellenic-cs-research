@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import SpeedDial from '@mui/material/SpeedDial/SpeedDial';
 import TuneIcon from '@mui/icons-material/Tune';
 import {
+    Box,
     Collapse,
     Container,
     Divider,
@@ -14,11 +15,14 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import { Outlet, useLocation } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+
+import { useSelector } from 'react-redux';
 import TheChipArray from '../components/TheChipArray';
 import Filters from '../components/Filters';
 import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
 import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
 import { useGetDepartmentsQuery } from '../services/departmentApi';
+import { RootState } from '../app/store';
 
 const speedDial: SxProps<Theme> = (theme) => ({
     position: 'fixed',
@@ -54,10 +58,25 @@ const mainContainer: SxProps = {
     mb: 10,
 };
 
+const collapse: SxProps = {
+    display: { xs: 'none', md: 'block' },
+};
+
+const collapseLineContainer: SxProps = {
+    width: '0',
+    overflow: 'visible',
+    padding: '0',
+    display: { xs: 'none', md: 'block' },
+};
+
 const FilterAndDataComponent = () => {
     const theme = useTheme();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const location = useLocation();
+
+    const filtersSliceData = useSelector(
+        (state: RootState) => state.filtersSlice
+    );
 
     const [checked, setChecked] = useState(true);
     const [height, setHeight] = useState(0);
@@ -97,6 +116,15 @@ const FilterAndDataComponent = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (
+            !filtersSliceData.academicPos.length &&
+            !filtersSliceData.departments.length
+        ) {
+            setChecked(true);
+        }
+    }, [filtersSliceData]);
+
     const handleChange = () => {
         setChecked((prev) => !prev);
     };
@@ -117,9 +145,7 @@ const FilterAndDataComponent = () => {
                         orientation="horizontal"
                         in={checked}
                         collapsedSize={20}
-                        sx={{
-                            display: { xs: 'none', md: 'block' },
-                        }}
+                        sx={collapse}
                     >
                         <Grid2
                             ref={(node) => {
@@ -142,38 +168,36 @@ const FilterAndDataComponent = () => {
                     !isYearsDataError &&
                     !isPositionsDataError &&
                     !isDepartmenentDataError ? (
-                        <Grid2
-                            sx={{
-                                width: '0',
-                                overflow: 'visible',
-                                padding: '0',
-                                display: { xs: 'none', md: 'block' },
-                            }}
-                        >
-                            <IconButton
-                                sx={collaspeButton(theme)}
-                                onClick={handleChange}
-                                disableRipple
-                                disableTouchRipple
-                                size="small"
-                            >
-                                {checked ? (
-                                    <ArrowBackIosNewIcon />
-                                ) : (
-                                    <ArrowForwardIosIcon />
-                                )}
-                            </IconButton>
-                            <Divider
-                                orientation="vertical"
-                                sx={{
-                                    height: ref?.current?.clientHeight,
-                                    position: 'absolute',
-                                    top: '0',
-                                    borderRightWidth: '2px',
-                                    transform: 'translateX(-50%)',
-                                }}
-                            />
-                        </Grid2>
+                        <>
+                            <Grid2 sx={collapseLineContainer}>
+                                <Divider
+                                    orientation="vertical"
+                                    sx={{
+                                        height: ref?.current?.clientHeight,
+                                        borderRightWidth: '2px',
+                                    }}
+                                />
+                            </Grid2>
+                            <Grid2 sx={collapseLineContainer}>
+                                <Box
+                                    sx={{ height: ref?.current?.clientHeight }}
+                                >
+                                    <IconButton
+                                        sx={collaspeButton(theme)}
+                                        onClick={handleChange}
+                                        disableRipple
+                                        disableTouchRipple
+                                        size="small"
+                                    >
+                                        {checked ? (
+                                            <ArrowBackIosNewIcon />
+                                        ) : (
+                                            <ArrowForwardIosIcon />
+                                        )}
+                                    </IconButton>
+                                </Box>
+                            </Grid2>
+                        </>
                     ) : null}
 
                     <Grid2
