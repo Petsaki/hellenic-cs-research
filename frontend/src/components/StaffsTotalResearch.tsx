@@ -23,7 +23,7 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
     );
 
     const selectedyears = useSelector(
-        (state: RootState) => state.filtersSlice.yearsRange
+        (state: RootState) => state.filtersSlice.yearsFilters.yearsRange
     );
 
     const { data: academicPositionTotalsData } =

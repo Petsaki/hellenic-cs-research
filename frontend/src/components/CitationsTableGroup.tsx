@@ -37,10 +37,10 @@ const CitationsTableGroup = () => {
         (state: RootState) => state.filtersSlice.academicPos
     );
     const selectedYears = useSelector(
-        (state: RootState) => state.filtersSlice.yearsRange
+        (state: RootState) => state.filtersSlice.yearsFilters.yearsRange
     );
     const selectedUnknownYear = useSelector(
-        (state: RootState) => state.filtersSlice.unknownYear
+        (state: RootState) => state.filtersSlice.yearsFilters.unknownYear
     );
 
     const [page, setPage] = useState(0);

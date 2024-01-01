@@ -168,7 +168,7 @@ const DepartmentDataTable = () => {
         (state: RootState) => state.filtersSlice.academicPos
     );
     const selectedYears = useSelector(
-        (state: RootState) => state.filtersSlice.yearsRange
+        (state: RootState) => state.filtersSlice.yearsFilters.yearsRange
     );
 
     const rows = useMemo(() => {
@@ -213,7 +213,7 @@ const DepartmentDataTable = () => {
             ) {
                 setSelectedDep(undefined);
             }
-        } else if (!isDepartmentDataLoading && !departmentsData?.data.length) {
+        } else if (!isDepartmentDataLoading && !departmentsData?.data?.length) {
             setSelectedDep(undefined);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

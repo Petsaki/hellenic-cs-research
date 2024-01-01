@@ -1,24 +1,23 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { YearsFilters } from '../../components/Filters/YearsSlider';
 
 export interface IFilterSlice {
-    yearsRange: number[];
+    yearsFilters: YearsFilters;
     academicPos: string[];
     departments: string[];
     maxYearsRange: number[];
-    unknownYear: boolean;
 }
 
 const initialState: IFilterSlice = {
-    yearsRange: [],
+    yearsFilters: { yearsRange: [], unknownYear: false },
     academicPos: [],
     departments: [],
     maxYearsRange: [],
-    unknownYear: false,
 };
 
 const resetState = (yearsRange: number[]): IFilterSlice => {
     const tempInitialState = { ...initialState };
-    tempInitialState.yearsRange = yearsRange;
+    tempInitialState.yearsFilters.yearsRange = yearsRange;
     tempInitialState.maxYearsRange = yearsRange;
     return tempInitialState;
 };
@@ -28,8 +27,20 @@ export const filtersSlice = createSlice({
     reducers: {
         reset: (state, yearsRange: PayloadAction<number[]>) =>
             resetState(yearsRange.payload),
-        setYearsRange: (state, yearsRange: PayloadAction<number[]>) => {
-            state.yearsRange = yearsRange.payload;
+        setYearsFilters: (
+            state,
+            payload: PayloadAction<Partial<YearsFilters>>
+        ) => {
+            console.log(payload);
+            console.log({
+                ...state.yearsFilters,
+                ...payload.payload,
+            });
+
+            state.yearsFilters = {
+                ...state.yearsFilters,
+                ...payload.payload,
+            };
         },
         setMaxYearsRange: (state, maxYearsRange: PayloadAction<number[]>) => {
             state.maxYearsRange = maxYearsRange.payload;
@@ -40,19 +51,15 @@ export const filtersSlice = createSlice({
         addDepartment: (state, departments: PayloadAction<Array<string>>) => {
             state.departments = departments.payload;
         },
-        setUnknownYear: (state, unknownYear: PayloadAction<boolean>) => {
-            state.unknownYear = unknownYear.payload;
-        },
     },
 });
 
 export const {
     reset,
-    setYearsRange,
+    setYearsFilters,
     setMaxYearsRange,
     setAcademicPos,
     addDepartment,
-    setUnknownYear,
 } = filtersSlice.actions;
 
 export default filtersSlice.reducer;

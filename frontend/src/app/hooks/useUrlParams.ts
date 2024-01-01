@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
+    IFilterSlice,
     addDepartment,
     setAcademicPos,
     setMaxYearsRange,
-    setUnknownYear,
-    setYearsRange,
+    setYearsFilters,
 } from '../slices/filtersSlice';
 import {
     YearsValidation,
     isBoolean,
     isYearsArray,
+    isYearsFilters,
     isyearRangeMaxValue,
     stringToYearArray,
 } from '../untils/yearsRange';
@@ -24,6 +25,9 @@ import {
 } from '../../models/api/response/departments/departments.data';
 import { departmentValidation, isDepartment } from '../untils/departments';
 import useDynamicSelector from './useDynamicSelector';
+import { YearsFilters } from '../../components/Filters/YearsSlider';
+
+import { RootState } from '../store';
 
 const compareTwoArrays = (
     array1: Array<string | number>,
@@ -44,22 +48,21 @@ export enum ParamNames {
 }
 
 export type FilterData =
-    | YearsArray
     | string[]
-    | DepartmentId[]
-    | ParamNames
-    | boolean;
+    | IFilterSlice
+    | YearsFilters
+    | YearsArray
+    | DepartmentId[];
 
 export interface ICheckBoxValue {
     id: string;
     checked: boolean;
 }
 export interface IInputValue {
-    years?: string;
+    yearsFilters?: YearsFilters;
     checkbox?: ICheckBoxValue;
     checkboxList2?: Array<DepartmentId | string>;
     checkboxList?: Array<string>;
-    unknownYear?: boolean;
 }
 
 export interface SearchParamProp {
@@ -76,38 +79,100 @@ const useUrlParams = ({
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [paramValue, setParamValue] = useState<string | null>('');
+    const selectedYears = useSelector(
+        (state: RootState) => state.filtersSlice.yearsFilters.yearsRange
+    );
 
     const param = searchParams.get(name);
 
+    // UPDATE - UNKNOWN YEAR
+    const updateUnknownYearSlice = (value: boolean) => {
+        console.log(paramSlice);
+
+        dispatch(setYearsFilters({ unknownYear: value }));
+    };
+
+    // const updateUnknownYearURL = (unknownYear?: boolean): void => {
+    //     if (
+    //         typeof unknownYear === 'boolean' &&
+    //         isBoolean(paramSlice) &&
+    //         unknownYear !== paramSlice
+    //     ) {
+    //         if (unknownYear) {
+    //             if (unknownYear.toString() === param) return;
+    //             setSearchParams((prevSearchParams) => {
+    //                 prevSearchParams.set(name, unknownYear.toString());
+    //                 return prevSearchParams;
+    //             });
+    //         } else {
+    //             searchParams.delete(name);
+    //             setSearchParams(searchParams);
+    //         }
+    //         updateUnknownYearSlice(unknownYear);
+    //     }
+    // };
+
     // UPDATE - YEARS RANGE
-    const updateYearsRangeSlice = (value: string) => {
+    const updateYearsRangeSlice = (value: string, unknownValue: boolean) => {
+        console.log('updateYearsRangeSlice', value);
+        console.log(unknownValue);
         const yearsRangeArray = stringToYearArray(value);
         dispatch(
-            setYearsRange([
-                yearsRangeArray[0],
-                yearsRangeArray[yearsRangeArray.length - 1],
-            ])
+            setYearsFilters({
+                yearsRange: [
+                    yearsRangeArray[0],
+                    yearsRangeArray[yearsRangeArray.length - 1],
+                ],
+                unknownYear: unknownValue,
+            })
         );
     };
 
-    const updateYearsRangeURL = (years?: string): void => {
+    const updateYearsRangeURL = (
+        years?: string,
+        unknownYear?: boolean
+    ): void => {
         console.log('updateYearsRangeURL');
         console.log(years);
-        console.log((paramSlice as number[]).join('-'));
+        // console.log((paramSlice as number[]).join('-'));
         console.log(param);
+        console.log(isYearsArray(data));
+        console.log(unknownYear);
 
-        if (isYearsArray(data) && years) {
+        if (isYearsFilters(paramSlice) && isYearsArray(data) && years) {
             if (isyearRangeMaxValue(years, data)) {
+                console.log('isyearRangeMaxValue(years, data)');
+                console.log(searchParams.get(name));
+
                 searchParams.delete(name);
+                if (unknownYear) {
+                    searchParams.set(
+                        ParamNames.UnknownYear,
+                        unknownYear.toString().toLowerCase()
+                    );
+                } else {
+                    searchParams.delete(ParamNames.UnknownYear);
+                }
+                // if (unknownYear !== undefined) {
+                //     updateUnknownYearSlice(unknownYear);
+                // }
                 setSearchParams(searchParams);
             } else if (years !== param) {
+                console.log('(years !== param)');
+
                 setSearchParams((prevSearchParams) => {
+                    prevSearchParams.delete(ParamNames.UnknownYear);
                     prevSearchParams.set(name, years);
                     return prevSearchParams;
                 });
             }
-            if (isYearsArray(paramSlice) && years !== paramSlice.join('-')) {
-                updateYearsRangeSlice(years);
+            if (years !== paramSlice.yearsRange.join('-')) {
+                console.log('years !== paramSlice.yearsRange.join');
+
+                updateYearsRangeSlice(
+                    years,
+                    (isyearRangeMaxValue(years, data) && unknownYear) ?? false
+                );
             }
         }
     };
@@ -174,37 +239,15 @@ const useUrlParams = ({
         }
     };
 
-    // UPDATE - UNKNOWN YEAR
-    const updateUnknownYearSlice = (value: boolean) => {
-        dispatch(setUnknownYear(value));
-    };
-
-    const updateUnknownYearURL = (unknownYear?: boolean): void => {
-        if (
-            typeof unknownYear === 'boolean' &&
-            isBoolean(paramSlice) &&
-            unknownYear !== paramSlice
-        ) {
-            if (unknownYear) {
-                if (unknownYear.toString() === param) return;
-                setSearchParams((prevSearchParams) => {
-                    prevSearchParams.set(name, unknownYear.toString());
-                    return prevSearchParams;
-                });
-            } else {
-                searchParams.delete(name);
-                setSearchParams(searchParams);
-            }
-            updateUnknownYearSlice(unknownYear);
-        }
-    };
-
     const handleInputChange = (value: IInputValue) => {
         console.log(value);
         console.log(paramSlice);
         switch (name) {
             case ParamNames.YearsRange:
-                updateYearsRangeURL(value.years);
+                updateYearsRangeURL(
+                    value.yearsFilters?.yearsRange.toString().replace(',', '-'),
+                    value.yearsFilters?.unknownYear
+                );
                 break;
             case ParamNames.AcademicPos:
                 updateAcademicPosURL(value.checkboxList);
@@ -212,9 +255,9 @@ const useUrlParams = ({
             case ParamNames.Departments:
                 updateDepartmentsURL(value.checkboxList);
                 break;
-            case ParamNames.UnknownYear:
-                updateUnknownYearURL(value.unknownYear);
-                break;
+            // case ParamNames.UnknownYear:
+            //     updateUnknownYearURL(value.unknownYear);
+            //     break;
             default:
                 break;
         }
@@ -222,13 +265,66 @@ const useUrlParams = ({
 
     // INIT/RESET - YEARS RANGE
     const initYearsRange = (): void => {
-        if (isYearsArray(data) && isYearsArray(paramSlice)) {
+        console.log('KANW INIT GAMW?');
+        console.log(isYearsArray(data));
+        console.log(paramSlice);
+
+        console.log(isYearsArray(paramSlice));
+
+        if (
+            isYearsFilters(paramSlice) &&
+            isYearsArray(data) &&
+            isYearsArray(paramSlice.yearsRange)
+        ) {
+            console.log(
+                'if (isYearsArray(data) && isYearsArray(paramSlice)) {'
+            );
+
             if (param) {
+                console.log('if (param) {');
+
                 const validyearData = YearsValidation(param, data);
-                handleInputChange({ years: validyearData });
-                setParamValue(validyearData);
-            } else if (!isyearRangeMaxValue(paramSlice.join('-'), data)) {
-                dispatch(setYearsRange([data[0], data[data.length - 1]]));
+                handleInputChange({
+                    yearsFilters: {
+                        yearsRange: stringToYearArray(validyearData),
+                        // Για τώρα απλά θα παίρνω το value από το url.
+                        // Εάν είναι διαφορετικό από το max years τότε πρέπει να το βγάζω από το url!
+                        // Αλλά να μην το αλλάζω το value του, που δεν ξέρω από που θα το ξέρω :/
+                        // ΞΈΧΝΑ ΤΑ ΌΛΑ
+                        // Είναι το Init, οπότε απλά θα το χτίζω σύμφωνα με το εάν υπάρχει ή όχι στο url αλλά
+                        // Θα πρέπει να κάνω όμως τον έλεγχο εάν θα πρέπει να υπάρχει το unknown year αφού ο χρήστης μπορεί να βάλει ότι θέλει
+                        // Και αφού κάνει init το value του θα είναι false εκτός άμα υπάρχει και έαν το yearRange είναι ίσο με το max!!
+                        unknownYear: false,
+                    },
+                });
+                console.log('console.log 1', validyearData);
+                // Πρέπει να κάνω σωστά έλεγχο για το τι value θα δώσω εδώ στο paramValue κατά πάσα πιθανότητα ότι γράφω επάνω
+                // θα πρέπει να περάσω και εδώ
+                const createYearsFilterObject: YearsFilters = {
+                    yearsRange: stringToYearArray(validyearData),
+                    unknownYear: false,
+                };
+                setParamValue(JSON.stringify(createYearsFilterObject));
+            } else if (
+                !isyearRangeMaxValue(paramSlice.yearsRange.join('-'), data)
+            ) {
+                const unknownYearUrl = searchParams.get(ParamNames.UnknownYear);
+                console.log(unknownYearUrl);
+                console.log(unknownYearUrl?.toLocaleLowerCase() === 'true');
+
+                dispatch(
+                    setYearsFilters({
+                        yearsRange: [data[0], data[data.length - 1]],
+                        ...(unknownYearUrl?.toLocaleLowerCase() === 'true' && {
+                            unknownYear: true,
+                        }),
+                    })
+                );
+                const createYearsFilterObject: YearsFilters = {
+                    yearsRange: [data[0], data[data.length - 1]],
+                    unknownYear: unknownYearUrl?.toLocaleLowerCase() === 'true',
+                };
+                setParamValue(JSON.stringify(createYearsFilterObject));
             }
             dispatch(setMaxYearsRange([data[0], data[data.length - 1]]));
         }
@@ -238,8 +334,26 @@ const useUrlParams = ({
         if (isYearsArray(data)) {
             const defaultyearData = `${data[0]}-${data[data.length - 1]}`;
             console.log(defaultyearData);
-            setParamValue((prevValue) => (prevValue ? null : defaultyearData));
-            updateYearsRangeSlice(defaultyearData);
+            console.log('console.log 2', defaultyearData);
+            // Μπορεί να έχω θέμα εδώ γιατί δεν το περνάω σαν null αλλά σαν []
+            const unknownYearUrl = searchParams.get(ParamNames.UnknownYear);
+            const createYearsFilterObject: YearsFilters = {
+                yearsRange:
+                    paramValue &&
+                    (JSON.parse(paramValue) as YearsFilters).yearsRange.length
+                        ? []
+                        : stringToYearArray(defaultyearData),
+                unknownYear: unknownYearUrl?.toLocaleLowerCase() === 'true',
+            };
+            console.log(createYearsFilterObject);
+            console.log(JSON.stringify(createYearsFilterObject));
+
+            setParamValue(JSON.stringify(createYearsFilterObject));
+            // setParamValue((prevValue) => (prevValue ? null : defaultyearData));
+            updateYearsRangeSlice(
+                defaultyearData,
+                unknownYearUrl?.toLocaleLowerCase() === 'true'
+            );
         }
     };
 
@@ -289,27 +403,38 @@ const useUrlParams = ({
     };
 
     // INIT/RESET - UNKNOWN YEAR
-    const initUnknownYear = (): void => {
-        if (isBoolean(paramSlice)) {
-            if (param) {
-                const validUnknownYear = param.toLocaleLowerCase() === 'true';
-                setParamValue(validUnknownYear.toString());
-                if (validUnknownYear) {
-                    if (paramSlice !== validUnknownYear) {
-                        dispatch(setUnknownYear(validUnknownYear));
-                    }
-                } else {
-                    searchParams.delete(name);
-                    setSearchParams(searchParams);
-                }
-            }
-        }
-    };
+    // const initUnknownYear = (): void => {
+    //     if (isBoolean(paramSlice)) {
+    //         if (param) {
+    //             const validUnknownYear = param.toLocaleLowerCase() === 'true';
+    //             setParamValue(validUnknownYear.toString());
+    //             if (validUnknownYear) {
+    //                 if (paramSlice !== validUnknownYear) {
+    //                     dispatch(
+    //                         setYearsFilters({ unknownYear: validUnknownYear })
+    //                     );
+    //                 }
+    //             } else {
+    //                 searchParams.delete(name);
+    //                 setSearchParams(searchParams);
+    //             }
+    //         }
+    //     }
+    // };
 
-    const resetUnknownYear = (): void => {
-        setParamValue(paramValue === null ? '' : null);
-        updateUnknownYearSlice(false);
-    };
+    // const resetUnknownYear = (): void => {
+    //     console.log('console.log 3', paramValue);
+    //     const createYearsFilterObject: YearsFilters = {
+    //         // Και εδώ θα έχω σίγουρα θέμα γιατί δεν γίνεται να το περάσω έτσι
+    //         // θα πρέπει νομίζω να τσεκάρω και έαν είναι 2 length ακριβώς1!!
+    //         yearsRange: paramValue &&
+    //          (JSON.parse(paramValue) as YearsFilters).yearsRange.toString() === '' ? [0] : [],
+    //         unknownYear: false,
+    //     };
+    //     setParamValue(JSON.stringify(createYearsFilterObject));
+    //     // setParamValue(paramValue === null ? '' : null);
+    //     updateUnknownYearSlice(false);
+    // };
 
     useEffect(() => {
         console.log(param);
@@ -325,9 +450,9 @@ const useUrlParams = ({
             case ParamNames.Departments:
                 initDepartments();
                 break;
-            case ParamNames.UnknownYear:
-                initUnknownYear();
-                break;
+            // case ParamNames.UnknownYear:
+            //     initUnknownYear();
+            //     break;
             default:
                 break;
         }
@@ -340,8 +465,11 @@ const useUrlParams = ({
                 case ParamNames.YearsRange:
                     if (!isYearsArray(data)) return;
                     if (
-                        isYearsArray(paramSlice) &&
-                        !isyearRangeMaxValue(paramSlice.join('-'), data)
+                        isYearsFilters(paramSlice) &&
+                        !isyearRangeMaxValue(
+                            paramSlice.yearsRange.join('-'),
+                            data
+                        )
                     ) {
                         resetYearsRange();
                     }
@@ -402,11 +530,12 @@ const useUrlParams = ({
                     }
                     break;
                 case ParamNames.UnknownYear:
-                    if (isBoolean(paramSlice)) {
-                        console.log('edw');
-
-                        resetUnknownYear();
-                    }
+                    console.log('UnknownYear XWRIS VALUE');
+                    console.log(param);
+                    console.log(searchParams.get(ParamNames.YearsRange));
+                    console.log(selectedYears);
+                    setParamValue('false');
+                    updateUnknownYearSlice(false);
                     break;
                 default:
                     break;
@@ -418,17 +547,49 @@ const useUrlParams = ({
                     or `paramSlice` is not empty.
                     A NAND LOGIC GATE */
                     if (
-                        isYearsArray(paramSlice) &&
-                        !(!param && !paramSlice.join('-')) &&
-                        paramSlice.join('-') !== param
+                        isYearsFilters(paramSlice) &&
+                        !(!param && !paramSlice.yearsRange.join('-')) &&
+                        paramSlice.yearsRange.join('-') !== param
                     ) {
                         if (isYearsArray(data)) {
                             const validyearData = YearsValidation(param, data);
-                            setParamValue(
-                                validyearData ||
-                                    (paramValue === null ? '' : null)
+                            console.log(
+                                'console.log 4',
+                                paramValue,
+                                '  ',
+                                validyearData
                             );
-                            updateYearsRangeSlice(validyearData);
+                            const unknownYearValue = searchParams.get(
+                                ParamNames.UnknownYear
+                            );
+
+                            const createYearsFilterObject = {
+                                yearsRange:
+                                    stringToYearArray(validyearData) ||
+                                    (paramValue &&
+                                    (
+                                        JSON.parse(paramValue) as YearsFilters
+                                    ).yearsRange.toString() === ''
+                                        ? [0]
+                                        : []),
+                                // TODO - Εδώ μπορεί να έχω λάθος, ίσως πρέπει και εδώ να κοιτάω από το yearRange είναι ίσο με το maxYearsRnage
+                                unknownYear:
+                                    paramValue &&
+                                    (JSON.parse(paramValue) as YearsFilters)
+                                        .unknownYear === false
+                                        ? null
+                                        : false,
+                            };
+                            setParamValue(
+                                JSON.stringify(createYearsFilterObject)
+                            );
+                            // setParamValue(
+                            //     validyearData ||
+                            //         (paramValue === null ? '' : null)
+                            // );
+                            // TODO - Εδώ μπορεί να έχω λάθος, ίσως πρέπει και εδώ να κοιτάω από το yearRange είναι ίσο με το maxYearsRnage
+
+                            updateYearsRangeSlice(validyearData, false);
                         }
                     }
 
@@ -488,17 +649,48 @@ const useUrlParams = ({
                         }
                     }
                     break;
+                // case ParamNames.UnknownYear:
+                //     if (
+                //         isBoolean(paramSlice) &&
+                //         paramSlice.toString() !== param.toLocaleLowerCase()
+                //     ) {
+                //         const validUnknownYear =
+                //             param.toLocaleLowerCase() === 'true';
+                //         console.log('console.log 5', validUnknownYear.toString());
+                //         setParamValue(validUnknownYear.toString());
+                //         updateUnknownYearSlice(validUnknownYear);
+                //     }
+
+                //     break;
                 case ParamNames.UnknownYear:
-                    if (
-                        isBoolean(paramSlice) &&
-                        paramSlice.toString() !== param.toLocaleLowerCase()
-                    ) {
-                        const validUnknownYear =
-                            param.toLocaleLowerCase() === 'true';
-                        setParamValue(validUnknownYear.toString());
-                        updateUnknownYearSlice(validUnknownYear);
+                    console.log('UnknownYear ME VALUE');
+                    console.log(param);
+                    console.log(searchParams.get(ParamNames.YearsRange));
+                    // eslint-disable-next-line no-case-declarations
+                    const urlYears =
+                        searchParams.get(ParamNames.YearsRange) ?? '';
+                    console.log(selectedYears);
+                    console.log(isYearsArray(data));
+                    if (isYearsArray(data)) {
+                        console.log(
+                            isyearRangeMaxValue(urlYears.toString(), data)
+                        );
                     }
 
+                    if (
+                        (isYearsArray(data) &&
+                            isyearRangeMaxValue(urlYears.toString(), data)) ||
+                        !urlYears
+                    ) {
+                        console.log('mphka mphka!');
+
+                        setParamValue(
+                            JSON.stringify(param.toLocaleLowerCase() === 'true')
+                        );
+                        updateUnknownYearSlice(
+                            param.toLocaleLowerCase() === 'true'
+                        );
+                    }
                     break;
                 default:
                     break;

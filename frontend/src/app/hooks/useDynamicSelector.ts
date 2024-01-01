@@ -1,17 +1,23 @@
 import { useSelector } from 'react-redux';
-import { IFilterSlice } from '../slices/filtersSlice';
 import { RootState } from '../store';
+import { ParamNames } from './useUrlParams';
 
-type UserPropertyType<T> = T extends keyof IFilterSlice
-    ? IFilterSlice[T]
-    : never;
+const useDynamicSelector = (name: ParamNames) => {
+    const filtersSliceData = useSelector(
+        (state: RootState) => state.filtersSlice
+    );
 
-const useDynamicSelector = <T extends keyof IFilterSlice>(
-    name: T
-): UserPropertyType<T> => {
-    return useSelector(
-        (state: RootState) => state.filtersSlice[name]
-    ) as UserPropertyType<T>;
+    switch (name) {
+        case ParamNames.YearsRange:
+        case ParamNames.UnknownYear:
+            return filtersSliceData.yearsFilters;
+        case ParamNames.AcademicPos:
+            return filtersSliceData.academicPos;
+        case ParamNames.Departments:
+            return filtersSliceData.departments;
+        default:
+            return filtersSliceData;
+    }
 };
 
 export default useDynamicSelector;

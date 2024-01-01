@@ -141,27 +141,6 @@ const FilterAndDataComponent = () => {
                     columnSpacing={{ xs: 0, md: 3 }}
                     sx={{ position: 'relative' }}
                 >
-                    <Collapse
-                        orientation="horizontal"
-                        in={checked}
-                        collapsedSize={20}
-                        sx={collapse}
-                    >
-                        <Grid2
-                            ref={(node) => {
-                                if (node !== null) {
-                                    ref.current = node;
-                                }
-                            }}
-                            sx={{
-                                visibility: checked ? 'visible' : 'hidden',
-                                width: { xs: '0px', md: '240px' },
-                                transition: 'visibility 280ms',
-                            }}
-                        >
-                            <Filters drawerStatus={drawerOpen} />
-                        </Grid2>
-                    </Collapse>
                     {!isYearsDataLoading &&
                     !isPositionsDataLoading &&
                     !isDepartmenentDataFetching &&
@@ -169,6 +148,30 @@ const FilterAndDataComponent = () => {
                     !isPositionsDataError &&
                     !isDepartmenentDataError ? (
                         <>
+                            <Collapse
+                                orientation="horizontal"
+                                in={checked}
+                                collapsedSize={20}
+                                sx={collapse}
+                            >
+                                <Grid2
+                                    ref={(node) => {
+                                        if (node !== null) {
+                                            ref.current = node;
+                                        }
+                                    }}
+                                    sx={{
+                                        visibility: checked
+                                            ? 'visible'
+                                            : 'hidden',
+                                        width: { xs: '0px', md: '240px' },
+                                        transition: 'visibility 280ms',
+                                    }}
+                                >
+                                    <Filters drawerStatus={drawerOpen} />
+                                </Grid2>
+                            </Collapse>
+
                             <Grid2 sx={collapseLineContainer}>
                                 <Divider
                                     orientation="vertical"

@@ -27,13 +27,7 @@ const ClearButton: React.FC<ClearButtonProps> = ({
     };
 
     return (
-        <Button
-            disableElevation
-            disableRipple
-            variant="text"
-            sx={clearStyle}
-            {...props}
-        >
+        <Button disableElevation variant="text" sx={clearStyle} {...props}>
             {children}
         </Button>
     );

@@ -1,11 +1,13 @@
 import Box from '@mui/material/Box/Box';
 import Chip from '@mui/material/Chip/Chip';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SxProps } from '@mui/material';
 import { RootState } from '../app/store';
 import { ParamNames } from '../app/hooks/useUrlParams';
+
+import { setYearsFilters } from '../app/slices/filtersSlice';
 
 enum ChipKey {
     YearsRange = 'YearsRange',
@@ -39,21 +41,22 @@ const TheChipArray = () => {
     );
     const [chipData, setChipData] = React.useState<readonly ChipData[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const chipDataTemp: ChipData[] = [];
 
         if (
-            filtersSliceData.yearsRange.join(',') !==
+            filtersSliceData.yearsFilters.yearsRange.join(',') !==
             filtersSliceData.maxYearsRange.join(',')
         ) {
             chipDataTemp.push({
                 key: ChipKey.YearsRange,
-                label: `${filtersSliceData.yearsRange[0]} - ${filtersSliceData.yearsRange[1]}`,
+                label: `${filtersSliceData.yearsFilters.yearsRange[0]} - ${filtersSliceData.yearsFilters.yearsRange[1]}`,
             });
         }
 
-        if (filtersSliceData.unknownYear) {
+        if (filtersSliceData.yearsFilters.unknownYear) {
             chipDataTemp.push({
                 key: `${ChipKey.UnknownYear}`,
                 label: 'unknown year',
@@ -84,6 +87,7 @@ const TheChipArray = () => {
         } else if (deletedChip.key.startsWith(ChipKey.UnknownYear)) {
             searchParams.delete(ParamNames.UnknownYear);
             setSearchParams(searchParams);
+            dispatch(setYearsFilters({ unknownYear: false }));
         } else if (deletedChip.key.startsWith(ChipKey.Position)) {
             const academicPosURL = searchParams
                 .get(ParamNames.AcademicPos)

@@ -54,7 +54,12 @@ export const createMarks = (
 };
 
 let sliderTimeout: ReturnType<typeof setTimeout>;
-let unknownYearTimeout: ReturnType<typeof setTimeout>;
+let yearsFiltersTimeout: ReturnType<typeof setTimeout>;
+
+export interface YearsFilters {
+    yearsRange: number[];
+    unknownYear: boolean;
+}
 
 export interface FixSliderProp {
     data: YearsArray;
@@ -66,51 +71,125 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
         data,
     });
 
-    const [unknownYearParamValue, handleInputChangeunknownYear] = useUrlParams({
+    const [unknownParamValue, handleUnknownInputChange] = useUrlParams({
         name: ParamNames.UnknownYear,
-        data: true,
+        data,
     });
 
-    const [value, setValue] = useState<number[]>([0, 0]);
-    const [unknownYearValue, setUnknownYearValue] = useState<boolean>(false);
+    const [yearsFilters, setYearsFilters] = useState<YearsFilters>({
+        yearsRange: [data[0], data[data.length - 1]],
+        unknownYear: false,
+    });
 
     useEffect(() => {
+        console.log(paramValue);
+
         if (paramValue) {
-            const yearsRangeArray = stringToYearArray(paramValue);
-            setValue(yearsRangeArray);
-        } else {
-            setValue([data[0], data[data.length - 1]]);
+            const yearsFitlersValue = JSON.parse(paramValue) as YearsFilters;
+            console.log('GFDGDSGSDFGSDFGFDSGDSFGDSFGDSFG0', yearsFitlersValue);
+
+            // const yearsRangeArray = stringToYearArray(yearsFitlersValue.yearsRange);
+            const yearsRangeArray = yearsFitlersValue.yearsRange;
+            if (yearsRangeArray.length === 2) {
+                // Ίσως πρέπει να κάνω έλεγχο για το unknownYear (αλλά είμαι πολύ σίγουρος ότι θα το γυρνάω από το hook σωστά το value)
+                // Το θέμα μου είναι όμως πως θα το δείχνω στο UI, δεν θέλω να του αλλάζω το value του εάν είναι disable ή όχι
+                setYearsFilters({
+                    yearsRange: yearsRangeArray,
+                    unknownYear: !!yearsFitlersValue.unknownYear,
+                });
+            } else {
+                console.log('MPHKA EDW ALLA TI GINETAI?!?!?!');
+
+                // Εδώ μου φαίνεται ότι είναι σωστό, εφόσον δεν έχει years δεν χρειάζετε να πειράξω το unknownYear
+                setYearsFilters({
+                    ...yearsFilters,
+                    yearsRange: [data[0], data[data.length - 1]],
+                });
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [paramValue]);
 
     useEffect(() => {
-        setUnknownYearValue(unknownYearParamValue === 'true');
-    }, [unknownYearParamValue]);
+        console.log(yearsFilters);
+
+        if (unknownParamValue) {
+            const unknownYearValue = JSON.parse(unknownParamValue) as boolean;
+            // setYearsFilters((prevValue) => {
+            //     ...prevValue,
+            //     unknownYear: unknownYearValue,
+            // });
+            setYearsFilters((prevValue) => {
+                return {
+                    ...prevValue,
+                    unknownYear: unknownYearValue,
+                };
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [unknownParamValue]);
 
     const sliderMarks = useMemo((): Array<ISliderMark> => {
         return createMarks(data);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
-    const handleChange = (event: Event, newValue: number | number[]) => {
-        setValue(newValue as number[]);
-        clearTimeout(sliderTimeout);
-        sliderTimeout = setTimeout(() => {
-            console.log('hello world!');
-            if (Array.isArray(newValue)) {
-                handleInputChange({ years: `${newValue[0]}-${newValue[1]}` });
-            }
+    // const handleChange = (event: Event, newValue: number | number[]) => {
+    //     setValue(newValue as number[]);
+    //     clearTimeout(sliderTimeout);
+    //     sliderTimeout = setTimeout(() => {
+    //         console.log('hello world!');
+    //         if (Array.isArray(newValue)) {
+    //             handleInputChange({ years: `${newValue[0]}-${newValue[1]}` });
+    //         }
+    //     }, 450);
+    // };
+
+    const handleChange = (newYearsFilters: YearsFilters) => {
+        clearTimeout(yearsFiltersTimeout);
+        yearsFiltersTimeout = setTimeout(() => {
+            handleInputChange({ yearsFilters: newYearsFilters });
         }, 450);
     };
 
-    useEffect(() => {
-        clearTimeout(unknownYearTimeout);
-        unknownYearTimeout = setTimeout(() => {
-            handleInputChangeunknownYear({ unknownYear: unknownYearValue });
-        }, 450);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [unknownYearValue]);
+    // useEffect(() => {
+    //     clearTimeout(yearsFiltersTimeout);
+    //     yearsFiltersTimeout = setTimeout(() => {
+    //         handleInputChange({ yearsFilters });
+    //     }, 450);
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [yearsFilters]);
+
+    const SliderOnChange = (event: Event, newValue: number | number[]) => {
+        console.log(yearsFilters.yearsRange.toString() !== newValue.toString());
+
+        // if (
+        //     Array.isArray(newValue) &&
+        //     yearsFilters.yearsRange.toString() !== newValue.toString()
+        // ) {
+
+        if (Array.isArray(newValue)) {
+            setYearsFilters({
+                ...yearsFilters,
+                yearsRange: [newValue[0], newValue[newValue.length - 1]],
+            });
+            handleChange({
+                ...yearsFilters,
+                yearsRange: [newValue[0], newValue[newValue.length - 1]],
+            });
+        }
+    };
+
+    const CheckboxOnChange = () => {
+        setYearsFilters({
+            ...yearsFilters,
+            unknownYear: !yearsFilters.unknownYear,
+        });
+        handleChange({
+            ...yearsFilters,
+            unknownYear: !yearsFilters.unknownYear,
+        });
+    };
 
     return (
         <Box
@@ -135,8 +214,8 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
                             <Slider
                                 sx={slider}
                                 getAriaLabel={() => 'Years range'}
-                                value={value}
-                                onChange={handleChange}
+                                value={yearsFilters.yearsRange}
+                                onChange={SliderOnChange}
                                 valueLabelDisplay="auto"
                                 marks={sliderMarks}
                                 step={null}
@@ -153,7 +232,7 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
                         component="div"
                         sx={sliderLabel(theme)}
                     >
-                        {value[0]}
+                        {yearsFilters.yearsRange[0]}
                     </Typography>
                     <Typography
                         variant="body2"
@@ -161,7 +240,7 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
                         component="div"
                         sx={sliderLabel(theme)}
                     >
-                        {value[1]}
+                        {yearsFilters.yearsRange[1]}
                     </Typography>
                 </Box>
             </FormControl>
@@ -177,18 +256,16 @@ const FixSlide: React.FC<FixSliderProp> = ({ data }: FixSliderProp) => {
                     }}
                     disabled={
                         !(
-                            data[0] === value[0] &&
-                            data[data.length - 1] === value[1]
+                            data[0] === yearsFilters.yearsRange[0] &&
+                            data[data.length - 1] === yearsFilters.yearsRange[1]
                         )
                     }
-                    value={unknownYearValue}
+                    value={yearsFilters.unknownYear}
                     labelPlacement="start"
                     control={
                         <Checkbox
-                            onClick={() =>
-                                setUnknownYearValue(!unknownYearValue)
-                            }
-                            checked={unknownYearValue}
+                            onClick={CheckboxOnChange}
+                            checked={yearsFilters.unknownYear}
                         />
                     }
                     label="Unknown year"

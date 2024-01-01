@@ -1,3 +1,4 @@
+import { YearsFilters } from '../../components/Filters/YearsSlider';
 import { YearsArray } from '../../models/api/response/departments/departments.data';
 import { FilterData } from '../hooks/useUrlParams';
 
@@ -45,4 +46,14 @@ export const isYearsArray = (data: FilterData): data is YearsArray => {
 
 export const isBoolean = (data: FilterData): boolean => {
     return typeof data === 'boolean';
+};
+
+export const isYearsFilters = (data: FilterData): data is YearsFilters => {
+    return (
+        typeof data === 'object' &&
+        'yearsRange' in data &&
+        'unknownYear' in data &&
+        Array.isArray(data.yearsRange) &&
+        typeof data.unknownYear === 'boolean'
+    );
 };
