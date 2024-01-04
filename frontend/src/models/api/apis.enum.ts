@@ -3,7 +3,7 @@ export const Apis: IGeneralApis = {
     GetDepartments: '/departments',
     GetDeparmentById: (id: string) => `/departments/${id}`,
     GetStatistics: '/departments/statistics',
-    GetAcademicStaffData: '/departments/academicStaffData',
+    GetAcademicStaffData: '/departments/academicStaffData/byDepartmentIds',
     GetDepartmentsData: '/departments/departmentAnalytics',
     getAcademicPositionTotals: '/departments/academicPositionTotals',
     getAcademicStaffResearchSummary:

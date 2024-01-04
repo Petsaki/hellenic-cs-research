@@ -1,5 +1,5 @@
 const constructQueryString = (
-    params: Record<string, string | string[] | undefined>
+    params: Record<string, string | string[] | boolean | undefined>
 ): string => {
     const queryParams = Object.entries(params)
         .filter(([, value]) => value !== undefined) // Exclude undefined values

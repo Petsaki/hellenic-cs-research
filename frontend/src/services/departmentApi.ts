@@ -100,11 +100,12 @@ export const departmentApi = createApi({
             ResponseData<IDepartmentData[]>,
             Partial<IFDepartmentsData>
         >({
-            query: ({ years, departments, positions }) => ({
+            query: ({ years, departments, positions, unknown_year }) => ({
                 url: `${Apis.GetDepartmentsData}?${constructQueryString({
                     departments,
                     positions,
                     years: years ? years.map(String) : undefined,
+                    unknown_year: unknown_year || undefined,
                 })}`,
                 method: 'GET',
             }),
@@ -113,14 +114,16 @@ export const departmentApi = createApi({
             ResponseData<IAcademicPositionTotals[]>,
             IFAcademicPositionTotals
         >({
-            query: ({ departments, positions, years }) => ({
+            query: ({ departments, positions, years, unknown_year }) => ({
                 url: `${Apis.getAcademicPositionTotals}?departments=${
                     Array.isArray(departments)
                         ? departments.join(',')
                         : departments
                 }&positions=${
                     Array.isArray(positions) ? positions.join(',') : positions
-                }&years=${years.join(',')}`,
+                }&years=${years.join(',')}${
+                    unknown_year ? `&unknown_year=${unknown_year}` : ''
+                }`,
                 method: 'GET',
             }),
         }),
@@ -128,14 +131,16 @@ export const departmentApi = createApi({
             ResponseData<IAcademicStaffResearchSummary[]>,
             IFAcademicPositionTotals
         >({
-            query: ({ departments, positions, years }) => ({
+            query: ({ departments, positions, years, unknown_year }) => ({
                 url: `${Apis.getAcademicStaffResearchSummary}?departments=${
                     Array.isArray(departments)
                         ? departments.join(',')
                         : departments
                 }&positions=${
                     Array.isArray(positions) ? positions.join(',') : positions
-                }&years=${years.join(',')}`,
+                }&years=${years.join(',')}${
+                    unknown_year ? `&unknown_year=${unknown_year}` : ''
+                }`,
                 method: 'GET',
             }),
         }),

@@ -171,6 +171,10 @@ const DepartmentDataTable = () => {
         (state: RootState) => state.filtersSlice.yearsFilters.yearsRange
     );
 
+    const selectedUnknownYear = useSelector(
+        (state: RootState) => state.filtersSlice.yearsFilters.unknownYear
+    );
+
     const rows = useMemo(() => {
         if (!tableData) {
             return [];
@@ -229,10 +233,11 @@ const DepartmentDataTable = () => {
             departmentsDataReq({
                 positions: selectedPositions,
                 years: selectedYears,
+                unknown_year: selectedUnknownYear,
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedPositions, selectedYears]);
+    }, [selectedPositions, selectedYears, selectedUnknownYear]);
 
     if (!selectedPositions.length || !selectedYears.length) return null;
 

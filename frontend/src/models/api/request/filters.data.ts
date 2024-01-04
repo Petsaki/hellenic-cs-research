@@ -17,17 +17,19 @@ export interface IFAcademicStaff {
     years: number[];
     page: number;
     size?: number;
-    unknown_year: boolean;
+    unknown_year?: boolean;
 }
 
 export interface IFDepartmentsData {
     positions?: string[] | string;
     years: number[];
     departments?: string[] | string;
+    unknown_year?: boolean;
 }
 
 export interface IFAcademicPositionTotals {
     departments: string[] | string;
     positions: string[] | string;
     years: number[];
+    unknown_year?: boolean;
 }

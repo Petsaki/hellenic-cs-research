@@ -92,11 +92,16 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
         (state: RootState) => state.filtersSlice.yearsFilters.yearsRange
     );
 
+    const selectedUnknownYear = useSelector(
+        (state: RootState) => state.filtersSlice.yearsFilters.unknownYear
+    );
+
     const { data: depResearchSummary } = useGetResearchSummaryQuery(
         {
             departments: id ?? '',
             positions: selectedPositions,
             years: selectedyears,
+            unknown_year: selectedUnknownYear,
         },
         {
             skip: !runQuery, // Skip the query if runQuery is false
