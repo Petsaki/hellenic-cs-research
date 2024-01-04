@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { getAcademicPositionTotals, getAcademicStaffResearchSummary, getDepartment, getDepartments, getDepartmentsAcademicStaffData, getDepartmentsActiveYears, getDepartmentsAnalyticsData, getScholarlyProfiles, getStatistics, getStatisticsPerDepartments } from '../controllers/department.controller';
+import { getAcademicPositionTotals, getAcademicStaffResearchSummary, getDepartment, getDepartments, getDepartmentsAcademicStaffByStaffData, getDepartmentsAcademicStaffData, getDepartmentsActiveYears, getDepartmentsAnalyticsData, getScholarlyProfiles, getStatistics, getStatisticsPerDepartments } from '../controllers/department.controller';
 import { getCacheDepartmentsID } from '../middlewares/getDepartmentsID';
 import { getCacheYearsRange } from '../middlewares/getYearsRange';
 import { getCacheAllPositions } from '../middlewares/getAllPositions';
+import { getCacheAcademicStaffID } from '../middlewares/getAcademicStaffsID';
 
 const router = Router();
 
@@ -69,7 +70,7 @@ router.get('/', getCacheDepartmentsID, getDepartments);
 
 /**
  * @openapi
- * /api/departments/academicStaffData:
+ * /api/departments/academicStaffData/byDepartmentIds:
  *   get: 
  *     description: Return an object with the data of academic staff citations/publications per year.
  *     parameters:
@@ -103,6 +104,12 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,).
+ *       - name: unknown_year
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *         description: If true then it will include the publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -195,8 +202,145 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *     tags:
  *       - OMEA
  */
-// Academic-staff data
-router.get('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAcademicStaffData); // ΑΥΤΟ
+// Academic-staff data by Department IDs
+router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAcademicStaffData); // ΑΥΤΟ
+
+/**
+ * @openapi
+ * /api/departments/academicStaffData/byStaffIds:
+ *   get: 
+ *     description: Return an object with the data of academic staff citations/publications per year.
+ *     parameters:
+ *       - name: academic_staff
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Academic staff ids. Accepts multi values with comma(,).
+ *       - name: years
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Years range. Accepts multi values with comma(,). Max 2 values.
+ *       - name: page
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Page's number.
+ *       - name: size
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Offset's number.
+ *       - name: positions
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Academic positions. Accepts multi values with comma(,).
+ *       - name: unknown_year
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *         description: If true then it will include the publications with unknown year.
+ *     responses:  
+ *       200: 
+ *         description: Success 
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Response'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           position:
+ *                             type: string
+ *                           inst:
+ *                             type: string
+ *                           hindex:
+ *                             type: integer
+ *                           publications:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 year:
+ *                                   type: integer
+ *                                 count:
+ *                                   type: integer
+ *                             nullable: true
+ *                           citations:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 year:
+ *                                   type: integer
+ *                                 count:
+ *                                   type: integer
+ *                             nullable: true
+ *                           hindex5:
+ *                             type: integer
+ *                             nullable: true
+ *                           citations5:
+ *                             type: integer
+ *                             nullable: true
+ *                           publications5:
+ *                             type: integer
+ *                             nullable: true
+ *                           publicationTotal:
+ *                             type: integer
+ *                             nullable: true
+ *                           citationTotal:
+ *                             type: integer
+ *                             nullable: true
+ *                           averagePublication:
+ *                             type: integer
+ *                             nullable: true
+ *                           averageCitation:
+ *                             type: integer
+ *                             nullable: true
+ *             example:
+ *               code: 200
+ *               data:
+ *                 - id: "AaBBccdD1112"
+ *                   name: "Academic Staff"
+ *                   position: "Assistant Professor"
+ *                   inst: "iee@ihu"
+ *                   hindex: 10
+ *                   publications:
+ *                     - year: 2022
+ *                       count: 3
+ *                   citations:
+ *                     - year: 2022
+ *                       count: 40
+ *                   hindex5: 5
+ *                   citations5: 186
+ *                   publications5: 14
+ *                   publicationTotal: 3
+ *                   citationTotal: 40
+ *                   averagePublication: 3
+ *                   averageCitation: 40
+ *               description: "Success"
+ *               success: true
+ *     tags:
+ *       - OMEA
+ */
+// Academic-staff data by Academic Staff IDs
+router.get('/academicStaffData/byStaffIds', getCacheAllPositions, getCacheYearsRange, getCacheAcademicStaffID, getDepartmentsAcademicStaffByStaffData); // ΑΥΤΟ
 
 /**
  * @openapi
@@ -273,7 +417,7 @@ router.get('/academicStaffData', getCacheAllPositions, getCacheYearsRange, getCa
  *       - OMEA
  */
 // statistics
-router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartmentsID, getStatisticsPerDepartments); // ΑΥΤΟ
+router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartmentsID, getStatisticsPerDepartments); // ΑΥΤΟ - Ήδη μετρούσα και τα unknownYears, εάν το κάνω να μην τα μετράω θα ήταν πάαααααρα πολύ βαρύ
 
 /**
  * @openapi
@@ -344,7 +488,7 @@ router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartments
  *     tags:
  *       - OMEA
  */
-router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatistics); // ΑΥΤΟ
+router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatistics); // ΑΥΤΟ - Ήδη μετρούσα και τα unknownYears, εάν το κάνω να μην τα μετράω θα ήταν πάαααααρα πολύ βαρύ
 
 /**
  * @openapi
@@ -447,6 +591,12 @@ router.get('/active-years', getCacheAllPositions, getCacheDepartmentsID, getDepa
  *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,). If empty, it will return for all.
+ *       - name: unknown_year
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *         description: If true then it will include the publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -542,6 +692,12 @@ router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, get
  *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,). If empty, it will return for all.
+ *       - name: unknown_year
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *         description: If true then it will include the publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -622,6 +778,12 @@ router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, 
  *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,). If empty, it will return for all.
+ *       - name: unknown_year
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *         description: If true then it will include the publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -688,7 +850,7 @@ router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, 
  *     tags:
  *       - OMEA
  */
-// citations and publicattions per staff per department 
+// citations and publicattions per staff per department
 router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getScholarlyProfiles); // ΑΥΤΟ
 
 /**
@@ -715,6 +877,12 @@ router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCa
  *         schema:
  *           type: string
  *         description: Academic positions. Accepts multi values with comma(,). If empty, it will return for all.
+ *       - name: unknown_year
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *         description: If true then it will include the publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 

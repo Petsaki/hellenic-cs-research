@@ -81,5 +81,7 @@ export const reqCache: cacheData = {
     position: [],
     yearsRange: [],
     departmentsID: [],
-    departmentsStaticStats: []
+    departmentsStaticStats: [],
+    departmentsUnknownStaticStats: [],
+    academicStaffID: []
 };

@@ -1,14 +1,14 @@
-import { FindAttributeOptions, Op, QueryTypes, Sequelize, WhereOptions } from 'sequelize';
+import { FindAttributeOptions, Op, QueryTypes, Sequelize, WhereOptions, or } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Departments from '../models/department.model';
-import { omeaCitationsRes, omeaCitationsReqBody, IDepartments, IDep, omeaCitationsReqQuery, omeaCitationsReqBodyQuery, DepartmentsStaticStatsCache, cacheKeysEnum, DepartmentsDynamicStatsIDs } from '../types';
+import { omeaCitationsRes, omeaCitationsReqBody, IDepartments, IDep, omeaCitationsReqQuery, omeaCitationsReqBodyQuery, DepartmentsStaticStatsCache, cacheKeysEnum, DepartmentsDynamicStatsIDs, ICitation } from '../types';
 import { tryCatch } from '../utils/tryCatch';
-import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq, AcademicPositionTotalsSchema, AcademicPositionTotalsRequest, AcademicStaffResearchSummaryRequest, AcademicStaffResearchSummarySchema, AcademicDataPaginationSchema, AcademicDataPaginationRequest, DepartmentWithOptionalPositions, DepartmentWithOptionalPositionsSchema } from '../types/request.types';
+import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq, AcademicPositionTotalsSchema, AcademicPositionTotalsRequest, AcademicStaffResearchSummaryRequest, AcademicStaffResearchSummarySchema, AcademicDataPaginationSchema, AcademicDataPaginationRequest, DepartmentWithOptionalPositions, DepartmentWithOptionalPositionsSchema, AcademicDataAcademicStaffPaginationRequest, AcademicDataAcademicStaffPaginationSchema } from '../types/request.types';
 import Dep from '../models/dep.model';
 import sequelize from '../db/connection';
 import Publications from '../models/publication.model';
 import Citations from '../models/citation.model';
-import { departmentsValidation, positionsValidation, yearsValidation } from '../utils/validators';
+import { academicStaffValidation, departmentsValidation, positionsValidation, unknownYearValidation, yearsValidation } from '../utils/validators';
 import { AcademicData, DepartmentsDynamicStats, DepartmentsStats, IAcademicPositionTotals, IAcademicStaffData, IAcademicStaffResearchSummary, IStatistics, IStatisticsPerDepartment, StaffResearchSummary } from '../types/response/department.type';
 import cache from 'memory-cache';
 import { cacheTime, reqCache } from '../server';
@@ -256,10 +256,11 @@ const activeYears = async (departments: string | string[], positions?: string | 
 // Departments academic staff data
 export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitationsReqQuery<AcademicDataPaginationRequest>, res: omeaCitationsRes<IAcademicStaffData>) => {
     const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
-    const {departments: departmentsZod, positions: positionsZod, years: yearsString, page, size}: AcademicDataPaginationRequest = AcademicDataPaginationSchema.parse(req.query);
+    const {departments: departmentsZod, positions: positionsZod, years: yearsString, page, size, unknown_year: unknownYearZod}: AcademicDataPaginationRequest = AcademicDataPaginationSchema.parse(req.query);
     const years = yearsString.split(',').map((item) => parseInt(item, 10));
     const departments = departmentsZod.split(',');
     const positions = positionsZod && positionsZod.split(',');
+    const unknownYear = unknownYearZod?.toLocaleLowerCase() === 'true' && unknownYearValidation(years, yearsCache);
 
     // Validation - Check if departments exists in the database
     await departmentsValidation(departments, departmentsCache);
@@ -277,21 +278,22 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
         inst: {
           [Op.in]: departmentArray, // Use Op.in to filter by multiple department IDs
         },
-      };
-      if (positions && positions.length) {
+    };
+
+    if (positions && positions.length) {
         where.position = {
-          [Op.in]: positions,
+            [Op.in]: positions,
         };
-      }
+    }
       
-    
-      // Use the gsid values to retrieve all columns from the Dep table
-      const academicData = await Dep.findAndCountAll({
+
+    // Use the gsid values to retrieve all columns from the Dep table
+    const academicData = await Dep.findAndCountAll({
         where,
         raw: true,
         limit: +size,
         offset: +page * +size,
-      });
+    });
 
     //   console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',academicData);
       
@@ -306,15 +308,33 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
     // Get the range of active years base of user's input
     const yearsInRange = activeYearsData.filter((year) => year >= years[0] && year <= years[years.length - 1]);
 
+    const publicationYearWhere =
+        unknownYear ? [
+            {
+                year: {
+                    [Op.in]: yearsInRange,
+                },
+            },
+            unknownYear && {
+                year: -1
+            },
+
+        ]
+    : [
+        {
+            year: {
+                [Op.in]: yearsInRange,
+            },
+        }
+     ] ;
+
       // Fetch the publication and citation data for the specified years and group them by year for each position ID
     const publicationData = await Publications.findAll({
         where: {
             id: {
                 [Op.in]: positionIds,
             },
-            year: {
-                [Op.in]: yearsInRange,
-            },
+            [Op.or]: publicationYearWhere,
         },
         attributes: ['id', 'year', 'counter'],
         raw: true,
@@ -333,39 +353,55 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
         raw: true,
     });
 
-    // console.log(publicationData);
-
     
-  // Group the publication and citation data by year for each position ID
-  const groupedPublicationData: GroupedData = publicationData.reduce((acc, data) => {
-    const positionId = data.id;
-    if (!acc[positionId]) {
-      acc[positionId] = { total: 0, data: [] };
+    // Group the publication and citation data by year for each position ID
+    const groupedPublicationData: GroupedData = publicationData.reduce((acc, data) => {
+        const positionId = data.id;
+        if (!acc[positionId]) {
+        acc[positionId] = { total: 0, data: [] };
+        }
+        acc[positionId].data.push({ year: data.year, count: data.counter });
+        acc[positionId].total += data.counter;
+        return acc;
+    }, {} as GroupedData);
+
+    const groupedCitationData: GroupedData = citationData.reduce((acc, data) => {
+        const positionId = data.id;
+        if (!acc[positionId]) {
+        acc[positionId] = { total: 0, data: [] };
+        }
+        acc[positionId].data.push({ year: data.year, count: data.counter });
+        acc[positionId].total += data.counter;
+        return acc;
+    }, {} as GroupedData);
+
+    console.log(groupedCitationData);
+
+    if (unknownYear) {
+        for (const [key, value] of Object.entries(groupedCitationData)) {
+            const currentStaff = academicData.rows.find((dep) => dep.id === key);
+            if (currentStaff) {
+                const unknownYearCitations = currentStaff.citations - value.total;
+                groupedCitationData[key].total = groupedCitationData[key].total + unknownYearCitations;
+                groupedCitationData[key].data.push({ year: -1, count: unknownYearCitations });
+
+            }
+        };
     }
-    acc[positionId].data.push({ year: data.year, count: data.counter });
-    acc[positionId].total += data.counter;
-    return acc;
-  }, {} as GroupedData);
+  
 
-  const groupedCitationData: GroupedData = citationData.reduce((acc, data) => {
+    // Combine the academicData with the grouped publication and citation data
+    const academicDataWithStats: AcademicData[] = academicData.rows.map((data) => {
     const positionId = data.id;
-    if (!acc[positionId]) {
-      acc[positionId] = { total: 0, data: [] };
-    }
-    acc[positionId].data.push({ year: data.year, count: data.counter });
-    acc[positionId].total += data.counter;
-    return acc;
-  }, {} as GroupedData);
-
-  // Combine the academicData with the grouped publication and citation data
-  const academicDataWithStats: AcademicData[] = academicData.rows.map((data) => {
-    const positionId = data.id;
-
+    
     // Extract unique years from citations and publications
     const uniqueYearsSet = new Set<number>();
-
+    
+    // unknownYear && groupedCitationData[positionId]?.data.push({ year: -1, count: data.citations - groupedCitationData[positionId].total });
     groupedCitationData[positionId]?.data.forEach((citation) => uniqueYearsSet.add(citation.year));
     groupedPublicationData[positionId]?.data.forEach((publication) => uniqueYearsSet.add(publication.year));
+
+
 
     // Get the length of the Set
     const uniqueYearsCount = uniqueYearsSet.size;
@@ -381,7 +417,176 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
     };
   });
 
-    res.json(sendResponse<IAcademicStaffData>(200,'All good.', {academic_data: academicDataWithStats, years_range: yearsInRange, count: academicData.count}));
+    res.json(sendResponse<IAcademicStaffData>(200,'All good.', {academic_data: academicDataWithStats, years_range: [...(unknownYear ? [-1] : []), ...yearsInRange], count: academicData.count}));
+});
+
+// Departments academic staff data by academic staff
+export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaCitationsReqQuery<AcademicDataAcademicStaffPaginationRequest>, res: omeaCitationsRes<IAcademicStaffData>) => {
+    const {position: positionsCache, yearsRange: yearsCache, academicStaffID: staffCache} = req.cache;
+    const {academic_staff: academic_staffZod, positions: positionsZod, years: yearsString, page, size, unknown_year: unknownYearZod}: AcademicDataAcademicStaffPaginationRequest = AcademicDataAcademicStaffPaginationSchema.parse(req.query);
+    const years = yearsString.split(',').map((item) => parseInt(item, 10));
+    const academic_staff = academic_staffZod.split(',');
+    const positions = positionsZod && positionsZod.split(',');
+    const unknownYear = unknownYearZod?.toLocaleLowerCase() === 'true' && unknownYearValidation(years, yearsCache);
+    console.log(academic_staff);
+    console.log(staffCache);
+    
+    // Validation - Check if academic staff exists in the database
+    await academicStaffValidation(academic_staff, staffCache);
+    // Validation - Check if years exists in the database
+    await yearsValidation(years, yearsCache);
+    // Validation - Check if positions exists in the database
+    if (positions) {
+        positionsValidation(positions, positionsCache)
+    }
+
+    const academicStaffArray = Array.isArray(academic_staff) ? academic_staff : [academic_staff];
+
+    // Sequelize has very bad typescript support. It is better to let it as any.
+    const where: WhereOptions<any> = {
+        gsid: {
+          [Op.in]: academicStaffArray, // Use Op.in to filter by multiple academic staff IDs
+        },
+    };
+
+    if (positions && positions.length) {
+        where.position = {
+            [Op.in]: positions,
+        };
+    }
+      
+
+    // Use the gsid values to retrieve all columns from the Dep table
+    const academicData = await Dep.findAndCountAll({
+        where,
+        raw: true,
+        limit: +size,
+        offset: +page * +size,
+    });
+
+      console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',academicData);
+      
+
+    // Extract the position IDs from the academicData result
+    const positionIds = academicData.rows.map((data) => data.id);
+    // console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',positionIds);
+
+    // Get the active years array
+    const activeYearsData = await activeYears('iee@ihu', positions);
+
+    // Get the range of active years base of user's input
+    const yearsInRange = activeYearsData.filter((year) => year >= years[0] && year <= years[years.length - 1]);
+
+    const publicationYearWhere =
+        unknownYear ? [
+            {
+                year: {
+                    [Op.in]: yearsInRange,
+                },
+            },
+            unknownYear && {
+                year: -1
+            },
+
+        ]
+    : [
+        {
+            year: {
+                [Op.in]: yearsInRange,
+            },
+        }
+     ] ;
+
+      // Fetch the publication and citation data for the specified years and group them by year for each position ID
+    const publicationData = await Publications.findAll({
+        where: {
+            id: {
+                [Op.in]: positionIds,
+            },
+            [Op.or]: publicationYearWhere,
+        },
+        attributes: ['id', 'year', 'counter'],
+        raw: true,
+    });
+
+    const citationData = await Citations.findAll({
+        where: {
+            id: {
+                [Op.in]: positionIds,
+            },
+            year: {
+                [Op.in]: yearsInRange,
+            },
+        },
+        attributes: ['id', 'year', 'counter'],
+        raw: true,
+    });
+
+    
+    // Group the publication and citation data by year for each position ID
+    const groupedPublicationData: GroupedData = publicationData.reduce((acc, data) => {
+        const positionId = data.id;
+        if (!acc[positionId]) {
+        acc[positionId] = { total: 0, data: [] };
+        }
+        acc[positionId].data.push({ year: data.year, count: data.counter });
+        acc[positionId].total += data.counter;
+        return acc;
+    }, {} as GroupedData);
+
+    const groupedCitationData: GroupedData = citationData.reduce((acc, data) => {
+        const positionId = data.id;
+        if (!acc[positionId]) {
+        acc[positionId] = { total: 0, data: [] };
+        }
+        acc[positionId].data.push({ year: data.year, count: data.counter });
+        acc[positionId].total += data.counter;
+        return acc;
+    }, {} as GroupedData);
+
+    // console.log(groupedCitationData);
+
+    if (unknownYear) {
+        for (const [key, value] of Object.entries(groupedCitationData)) {
+            const currentStaff = academicData.rows.find((dep) => dep.id === key);
+            if (currentStaff) {
+                const unknownYearCitations = currentStaff.citations - value.total;
+                groupedCitationData[key].total = groupedCitationData[key].total + unknownYearCitations;
+                groupedCitationData[key].data.push({ year: -1, count: unknownYearCitations });
+
+            }
+        };
+    }
+  
+
+    // Combine the academicData with the grouped publication and citation data
+    const academicDataWithStats: AcademicData[] = academicData.rows.map((data) => {
+    const positionId = data.id;
+    
+    // Extract unique years from citations and publications
+    const uniqueYearsSet = new Set<number>();
+    
+    // unknownYear && groupedCitationData[positionId]?.data.push({ year: -1, count: data.citations - groupedCitationData[positionId].total });
+    groupedCitationData[positionId]?.data.forEach((citation) => uniqueYearsSet.add(citation.year));
+    groupedPublicationData[positionId]?.data.forEach((publication) => uniqueYearsSet.add(publication.year));
+
+
+
+    // Get the length of the Set
+    const uniqueYearsCount = uniqueYearsSet.size;
+
+    return {
+      ...data,
+      publications: groupedPublicationData[positionId]?.data || [],
+      publicationTotal: groupedPublicationData[positionId]?.total || 0,
+      citations: groupedCitationData[positionId]?.data || [],
+      citationTotal: groupedCitationData[positionId]?.total || 0,
+      averagePublication: Number(Math.round(parseFloat((groupedPublicationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
+      averageCitation: Number(Math.round(parseFloat((groupedCitationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
+    };
+  });
+
+    res.json(sendResponse<IAcademicStaffData>(200,'All good.', {academic_data: academicDataWithStats, years_range: [...(unknownYear ? [-1] : []), ...yearsInRange], count: academicData.count}));
 });
 
 const roundNumberWithDecimalPlaces = (num: number, numOfDecimals: string = decimalPlaces): number => {
@@ -389,12 +594,15 @@ const roundNumberWithDecimalPlaces = (num: number, numOfDecimals: string = decim
 }
 
 export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReqQuery<DepartmentsAnalyticsReq>, res: omeaCitationsRes<DepartmentsStats[]>) => {
-    const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache, departmentsStaticStats: depStatsCache} = req.cache;
-    const {departments: departmentsZod, positions: positionsZod, years: yearsString}: DepartmentsAnalyticsReq = DepartmentsAnalyticsReqSchema.parse(req.query);
+    const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache, departmentsStaticStats: depStatsCache, departmentsUnknownStaticStats: depUnknownStatsCache} = req.cache;
+    const {departments: departmentsZod, positions: positionsZod, years: yearsString, unknown_year: unknownYearZod}: DepartmentsAnalyticsReq = DepartmentsAnalyticsReqSchema.parse(req.query);
     const departments = departmentsZod ? departmentsZod?.split(',') : undefined;
     const positions = positionsZod ? positionsZod.split(',') : undefined;
 
     const years = yearsString.split(',').map((item) => parseInt(item, 10));
+
+    const unknownYear = unknownYearZod?.toLocaleLowerCase() === 'true' && unknownYearValidation(years, yearsCache);
+
 
     // Validation - Check if years exists in the database
     await yearsValidation(years, yearsCache);
@@ -444,22 +652,30 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
     
     const eachDepActiveYears: DepartmentsStats[] = [];
     
+    const yearsArray = [yearsCache[0], yearsCache[yearsCache.length - 1]];
+
     if (!depStatsCache || !depStatsCache.length) {
         // console.log(positionsCache);
-        const yearsArray = [yearsCache[0], yearsCache[yearsCache.length - 1]]
         // console.log(yearsArray);
         // const departmentsIDs = departmentsCache.map((dep) => dep.id);
         await createDepartmentsAnalysis(departmentsCache.map((dep) => dep.id), positionsCache, yearsArray);
     }
+
+    if (unknownYear && !depUnknownStatsCache || !depUnknownStatsCache.length) {
+        // console.log(yearsArray);
+        // const departmentsIDs = departmentsCache.map((dep) => dep.id);
+        await createDepartmentsAnalysis(departmentsCache.map((dep) => dep.id), positionsCache, yearsArray, {}, unknownYear);
+    }
+
     // console.log(reqCache.departmentsStaticStats);
-    const depsDynamicStats = await createDepartmentsAnalysis(departmentArray, positionArray, years, where);
+    const depsDynamicStats = await createDepartmentsAnalysis(departmentArray, positionArray, years, where, unknownYear);
     if (depsDynamicStats && reqCache?.departmentsStaticStats?.length) {
         // console.log(depsDynamicStats);
 
         departmentArray.forEach((inst) => {
             // Find the objects with the same inst ID in both arrays
             const dynamicData = depsDynamicStats?.find(obj => obj.inst === inst);
-            const staticData = reqCache?.departmentsStaticStats?.find(obj => obj.inst === inst);
+            const staticData = reqCache?.[unknownYear ? cacheKeysEnum.DepartmentsUnknownStaticStats : cacheKeysEnum.DepartmentsStaticStats]?.find(obj => obj.inst === inst);
 
             if (dynamicData && staticData) {
                 // Combine the objects
@@ -488,17 +704,17 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
     res.json(sendResponse<DepartmentsStats[]>(200,'All good.', eachDepActiveYears));
 });
 
-export const createDepartmentsAnalysis = async (departments: string[], positions: string[], yearsRange: number[], where: WhereOptions<any> = {}): Promise<void | DepartmentsDynamicStatsIDs[]> => {
+export const createDepartmentsAnalysis = async (departments: string[], positions: string[], yearsRange: number[], where: WhereOptions<any> = {}, unknownYear = false): Promise<void | DepartmentsDynamicStatsIDs[]> => {
     // Empty where means that it will create the Static data for departments and they will be cached
     const isDynamicData = !!Object.keys(where).length;
 
     const academicData = await Dep.findAll({
         where,
         raw: true,
-        attributes: ['inst', 'id', 'position']
+        attributes: ['inst', 'id', 'position', 'citations']
     });
 
-    // console.log(academicData);
+    console.log(academicData);
     
     const groupedData: {[inst: string]: string[]} = {};
 
@@ -519,7 +735,6 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
         // Get the active years array
         const activeYearsData = await activeYears(dep, positions, yearsRange);
         // console.log(activeYearsData);
-        
 
         const currentDepStaffsIDs = groupedData[dep];
 
@@ -532,13 +747,13 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
                         [Op.in]: currentDepStaffsIDs,
                     },
                     year: {
-                        [Op.in]: activeYearsData,
+                        [Op.in]: unknownYear ? [-1, ...activeYearsData] : activeYearsData,
                     },
                 },
                 attributes: ['id', 'year', 'counter'],
                 raw: true,
             });
-
+            
             const publicationsTotalPerStaff: any = {};
             publicationData.forEach(item => {
                 if (!publicationsTotalPerStaff[item.id]) {
@@ -562,7 +777,7 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
                         minPublicationsStaff = id;
                     }
                 }
-            }    
+            }
         
             const citationData = await Citations.findAll({
                 where: {
@@ -576,14 +791,26 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
                 attributes: ['id', 'year', 'counter'],
                 raw: true,
             });
-
-            const citationsTotalPerStaff: any = {};
+            
+            const citationsTotalPerStaff: CitationsTotalPerStaff = {};
             citationData.forEach(item => {
                 if (!citationsTotalPerStaff[item.id]) {
                   citationsTotalPerStaff[item.id] = 0;
                 }
                 citationsTotalPerStaff[item.id] += item.counter;
             });
+
+            if (unknownYear) {
+                // console.log(citationsTotalPerStaff);
+                for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
+                    const currentStaff = academicData.find((dep) => dep.id === key);
+                    if (currentStaff) {
+                        const unknownYearCitations = currentStaff.citations - value;
+                        citationData.push({ id: key, year: -1 , counter: unknownYearCitations} as unknown as ICitation);
+                        citationsTotalPerStaff[key] = citationsTotalPerStaff[key] + unknownYearCitations;
+                    }
+                };
+            }
 
             let maxCitationsStaff;
             let minCitationsStaff;
@@ -710,8 +937,14 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
         }
     };
     if (!isDynamicData) {
-        cache.put(cacheKeysEnum.DepartmentsStaticStats, departmentsStaticStats, cacheTime);
-        reqCache.departmentsStaticStats = departmentsStaticStats;
+        if (unknownYear) {
+            cache.put(cacheKeysEnum.DepartmentsUnknownStaticStats, departmentsStaticStats, cacheTime);
+            reqCache.departmentsUnknownStaticStats = departmentsStaticStats;
+        } else {
+            cache.put(cacheKeysEnum.DepartmentsStaticStats, departmentsStaticStats, cacheTime);
+            reqCache.departmentsStaticStats = departmentsStaticStats;
+
+        }
         return;
     } else {
         return departmentsDynamicStats;
@@ -720,11 +953,12 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
 
 export const getAcademicPositionTotals = tryCatch(async (req: omeaCitationsReqQuery<AcademicPositionTotalsRequest>, res: omeaCitationsRes<IAcademicPositionTotals[]>) => {
     const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
-    const {departments: departmentsZod, positions: positionsZod, years: yearsString}: AcademicPositionTotalsRequest = AcademicPositionTotalsSchema.parse(req.query);
+    const {departments: departmentsZod, positions: positionsZod, years: yearsString, unknown_year: unknownYearZod}: AcademicPositionTotalsRequest = AcademicPositionTotalsSchema.parse(req.query);
     const departments = departmentsZod.split(',');
     const positions = positionsZod.split(',');
 
     const years = yearsString.split(',').map((item) => parseInt(item, 10));
+    const unknownYear = unknownYearZod?.toLocaleLowerCase() === 'true' && unknownYearValidation(years, yearsCache);
 
     // Validation - Check if years exists in the database
     await yearsValidation(years, yearsCache);
@@ -752,7 +986,7 @@ export const getAcademicPositionTotals = tryCatch(async (req: omeaCitationsReqQu
     const academicData = await Dep.findAll({
         where,
         raw: true,
-        attributes: ['inst', 'id', 'position'],
+        attributes: ['inst', 'id', 'position', 'citations'],
     });
 
     const staffPerPositionPerDep: IStaffPerPositionPerDep[] = [];
@@ -823,7 +1057,7 @@ export const getAcademicPositionTotals = tryCatch(async (req: omeaCitationsReqQu
                         [Op.in]: currentDepStaffsIDs,
                     },
                     year: {
-                        [Op.in]: activeYearsData,
+                        [Op.in]: unknownYear ? [-1, ...activeYearsData] : activeYearsData,
                     },
                 },
                 attributes: ['id', 'year', 'counter'],
@@ -859,13 +1093,24 @@ export const getAcademicPositionTotals = tryCatch(async (req: omeaCitationsReqQu
                 raw: true,
             });
 
-            const citationsTotalPerStaff: any = {};
+            const citationsTotalPerStaff: CitationsTotalPerStaff = {};
             citationData.forEach(item => {
                 if (!citationsTotalPerStaff[item.id]) {
                   citationsTotalPerStaff[item.id] = 0;
                 }
                 citationsTotalPerStaff[item.id] += item.counter;
             });
+
+            if (unknownYear) {
+                for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
+                    const currentStaff = academicData.find((dep) => dep.id === key);
+                    if (currentStaff) {
+                        const unknownYearCitations = currentStaff.citations - value;
+                        citationData.push({ id: key, year: -1 , counter: unknownYearCitations} as unknown as ICitation);
+                        citationsTotalPerStaff[key] = citationsTotalPerStaff[key] + unknownYearCitations;
+                    }
+                };
+            }
 
             const citationsPerStaff: IStaffResearch[] = []
             for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
@@ -961,10 +1206,11 @@ export const groupAndSumData = (
 
 export const getScholarlyProfiles = tryCatch(async (req: omeaCitationsReqQuery<AcademicPositionTotalsRequest>, res: omeaCitationsRes<IScholarlyProfilesPerDep[]>) => {
     const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
-    const {departments: departmentsZod, positions: positionsZod, years: yearsString}: AcademicPositionTotalsRequest = AcademicPositionTotalsSchema.parse(req.query);
+    const {departments: departmentsZod, positions: positionsZod, years: yearsString, unknown_year: unknownYearZod}: AcademicPositionTotalsRequest = AcademicPositionTotalsSchema.parse(req.query);
     const departments = departmentsZod.split(',');
     const positions = positionsZod.split(',');
     const years = yearsString.split(',').map((item) => parseInt(item, 10));
+    const unknownYear = unknownYearZod?.toLocaleLowerCase() === 'true' && unknownYearValidation(years, yearsCache);
 
     // Validation - Check if years exists in the database
     await yearsValidation(years, yearsCache);
@@ -992,7 +1238,7 @@ export const getScholarlyProfiles = tryCatch(async (req: omeaCitationsReqQuery<A
     const academicData = await Dep.findAll({
         where,
         raw: true,
-        attributes: ['inst', 'id', 'position', 'name'],
+        attributes: ['inst', 'id', 'position', 'name', 'citations'],
     });
     
     const groupedData: {[inst: string]: Map<string, string>} = {};
@@ -1020,7 +1266,7 @@ export const getScholarlyProfiles = tryCatch(async (req: omeaCitationsReqQuery<A
                         [Op.in]: currentDepStaffsIDs,
                     },
                     year: {
-                        [Op.in]: activeYearsData,
+                        [Op.in]: unknownYear ? [-1, ...activeYearsData] : activeYearsData,
                     },
                 },
                 attributes: ['id', 'year', 'counter'],
@@ -1057,13 +1303,25 @@ export const getScholarlyProfiles = tryCatch(async (req: omeaCitationsReqQuery<A
                 raw: true,
             });
 
-            const citationsTotalPerStaff: any = {};
+            const citationsTotalPerStaff: CitationsTotalPerStaff = {};
             citationData.forEach(item => {
                 if (!citationsTotalPerStaff[item.id]) {
                   citationsTotalPerStaff[item.id] = 0;
                 }
                 citationsTotalPerStaff[item.id] += item.counter;
             });
+
+            if (unknownYear) {
+                // console.log(citationsTotalPerStaff);
+                for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
+                    const currentStaff = academicData.find((dep) => dep.id === key);
+                    if (currentStaff) {
+                        const unknownYearCitations = currentStaff.citations - value;
+                        citationData.push({ id: key, year: -1 , counter: unknownYearCitations} as unknown as ICitation);
+                        citationsTotalPerStaff[key] = citationsTotalPerStaff[key] + unknownYearCitations;
+                    }
+                };
+            }
 
             const citationsPerStaff: IStaffNamesResearch[] = []
             for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
@@ -1105,10 +1363,11 @@ export const getScholarlyProfiles = tryCatch(async (req: omeaCitationsReqQuery<A
 // academicStaffResearchSummary
 export const getAcademicStaffResearchSummary = tryCatch(async (req: omeaCitationsReqQuery<AcademicPositionTotalsRequest>, res: omeaCitationsRes<IAcademicStaffResearchSummary[]>) => {
     const {position: positionsCache, yearsRange: yearsCache, departmentsID: departmentsCache} = req.cache;
-    const {departments: departmentsZod, positions: positionsZod, years: yearsString}: AcademicPositionTotalsRequest = AcademicPositionTotalsSchema.parse(req.query);
+    const {departments: departmentsZod, positions: positionsZod, years: yearsString, unknown_year: unknownYearZod}: AcademicPositionTotalsRequest = AcademicPositionTotalsSchema.parse(req.query);
     const departments = departmentsZod.split(',');
     const positions = positionsZod.split(',');
     const years = yearsString.split(',').map((item) => parseInt(item, 10));
+    const unknownYear = unknownYearZod?.toLocaleLowerCase() === 'true' && unknownYearValidation(years, yearsCache);
 
     // Validation - Check if years exists in the database
     await yearsValidation(years, yearsCache);
@@ -1135,7 +1394,7 @@ export const getAcademicStaffResearchSummary = tryCatch(async (req: omeaCitation
     const academicData = await Dep.findAll({
         where,
         raw: true,
-        attributes: ['inst', 'id', 'position', 'name']
+        attributes: ['inst', 'id', 'position', 'name', 'citations']
     });
 
     // console.log(academicData);
@@ -1169,7 +1428,7 @@ export const getAcademicStaffResearchSummary = tryCatch(async (req: omeaCitation
                         [Op.in]: currentDepStaffsIDs,
                     },
                     year: {
-                        [Op.in]: activeYearsData,
+                        [Op.in]: unknownYear ? [-1, ...activeYearsData] : activeYearsData,
                     },
                 },
                 attributes: ['id', 'year', 'counter'],
@@ -1197,13 +1456,24 @@ export const getAcademicStaffResearchSummary = tryCatch(async (req: omeaCitation
                 raw: true,
             });
 
-            const citationsTotalPerStaff: any = {};
+            const citationsTotalPerStaff: CitationsTotalPerStaff = {};
             citationData.forEach(item => {
                 if (!citationsTotalPerStaff[item.id]) {
                   citationsTotalPerStaff[item.id] = 0;
                 }
                 citationsTotalPerStaff[item.id] += item.counter;
             });
+
+            if (unknownYear) {
+                for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
+                    const currentStaff = academicData.find((dep) => dep.id === key);
+                    if (currentStaff) {
+                        const unknownYearCitations = currentStaff.citations - value;
+                        citationData.push({ id: key, year: -1 , counter: unknownYearCitations} as unknown as ICitation);
+                        citationsTotalPerStaff[key] = citationsTotalPerStaff[key] + unknownYearCitations;
+                    }
+                };
+            }
           
             const result: StaffResearchSummary[] = [];
 
@@ -1312,3 +1582,7 @@ export interface IScholarlyProfilesPerDep {
 }
 
 // -------------------------------------
+
+interface CitationsTotalPerStaff {
+    [id: string]: number;
+}

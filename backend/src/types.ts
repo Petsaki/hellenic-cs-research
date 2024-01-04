@@ -19,14 +19,18 @@ export enum cacheKeysEnum {
     Position = 'position',
     YearsRange = 'yearsRange',
     DepartmentsID = 'departmentsID',
-    DepartmentsStaticStats = 'departmentsStaticStats'
+    DepartmentsStaticStats = 'departmentsStaticStats',
+    DepartmentsUnknownStaticStats = 'departmentsUnknownStaticStats',
+    AcademicStaffID = 'academicStaffID',
 }
 
 export interface cacheData {
     position: string[],
     yearsRange: number[],
     departmentsID: IDepartments[],
-    departmentsStaticStats: DepartmentsStaticStatsCache[]
+    departmentsStaticStats: DepartmentsStaticStatsCache[],
+    departmentsUnknownStaticStats: DepartmentsStaticStatsCache[],
+    academicStaffID: string[];
 }
 
 /* This code is declaring a global namespace for the Express library in TypeScript. It is adding a new

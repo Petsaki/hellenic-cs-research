@@ -96,12 +96,16 @@ const customYearsValidation = (years: string): number[] | ZodError => {
     return yearsRange;
 };
 
+const UnknownYearSchema = z.object({
+    unknown_year: z.string().optional()
+});
+
 // AcademicPositionTotals
 export const AcademicPositionTotalsSchema = z.object({
     years: z.string().nonempty().refine(customYearsValidation),
     departments: z.string().nonempty(),
     positions: z.string().nonempty(),
-});
+}).merge(UnknownYearSchema);
 
 export type AcademicPositionTotalsRequest = z.infer<typeof AcademicPositionTotalsSchema>;
 
@@ -197,6 +201,18 @@ export const AcademicDataPaginationSchema = AcademicPositionTotalsSchema.extend(
 });
 
 export type AcademicDataPaginationRequest = z.infer<typeof AcademicDataPaginationSchema>;
+
+
+// Academic Data required value Array WITH PAGINATION for academic staff
+export const AcademicDataAcademicStaffPaginationSchema = z.object({
+    academic_staff: z.string().nonempty(),
+    years: z.string().nonempty().refine(customYearsValidation),
+    positions: z.string().optional(),
+    page: z.string().nonempty().refine(customPageValidation),
+    size: z.string().refine(customSizeValidation).default('25'),
+}).merge(UnknownYearSchema);
+
+export type AcademicDataAcademicStaffPaginationRequest = z.infer<typeof AcademicDataAcademicStaffPaginationSchema>;
 
 // DepartmentWithOptionalPositions - it is using by many endpoints
 export const DepartmentWithOptionalPositionsSchema = z.object({
