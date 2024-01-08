@@ -39,8 +39,6 @@ const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         const depId = event.target.name;
-        console.log('depId', depId);
-        console.log('checked', checked);
 
         if (event.target.checked) {
             if (!checked.some((id) => id === depId)) {
@@ -49,7 +47,6 @@ const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
         } else {
             setChecked(checked.filter((id) => id !== depId));
         }
-        console.log(data);
     };
 
     useEffect(() => {
@@ -63,7 +60,6 @@ const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
     }, [checked]);
 
     useEffect(() => {
-        console.log('Parameter value Department:', paramValue);
         if (paramValue) {
             setChecked(paramValue.split(','));
         } else {
@@ -120,8 +116,6 @@ const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
                 ) => {
                     if (data) {
                         setSearchQuery(event.target.value);
-                        console.log(searchQuery);
-                        console.log(checked);
                     }
                 }}
             />
@@ -130,12 +124,6 @@ const DepartmentCheckboxes: React.FC<DepartmentCheckboxesProp> = ({
                     maxHeight: '350px',
                     minHeight: '350px',
                     overflow: 'auto',
-                    // color: (theme) =>
-                    //     theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800',
-                    // border: '1px solid',
-                    // borderColor: (theme) =>
-                    //     theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
-                    // borderRadius: 2,
                     display: 'block',
                     mt: '0.5rem',
                 }}

@@ -12,12 +12,8 @@ import {
     Chart,
 } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
-import Paper from '@mui/material/Paper';
-import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
-import { useGetAcademicPositionTotalsQuery } from '../../services/departmentApi';
-import { RootState } from '../../app/store';
 import { IAcademicPositionTotals } from '../../models/api/response/departments/departments.data';
 import colorMap from '../../app/untils/chartPositionsColors';
 
@@ -33,12 +29,12 @@ export const dataTest = (
 
     const colors = labels.map((position: string) => {
         const colorInfo = colorMap.get(position);
-        return colorInfo!.backgroundColor.replace('opacity', bgColorOpacity);
+        return colorInfo?.backgroundColor.replace('opacity', bgColorOpacity);
     });
 
     const borderColors = labels.map((position: string) => {
         const colorInfo = colorMap.get(position);
-        return colorInfo!.borderColor;
+        return colorInfo?.borderColor;
     });
 
     ChartJS.register(
@@ -153,8 +149,6 @@ const StaffsTotalResearchChart: React.FC<StaffsTotalResearchChartProp> = ({
 
     useEffect(() => {
         if (data) {
-            console.log(data);
-
             setLabelTest(data);
 
             const positionSums =

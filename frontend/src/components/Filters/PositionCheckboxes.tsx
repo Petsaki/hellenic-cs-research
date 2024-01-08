@@ -3,10 +3,9 @@ import FormControl from '@mui/material/FormControl/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup/FormGroup';
 import FormLabel from '@mui/material/FormLabel/FormLabel';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box/Box';
 import { useSearchParams } from 'react-router-dom';
-import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 import ClearButton from '../ClearButton';
 
@@ -31,9 +30,6 @@ const PositionCheckboxes: React.FC<PositionCheckboxesProp> = ({
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         const academicPosID = event.target.name;
-        console.log(academicPosID);
-
-        console.log(event.target.checked);
 
         if (event.target.checked) {
             setChecked([...checked, academicPosID]);
@@ -53,7 +49,6 @@ const PositionCheckboxes: React.FC<PositionCheckboxesProp> = ({
     }, [checked]);
 
     useEffect(() => {
-        console.log('Parameter value Academic Pos:', paramValue);
         if (paramValue) {
             setChecked(paramValue.split(','));
         } else {
@@ -65,12 +60,6 @@ const PositionCheckboxes: React.FC<PositionCheckboxesProp> = ({
     return (
         <Box
             sx={{
-                // color: (theme) =>
-                //     theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800',
-                // border: '1px solid',
-                // borderColor: (theme) =>
-                //     theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
-                // borderRadius: 2,
                 display: 'block',
             }}
         >

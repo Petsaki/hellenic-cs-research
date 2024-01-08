@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { RootState } from '../../app/store';
 import { useGetDepartmentsDataMutation } from '../../services/departmentApi';
-import {
-    IDepartmentData,
-    IDepartments,
-} from '../../models/api/response/departments/departments.data';
+import { IDepartmentData } from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
 import StaffsTotalResearch from '../StaffsTotalResearch';
 import SectionTitle from '../SectionTitle';
@@ -184,7 +181,7 @@ const DepartmentDataTable = () => {
             return [];
         }
 
-        const rowData: any = [];
+        const rowData: DepartmentRow[] = [];
         tableData.forEach((departmentData) => {
             rowData.push({
                 id: departmentData.inst,
@@ -223,12 +220,11 @@ const DepartmentDataTable = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isDepartmentDataLoading, departmentsData]);
 
-    const handleRowClick = (params: any) => {
-        setSelectedDep(params.id);
+    const handleRowClick = (params: GridRowParams) => {
+        setSelectedDep(params.id as string);
     };
 
     useEffect(() => {
-        // When the 'data' changes, update 'labelTest' state with the transformed data
         if (selectedPositions.length && selectedYears.length) {
             departmentsDataReq({
                 positions: selectedPositions,
@@ -290,3 +286,21 @@ const DepartmentDataTable = () => {
 };
 
 export default DepartmentDataTable;
+
+interface DepartmentRow {
+    id: string;
+    publications: number;
+    citations: number;
+    count: number;
+    averagePublication: number;
+    averageCitation: number;
+    averageH: number;
+    cvPublications: number;
+    cvCitations: number;
+    maxPublications: number;
+    minPublications: number;
+    maxCitations: number;
+    minCitations: number;
+    maxH: number;
+    minH: number;
+}

@@ -2,12 +2,22 @@ import Paper from '@mui/material/Paper/Paper';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import Box from '@mui/material/Box/Box';
+import { SxProps } from '@mui/material';
 import StaffsTotalResearchChart from './Charts/StaffsTotalResearchChart';
 import { useGetAcademicPositionTotalsQuery } from '../services/departmentApi';
 import { RootState } from '../app/store';
 import SectionTitle from './SectionTitle';
 import ResearchSummaryChart from './Charts/ResearchSummaryChart';
+
+const cardStyle: SxProps = {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+    aspectRatio: { xs: '4/3', xl: '3/4' },
+    position: 'relative',
+    maxHeight: '600px',
+    p: { xs: '10px', md: '20px' },
+};
 
 export interface StaffsTotalResearchProp {
     id: string | undefined;
@@ -63,18 +73,7 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
             >
                 <Grid2 xs>
                     <SectionTitle titleText="Citations Research" />
-                    <Paper
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            // height: '700px',
-                            width: '100%',
-                            aspectRatio: { xs: '4/3', xl: '3/4' },
-                            position: 'relative',
-                            maxHeight: '600px',
-                            p: { xs: '10px', md: '20px' },
-                        }}
-                    >
+                    <Paper sx={cardStyle}>
                         <StaffsTotalResearchChart
                             id={id}
                             data={academicPositionTotalsData?.data}
@@ -84,18 +83,7 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
                 </Grid2>
                 <Grid2 xs>
                     <SectionTitle titleText="Publications Research" />
-                    <Paper
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            // height: '700px',
-                            width: '100%',
-                            aspectRatio: { xs: '4/3', xl: '3/4' },
-                            position: 'relative',
-                            maxHeight: '600px',
-                            p: { xs: '10px', md: '20px' },
-                        }}
-                    >
+                    <Paper sx={cardStyle}>
                         <StaffsTotalResearchChart
                             id={id}
                             data={academicPositionTotalsData?.data}

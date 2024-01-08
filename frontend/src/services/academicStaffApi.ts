@@ -1,9 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Apis } from '../models/api/apis.enum';
-import {
-    AcademicStaffPosition,
-    PositionsByDepartment,
-} from '../models/api/response/academicStaff/academicStaff.data';
+import { PositionsByDepartment } from '../models/api/response/academicStaff/academicStaff.data';
 import { ResponseData } from '../models/api/response/response.data';
 import { IFDepartment } from '../models/api/request/filters.data';
 

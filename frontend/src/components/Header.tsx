@@ -103,8 +103,6 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
                           background:
                               'linear-gradient(126deg,#007cbb,#7096d6 30%,#7096d6 70%,#007cbb)',
                       }),
-                // background:
-                //     'linear-gradient(126deg,#007cbb,#5383d6 30%,#5383d6 70%,#007cbb)',
             }}
         >
             <Container maxWidth="xl" disableGutters>

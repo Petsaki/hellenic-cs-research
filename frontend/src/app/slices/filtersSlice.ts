@@ -31,12 +31,6 @@ export const filtersSlice = createSlice({
             state,
             payload: PayloadAction<Partial<YearsFilters>>
         ) => {
-            console.log(payload);
-            console.log({
-                ...state.yearsFilters,
-                ...payload.payload,
-            });
-
             state.yearsFilters = {
                 ...state.yearsFilters,
                 ...payload.payload,

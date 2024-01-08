@@ -2,7 +2,7 @@ const constructQueryString = (
     params: Record<string, string | string[] | boolean | undefined>
 ): string => {
     const queryParams = Object.entries(params)
-        .filter(([, value]) => value !== undefined) // Exclude undefined values
+        .filter(([, value]) => (Array.isArray(value) ? value.length : !!value))
         .map(([key, value]) => {
             if (Array.isArray(value)) {
                 return `${key}=${value.join(',')}`;

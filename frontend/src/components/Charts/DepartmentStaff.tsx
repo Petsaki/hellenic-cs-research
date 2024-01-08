@@ -54,7 +54,6 @@ export const dataTest = (
               backgroundColor: colors[index % colors.length],
           }))
         : [];
-    console.log(datasets);
 
     return {
         labels: labels || [],
@@ -89,8 +88,7 @@ const DepartmentStaff = () => {
     // eslint-disable-next-line no-empty-pattern
     const theme = useTheme();
     const [colorMode, setColorMode] = useState(theme.palette.mode);
-    // AMA deis na kanei loading ksana auto to component. na ksereis ftaiei to FixCheckBox epeidh kaloun to idio endpoint kai auto to blepei
-    const { data, isLoading: isFetching } = useGetDepartmentsQuery({
+    const { data } = useGetDepartmentsQuery({
         filter: ['id', 'url'],
     });
 
@@ -117,7 +115,6 @@ const DepartmentStaff = () => {
     }, [theme.palette.mode]);
 
     useEffect(() => {
-        // When the 'data' changes, update 'labelTest' state with the transformed data
         if (selectedDeps.length) {
             departments({ departments: selectedDeps });
         }
@@ -133,11 +130,6 @@ const DepartmentStaff = () => {
 
     useEffect(() => {
         if (departmentsPositionData?.data) {
-            console.log(
-                'departmentsPositionData?.data',
-                departmentsPositionData?.data
-            );
-
             setLabelTest(departmentsPositionData?.data);
         }
     }, [departmentsPositionData]);

@@ -41,13 +41,13 @@ const TheProgressBar = () => {
         let newValue = 0;
 
         if (isDepartmenentDataLoading || departmenentData) {
-            newValue += 33;
+            newValue += 33.33;
         }
         if (isPositionsDataLoading || positionsData) {
-            newValue += 33;
+            newValue += 33.33;
         }
         if (isYearsDataLoading || yearsData) {
-            newValue += 34;
+            newValue += 33.34;
         }
         if (
             isYearsDataError ||

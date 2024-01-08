@@ -1,12 +1,13 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
+import { useEffect, useMemo, useState } from 'react';
+import {
+    DataGrid,
+    GridColDef,
+    GridPaginationModel,
+    GridRowParams,
+} from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import { Resizable, ResizableBox } from 'react-resizable';
-import { RootState } from '../../app/store';
-import { useGetAcademicStaffDataMutation } from '../../services/departmentApi';
 import {
     AcademicData,
     CountPerYear,
@@ -182,13 +183,8 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
         if (data?.count) setRowCount(data.count);
     }, [data]);
 
-    const handleRowClick = (params: any) => {
-        // Access the data for the clicked row using params.row
-        const clickedRowData = params.row;
+    const handleRowClick = (params: GridRowParams) => {
         setRowSelectionModel([params?.row?.id]);
-
-        // You can perform actions based on the clicked row data here
-        console.log('Clicked row data:', clickedRowData);
     };
 
     const handlePaginationClick = (params: GridPaginationModel) => {

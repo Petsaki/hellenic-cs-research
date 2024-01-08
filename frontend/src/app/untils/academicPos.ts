@@ -1,4 +1,3 @@
-import { AcademicStaffPosition } from '../../models/api/response/academicStaff/academicStaff.data';
 import { FilterData } from '../hooks/useUrlParams';
 
 export const removeAcademicPosForUrlParam = (
@@ -27,7 +26,7 @@ export const academicPosValidation = (
     return validAcademisData;
 };
 
-// Type guard
+// Type guards
 export const isAcademicPos = (data: FilterData): data is string[] => {
     return Array.isArray(data);
 };

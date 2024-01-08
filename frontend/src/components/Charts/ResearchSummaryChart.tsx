@@ -12,14 +12,9 @@ import {
 import { Bar } from 'react-chartjs-2';
 import Paper from '@mui/material/Paper';
 import { useSelector } from 'react-redux';
-import Skeleton from '@mui/material/Skeleton/Skeleton';
 import { useTheme } from '@mui/material/styles';
-import {
-    useGetDepartmentsQuery,
-    useGetResearchSummaryQuery,
-} from '../../services/departmentApi';
+import { useGetResearchSummaryQuery } from '../../services/departmentApi';
 import { RootState } from '../../app/store';
-import { PositionsByDepartment } from '../../models/api/response/academicStaff/academicStaff.data';
 import { StaffResearchSummary } from '../../models/api/response/departments/departments.data';
 
 export const dataTest = (

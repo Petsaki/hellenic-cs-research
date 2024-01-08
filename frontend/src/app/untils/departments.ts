@@ -27,7 +27,7 @@ export const departmentValidation = (
     return validDepartmentData;
 };
 
-// Type guard
+// Type guards
 export const isDepartment = (data: FilterData): data is DepartmentId[] => {
     return Array.isArray(data);
 };

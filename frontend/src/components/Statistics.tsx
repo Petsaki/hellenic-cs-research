@@ -1,5 +1,4 @@
 import { SxProps, Box } from '@mui/material';
-import Typography from '@mui/material/Typography/Typography';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Grid2 from '@mui/material/Unstable_Grid2';
@@ -30,10 +29,8 @@ const Statistics = () => {
         (state: RootState) => state.filtersSlice.academicPos
     );
 
-    const [
-        statisticsFilters,
-        { data: statisticsData, isLoading: isStatisticsLoading },
-    ] = useGetStatisticsMutation();
+    const [statisticsFilters, { data: statisticsData }] =
+        useGetStatisticsMutation();
 
     useEffect(() => {
         if (!selectedDeps.length) return;
@@ -58,9 +55,9 @@ const Statistics = () => {
     }, [selectedDeps, selectedPositions]);
 
     useEffect(() => {
-        if (statisticsData?.data) {
-            setStatistics(statisticsData?.data);
-        }
+        if (!statisticsData?.data) return;
+
+        setStatistics(statisticsData?.data);
     }, [statisticsData]);
 
     if (!selectedDeps.length) return null;

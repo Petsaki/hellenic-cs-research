@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import {
     DataGrid,
     GridColDef,
     GridPaginationModel,
-    GridRowSelectionModel,
+    GridRowParams,
 } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
@@ -30,7 +29,6 @@ export enum ResearchFilterBy {
     Publications = 'Publications',
 }
 
-// Helper function to get the cell value for each dynamic column
 const getCellValue = (
     year: number,
     rowData: AcademicData,
@@ -103,9 +101,7 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
     const [perYearData, setPerYearData] = useState<any>();
 
     const rows = useMemo(() => {
-        if (!data) {
-            return [];
-        }
+        if (!data) return [];
 
         return data.academic_data.map((item) => {
             const rowData: any = {
@@ -130,7 +126,6 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
         if (!data || !data.years_range) {
             return [];
         }
-        console.log(data);
 
         // Map over the years_range array to generate dynamic columns
         return data.years_range
@@ -144,7 +139,6 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
     }, [data]);
 
     const columns: GridColDef[] = useMemo(() => {
-        // Define your columns based on academicStaffData
         const additionalColumns: GridColDef[] = [
             {
                 field: 'id',
@@ -168,8 +162,7 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
                     );
                 },
             },
-            // Add other columns as needed
-            ...yearsColumns, // Include the dynamic columns here
+            ...yearsColumns,
         ];
 
         return additionalColumns;
@@ -190,8 +183,7 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rowSelectionModel]);
 
-    const handleRowClick = (params: any) => {
-        // setPerYearData(params.row);
+    const handleRowClick = (params: GridRowParams) => {
         setRowSelectionModel([params?.row?.id]);
     };
 
@@ -217,7 +209,6 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
             );
 
             setRowSelectionModel(academicStaff ? [academicStaff?.id] : []);
-            // setPerYearData(academicStaff);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rows]);

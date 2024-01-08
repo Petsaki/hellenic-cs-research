@@ -13,7 +13,6 @@ export const YearsValidation = (
     param: string | null,
     data: YearsArray
 ): string => {
-    console.log(data);
     let validyearData = `${data[0]}-${data[data.length - 1]}`;
     if (param) {
         const yearsRangeArray = stringToYearArray(param);
@@ -39,7 +38,7 @@ export const isyearRangeMaxValue = (value: string, data: YearsArray) => {
     );
 };
 
-// Type guard
+// Type guards
 export const isYearsArray = (data: FilterData): data is YearsArray => {
     return Array.isArray(data);
 };

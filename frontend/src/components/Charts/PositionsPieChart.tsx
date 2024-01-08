@@ -78,8 +78,6 @@ export const dataTest = (
         )
     );
 
-    console.log(positionSums);
-
     const datasets = [
         {
             label: '# of Academic Staff',
@@ -88,9 +86,6 @@ export const dataTest = (
             borderColor: borderColors,
         },
     ];
-    console.log(datasets);
-    console.log(data);
-    console.log(datasets.length);
 
     return {
         labels: labels || [],
@@ -98,20 +93,15 @@ export const dataTest = (
     };
 };
 
-const TestPieChart = () => {
+const PositionsPieChart = () => {
     // eslint-disable-next-line no-empty-pattern
     const theme = useTheme();
     const myChartRef = useRef<ChartJSOrUndefined<'pie'>>();
     const [colorMode, setColorMode] = useState(theme.palette.mode);
     const [positionsSum, setpositionsSum] = useState<number>();
-    // AMA deis na kanei loading ksana auto to component. na ksereis ftaiei to FixCheckBox epeidh kaloun to idio endpoint kai auto to blepei
     const { data, isLoading: isFetching } = useGetDepartmentsQuery({
         filter: ['id', 'url'],
     });
-    // const defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
-    // const pieDoughnutLegendClickHandler = Chart.controllers.doughnut.overrides.plugins.legend.onClick;
-
-    // console.log(Chart);
 
     const [
         departments,
@@ -155,11 +145,6 @@ const TestPieChart = () => {
                 //     chart.update();
                 // },
                 onClick: (e: any, legendItem: any, legend: any) => {
-                    console.log(legendItem.hidden);
-                    console.log(legendItem.index);
-                    console.log(legendItem);
-                    console.log(testData.datasets[0].data);
-                    console.log(testData.datasets[0].data[legendItem.index]);
                     legend.chart.toggleDataVisibility(legendItem.index);
 
                     setpositionsSum((prevSum) => {
@@ -169,7 +154,6 @@ const TestPieChart = () => {
                                 testData.datasets[0].data[legendItem.index]
                         );
                     });
-                    console.log(legendItem.hidden);
                     legend.chart.update();
                 },
             },
@@ -180,19 +164,10 @@ const TestPieChart = () => {
             tooltip: {
                 callbacks: {
                     label: (d: any) => {
-                        console.log('MARIOS EDW: ', d);
-                        console.log(
-                            d.dataset.data.reduce(
-                                (total: number, position: number) =>
-                                    total + position || 0
-                            )
-                        );
                         const total = d.dataset.data.reduce(
                             (totalPositions: number, position: number) =>
                                 totalPositions + position || 0
                         );
-
-                        console.log(positionsSum);
 
                         const percentage = ` ${(
                             +(d.raw / (positionsSum || 0)) * 100
@@ -210,9 +185,6 @@ const TestPieChart = () => {
     }, [theme.palette.mode]);
 
     useEffect(() => {
-        console.log(data);
-
-        // When the 'data' changes, update 'labelTest' state with the transformed data
         if (selectedDeps.length) {
             departments({ departments: selectedDeps });
         }
@@ -239,10 +211,6 @@ const TestPieChart = () => {
 
     useEffect(() => {
         if (departmentsPositionData?.data) {
-            console.log(
-                'departmentsPositionData?.data',
-                departmentsPositionData?.data
-            );
             setLabelTest(departmentsPositionData?.data);
             const labels = departmentsPositionData?.data.length
                 ? Object.keys(departmentsPositionData?.data[0].positions).map(
@@ -306,4 +274,4 @@ const TestPieChart = () => {
     return null;
 };
 
-export default TestPieChart;
+export default PositionsPieChart;

@@ -20,6 +20,7 @@ interface ChipData {
     key: string;
     label: string;
 }
+
 const ContainerChipStyle: SxProps = {
     display: 'flex',
     justifyContent: 'flex-start',
@@ -36,12 +37,12 @@ const chipStyle: SxProps = {
 };
 
 const TheChipArray = () => {
+    const dispatch = useDispatch();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [chipData, setChipData] = React.useState<readonly ChipData[]>([]);
     const filtersSliceData = useSelector(
         (state: RootState) => state.filtersSlice
     );
-    const [chipData, setChipData] = React.useState<readonly ChipData[]>([]);
-    const [searchParams, setSearchParams] = useSearchParams();
-    const dispatch = useDispatch();
 
     useEffect(() => {
         const chipDataTemp: ChipData[] = [];
@@ -81,55 +82,64 @@ const TheChipArray = () => {
     }, [filtersSliceData]);
 
     const handleDelete = (deletedChip: ChipData) => () => {
-        if (deletedChip.key.startsWith(ChipKey.YearsRange)) {
-            searchParams.delete(ParamNames.YearsRange);
-            setSearchParams(searchParams);
-        } else if (deletedChip.key.startsWith(ChipKey.UnknownYear)) {
-            searchParams.delete(ParamNames.UnknownYear);
-            setSearchParams(searchParams);
-            dispatch(setYearsFilters({ unknownYear: false }));
-        } else if (deletedChip.key.startsWith(ChipKey.Position)) {
-            const academicPosURL = searchParams
-                .get(ParamNames.AcademicPos)
-                ?.split(',');
-            if (academicPosURL?.length) {
-                const newAcademicPositions = academicPosURL
-                    .filter((pos) => pos !== deletedChip.label)
-                    .join(',');
-                if (newAcademicPositions) {
-                    setSearchParams((prevSearchParams) => {
-                        prevSearchParams.set(
-                            ParamNames.AcademicPos,
-                            newAcademicPositions
-                        );
-                        return prevSearchParams;
-                    });
-                } else {
-                    searchParams.delete(ParamNames.AcademicPos);
-                    setSearchParams(searchParams);
+        switch (deletedChip.key.split('-')[0]) {
+            case ChipKey.YearsRange:
+                searchParams.delete(ParamNames.YearsRange);
+                setSearchParams(searchParams);
+                break;
+            case ChipKey.UnknownYear:
+                searchParams.delete(ParamNames.UnknownYear);
+                setSearchParams(searchParams);
+                dispatch(setYearsFilters({ unknownYear: false }));
+                break;
+            case ChipKey.Position: {
+                const academicPosURL = searchParams
+                    .get(ParamNames.AcademicPos)
+                    ?.split(',');
+                if (academicPosURL?.length) {
+                    const newAcademicPositions = academicPosURL
+                        .filter((pos) => pos !== deletedChip.label)
+                        .join(',');
+                    if (newAcademicPositions) {
+                        setSearchParams((prevSearchParams) => {
+                            prevSearchParams.set(
+                                ParamNames.AcademicPos,
+                                newAcademicPositions
+                            );
+                            return prevSearchParams;
+                        });
+                    } else {
+                        searchParams.delete(ParamNames.AcademicPos);
+                        setSearchParams(searchParams);
+                    }
                 }
+                break;
             }
-        } else if (deletedChip.key.startsWith(ChipKey.Department)) {
-            const departmentURL = searchParams
-                .get(ParamNames.Departments)
-                ?.split(',');
-            if (departmentURL?.length) {
-                const newDepartments = departmentURL
-                    .filter((pos) => pos !== deletedChip.label)
-                    .join(',');
-                if (newDepartments) {
-                    setSearchParams((prevSearchParams) => {
-                        prevSearchParams.set(
-                            ParamNames.Departments,
-                            newDepartments
-                        );
-                        return prevSearchParams;
-                    });
-                } else {
-                    searchParams.delete(ParamNames.Departments);
-                    setSearchParams(searchParams);
+            case ChipKey.Department: {
+                const departmentURL = searchParams
+                    .get(ParamNames.Departments)
+                    ?.split(',');
+                if (departmentURL?.length) {
+                    const newDepartments = departmentURL
+                        .filter((pos) => pos !== deletedChip.label)
+                        .join(',');
+                    if (newDepartments) {
+                        setSearchParams((prevSearchParams) => {
+                            prevSearchParams.set(
+                                ParamNames.Departments,
+                                newDepartments
+                            );
+                            return prevSearchParams;
+                        });
+                    } else {
+                        searchParams.delete(ParamNames.Departments);
+                        setSearchParams(searchParams);
+                    }
                 }
+                break;
             }
+            default:
+                break;
         }
     };
 

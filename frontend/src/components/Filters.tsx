@@ -2,7 +2,6 @@ import {
     Typography,
     Box,
     Drawer,
-    Button,
     useMediaQuery,
     useTheme,
     Divider,
@@ -49,25 +48,16 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
     const large = useMediaQuery(theme.breakpoints.up('md'));
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const {
-        data: yearsData,
-        isLoading: isYearsDataLoading,
-        isError: isYearsDataError,
-    } = useGetYearsRangeQuery();
+    const { data: yearsData, isLoading: isYearsDataLoading } =
+        useGetYearsRangeQuery();
 
-    const {
-        data: positionsData,
-        isLoading: isPositionsDataLoading,
-        isError: isPositionsDataError,
-    } = useGetAcademicStaffPositionsQuery();
+    const { data: positionsData, isLoading: isPositionsDataLoading } =
+        useGetAcademicStaffPositionsQuery();
 
-    const {
-        data: departmenentData,
-        isLoading: isDepartmenentDataFetching,
-        isError: isDepartmenentDataError,
-    } = useGetDepartmentsQuery({
-        filter: ['id', 'url'],
-    });
+    const { data: departmenentData, isLoading: isDepartmenentDataFetching } =
+        useGetDepartmentsQuery({
+            filter: ['id', 'url'],
+        });
 
     const location = useLocation();
 
@@ -90,7 +80,6 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
         setMobileOpen((currentDrawerStatus) => !currentDrawerStatus);
     }, [drawerStatus]);
 
-    // TODO: Na balw tous elegxous kapou allou gia na exw kalitero loading screen?
     const drawer = yearsData?.data &&
         positionsData?.data &&
         departmenentData?.data && (
@@ -155,33 +144,22 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
         return null;
 
     return (
-        <>
-            {/* TODO: Na krathsw mono to ena drawer kai tha allazw dinamika to variant analoga to width kai kapoia css gia na fainetai swsta sthn megalh othonh! */}
-            <Drawer
-                // container={container}
-                variant={large ? 'persistent' : 'temporary'}
-                open={large ? true : mobileOpen}
-                onClose={(event: Event, reason: string) => {
-                    if (reason === 'backdropClick' && !mobileOpen) return;
-                    setMobileOpen((currentMobileOpen) => !currentMobileOpen);
-                }}
-                transitionDuration={large ? 0 : undefined}
-                ModalProps={{
-                    keepMounted: true, // Better open performance on mobile.
-                }}
-                sx={drawerStyle}
-            >
-                {/* It was if i want to show at filter and error message */}
-                {/* {isYearsDataError ||
-                isPositionsDataError ||
-                isDepartmenentDataError ? (
-                    <h1>ERROR</h1>
-                ) : (
-                    drawer
-                )} */}
-                {drawer}
-            </Drawer>
-        </>
+        <Drawer
+            // container={container}
+            variant={large ? 'persistent' : 'temporary'}
+            open={large ? true : mobileOpen}
+            onClose={(event: Event, reason: string) => {
+                if (reason === 'backdropClick' && !mobileOpen) return;
+                setMobileOpen((currentMobileOpen) => !currentMobileOpen);
+            }}
+            transitionDuration={large ? 0 : undefined}
+            ModalProps={{
+                keepMounted: true, // Better open performance on mobile.
+            }}
+            sx={drawerStyle}
+        >
+            {drawer}
+        </Drawer>
     );
 };
 

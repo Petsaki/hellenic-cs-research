@@ -6,7 +6,6 @@ import {
     IAcademicStaffData,
     IAcademicStaffResearchSummary,
     IDepartmentData,
-    IDepartments,
     IStatistics,
 } from '../models/api/response/departments/departments.data';
 import { ResponseData } from '../models/api/response/response.data';
@@ -47,13 +46,9 @@ export const departmentApi = createApi({
             Partial<IFilter>
         >({
             query: ({ filter }) => ({
-                url: `${Apis.GetDepartments}${
-                    filter
-                        ? `?filter=${
-                              Array.isArray(filter) ? filter.join(',') : filter
-                          }`
-                        : ''
-                }`,
+                url: `${Apis.GetDepartments}?${constructQueryString({
+                    filter,
+                })}`,
                 method: 'GET',
             }),
         }),
@@ -62,13 +57,10 @@ export const departmentApi = createApi({
             Partial<IFStatistics>
         >({
             query: ({ departments, positions }) => ({
-                url: `${Apis.GetStatistics}?departments=${
-                    Array.isArray(departments)
-                        ? departments.join(',')
-                        : departments
-                }&positions=${
-                    Array.isArray(positions) ? positions.join(',') : positions
-                }`,
+                url: `${Apis.GetStatistics}?${constructQueryString({
+                    departments,
+                    positions,
+                })}`,
                 method: 'GET',
             }),
         }),
@@ -84,15 +76,14 @@ export const departmentApi = createApi({
                 years,
                 unknown_year,
             }) => ({
-                url: `${Apis.GetAcademicStaffData}?departments=${
-                    Array.isArray(departments)
-                        ? departments.join(',')
-                        : departments
-                }&positions=${
-                    Array.isArray(positions) ? positions.join(',') : positions
-                }${years && `&years=${years.join(',')}`}&page=${page}${
-                    size != null ? `&size=${size}` : ''
-                }${unknown_year ? `&unknown_year=${unknown_year}` : ''}`,
+                url: `${Apis.GetAcademicStaffData}?${constructQueryString({
+                    departments,
+                    positions,
+                    years: years?.map(String),
+                    unknown_year,
+                    page: page?.toString(),
+                    size: size?.toString(),
+                })}`,
                 method: 'GET',
             }),
         }),
@@ -104,8 +95,8 @@ export const departmentApi = createApi({
                 url: `${Apis.GetDepartmentsData}?${constructQueryString({
                     departments,
                     positions,
-                    years: years ? years.map(String) : undefined,
-                    unknown_year: unknown_year || undefined,
+                    years: years?.map(String),
+                    unknown_year,
                 })}`,
                 method: 'GET',
             }),
@@ -115,15 +106,12 @@ export const departmentApi = createApi({
             IFAcademicPositionTotals
         >({
             query: ({ departments, positions, years, unknown_year }) => ({
-                url: `${Apis.getAcademicPositionTotals}?departments=${
-                    Array.isArray(departments)
-                        ? departments.join(',')
-                        : departments
-                }&positions=${
-                    Array.isArray(positions) ? positions.join(',') : positions
-                }&years=${years.join(',')}${
-                    unknown_year ? `&unknown_year=${unknown_year}` : ''
-                }`,
+                url: `${Apis.getAcademicPositionTotals}?${constructQueryString({
+                    departments,
+                    positions,
+                    years: years?.map(String),
+                    unknown_year,
+                })}`,
                 method: 'GET',
             }),
         }),
@@ -132,15 +120,14 @@ export const departmentApi = createApi({
             IFAcademicPositionTotals
         >({
             query: ({ departments, positions, years, unknown_year }) => ({
-                url: `${Apis.getAcademicStaffResearchSummary}?departments=${
-                    Array.isArray(departments)
-                        ? departments.join(',')
-                        : departments
-                }&positions=${
-                    Array.isArray(positions) ? positions.join(',') : positions
-                }&years=${years.join(',')}${
-                    unknown_year ? `&unknown_year=${unknown_year}` : ''
-                }`,
+                url: `${
+                    Apis.getAcademicStaffResearchSummary
+                }?${constructQueryString({
+                    departments,
+                    positions,
+                    years: years?.map(String),
+                    unknown_year,
+                })}`,
                 method: 'GET',
             }),
         }),

@@ -87,14 +87,9 @@ export const generateChartData = (
         };
     const tempData = { ...data };
     delete tempData?.id;
-    console.log(data);
-    console.log(filterby);
 
     const bgColorOpacity = theme === 'dark' ? '0.7' : '0.9';
     const labels = Object.keys(tempData ?? {});
-    // const renderBoth = data && data[0].split('/');
-    // console.log(renderBoth);
-    console.log(labels);
 
     const colorMap = new Map<
         ResearchFilterBy,
@@ -129,15 +124,9 @@ export const generateChartData = (
 
     // Create a new object without the property with key '-1'
     const newObject: Record<string, string> = {
-        '0': deletedValue,
+        ...(deletedValue && { '0': deletedValue }),
         ...tempData,
     };
-
-    // Add the value from the deleted property to another object
-    const anotherObject: Record<string, string> = { '-1': deletedValue };
-
-    console.log(newObject);
-    console.log(anotherObject);
 
     const test = [];
     if (!filterby) {
@@ -150,7 +139,7 @@ export const generateChartData = (
                     data: Object.values(newObject).map((value: string) => {
                         if (value === '-') return 0;
 
-                        return Number(value.split('/')[index]) ?? 0;
+                        return Number(value?.split('/')[index]) ?? 0;
                     }),
                     borderColor: colors?.borderColor,
                     backgroundColor: colors?.backgroundColor,
@@ -171,17 +160,6 @@ export const generateChartData = (
             backgroundColor: colors?.backgroundColor,
         });
     }
-    // const datasets = data.length
-    //     ? Object.keys(data[0].positions).map((position, index) => ({
-    //           label: position,
-    //           data: data.map(
-    //               (positionsByDepartment) =>
-    //                   positionsByDepartment.positions[position]
-    //           ),
-    //           backgroundColor: colors[index % colors.length],
-    //       }))
-    //     : [];
-    // console.log(datasets);
 
     return {
         labels: sortedYearsArray || [],

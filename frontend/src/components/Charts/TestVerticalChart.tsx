@@ -62,8 +62,6 @@ export const dataTest = (
               backgroundColor: colors[index % colors.length],
           }))
         : [];
-    console.log(datasets);
-
     return {
         labels: labels || [],
         datasets,
@@ -95,10 +93,8 @@ export const options = {
 };
 
 const TestVerticalChart = () => {
-    // eslint-disable-next-line no-empty-pattern
     const theme = useTheme();
     const [colorMode, setColorMode] = useState(theme.palette.mode);
-    // AMA deis na kanei loading ksana auto to component. na ksereis ftaiei to FixCheckBox epeidh kaloun to idio endpoint kai auto to blepei
     const { data, isLoading: isFetching } = useGetDepartmentsQuery({
         filter: ['id', 'url'],
     });
@@ -126,9 +122,6 @@ const TestVerticalChart = () => {
     }, [theme.palette.mode]);
 
     useEffect(() => {
-        console.log(data);
-
-        // When the 'data' changes, update 'labelTest' state with the transformed data
         if (selectedDeps.length) {
             departments({ departments: selectedDeps });
         }
@@ -144,11 +137,6 @@ const TestVerticalChart = () => {
 
     useEffect(() => {
         if (departmentsPositionData?.data) {
-            console.log(
-                'departmentsPositionData?.data',
-                departmentsPositionData?.data
-            );
-
             setLabelTest(departmentsPositionData?.data);
         }
     }, [departmentsPositionData]);

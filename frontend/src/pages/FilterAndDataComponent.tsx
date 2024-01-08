@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { ElementRef, useEffect, useRef, useState } from 'react';
 import SpeedDial from '@mui/material/SpeedDial/SpeedDial';
 import TuneIcon from '@mui/icons-material/Tune';
 import {
@@ -80,7 +80,7 @@ const FilterAndDataComponent = () => {
 
     const [checked, setChecked] = useState(true);
     const [height, setHeight] = useState(0);
-    const ref = useRef<HTMLDivElement | null>(null);
+    const ref = useRef<ElementRef<'div'> | null>(null);
 
     const { isLoading: isYearsDataLoading, isError: isYearsDataError } =
         useGetYearsRangeQuery();
@@ -123,7 +123,7 @@ const FilterAndDataComponent = () => {
         ) {
             setChecked(true);
         }
-    }, [filtersSliceData]);
+    }, [location, filtersSliceData]);
 
     const handleChange = () => {
         setChecked((prev) => !prev);
