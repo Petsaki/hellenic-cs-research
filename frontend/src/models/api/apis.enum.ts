@@ -14,11 +14,11 @@ export const Apis: IGeneralApis = {
     getPublicationsYears: '/publications/yearsRange',
 
     // Academic Staff
-    getAcademicPositions: '/academic-staff/positions',
-    getPositionsByDepartments: '/academic-staff/positionsSumByDepartment',
+    getAcademicPositions: '/academicStaff/positions',
+    getPositionsByDepartments: '/academicStaff/positionsSumByDepartment',
 
     // Years Range
-    getYearsRange: 'years-range',
+    getYearsRange: 'yearsRange',
 };
 
 export interface IGeneralApis extends IApis {

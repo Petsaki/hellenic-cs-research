@@ -15,10 +15,10 @@ export interface AcademicData {
     hindex5: number;
     citations5: number;
     publications5: number;
-    citationTotal: number;
-    publicationTotal: number;
-    averagePublication: number;
-    averageCitation: number;
+    citation_total: number;
+    publication_total: number;
+    average_publication: number;
+    average_citation: number;
 }
 
 export interface IAcademicStaffData {
@@ -53,7 +53,7 @@ export interface ResearchPerPosition {
 
 export interface IAcademicPositionTotals {
     inst: string;
-    researchPerPosition: ResearchPerPosition[];
+    research_per_position: ResearchPerPosition[];
 }
 
 // getAcademicStaffResearchSummary
@@ -71,24 +71,24 @@ export interface IAcademicStaffResearchSummary {
 
 // getDepartmentsAnalyticsData
 export interface DepartmentsStaticStats {
-    staffCount: number,
-    avgPublicationsPerStaff: number,
-    avgCitationsPerStaff: number,
-    cvPublications: number,
-    cvCitations: number,
-    avgHIndex: number,
-    minHIndex: number,
-    maxHIndex: number,
+    staff_count: number,
+    avg_publications_per_staff: number,
+    avg_citations_per_staff: number,
+    cv_publications: number,
+    cv_citations: number,
+    avg_h_index: number,
+    min_h_index: number,
+    max_h_index: number,
     inst: string;
 }
 
 export interface DepartmentsDynamicStats {
-    totalCitations: number,
-    totalPublications: number,
-    maxPublicationsCount: number,
-    minPublicationsCount: number,
-    maxCitationsCount: number,
-    minCitationsCount: number
+    total_citations: number,
+    total_publications: number,
+    max_publications_count: number,
+    min_publications_count: number,
+    max_citations_count: number,
+    min_citations_count: number
 }
 
 export interface DepartmentsStats extends DepartmentsStaticStats, DepartmentsDynamicStats { }

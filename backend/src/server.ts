@@ -50,8 +50,8 @@ class Server {
         });
         this.app.use('/api/departments', routesDepartment);
         this.app.use('/api/publications', routesPublications);
-        this.app.use('/api/academic-staff', routesAcademicStaff);
-        this.app.use('/api/years-range', routesyearsRange);
+        this.app.use('/api/academicStaff', routesAcademicStaff);
+        this.app.use('/api/yearsRange', routesyearsRange);
     }
 
     middlewares(): void {

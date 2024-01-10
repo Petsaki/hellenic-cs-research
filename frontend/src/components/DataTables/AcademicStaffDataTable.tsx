@@ -88,10 +88,10 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
                 hindex5: item.hindex5,
                 citations5: item.citations5,
                 publications5: item.publications5,
-                citationTotal: item.citationTotal,
-                publicationTotal: item.publicationTotal,
-                averagePublication: item.averagePublication,
-                averageCitation: item.averageCitation,
+                citation_total: item.citation_total,
+                publication_total: item.publication_total,
+                average_publication: item.average_publication,
+                average_citation: item.average_citation,
             };
 
             return rowData;
@@ -150,25 +150,25 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
                 type: 'number',
             },
             {
-                field: 'citationTotal',
+                field: 'citation_total',
                 headerName: 'Total Citation',
                 width: 150,
                 type: 'number',
             },
             {
-                field: 'publicationTotal',
+                field: 'publication_total',
                 headerName: 'Total Publication',
                 width: 150,
                 type: 'number',
             },
             {
-                field: 'averagePublication',
+                field: 'average_publication',
                 headerName: 'Avg Publication',
                 width: 150,
                 type: 'number',
             },
             {
-                field: 'averageCitation',
+                field: 'average_citation',
                 headerName: 'Avg Citation',
                 width: 150,
                 type: 'number',

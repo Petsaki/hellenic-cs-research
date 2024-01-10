@@ -83,13 +83,13 @@ const columns: GridColDef[] = [
     },
     { field: 'count', headerName: 'Count', width: 150, type: 'number' },
     {
-        field: 'averagePublication',
+        field: 'average_publication',
         headerName: 'Avg Publication Per Member',
         width: 200,
         type: 'number',
     },
     {
-        field: 'averageCitation',
+        field: 'average_citation',
         headerName: 'Avg Citation Per Member',
         width: 180,
         type: 'number',
@@ -101,13 +101,13 @@ const columns: GridColDef[] = [
         type: 'number',
     },
     {
-        field: 'cvPublications',
+        field: 'cv_publications',
         headerName: 'CV Publications',
         width: 150,
         type: 'number',
     },
     {
-        field: 'cvCitations',
+        field: 'cv_citations',
         headerName: 'CV Citations',
         width: 150,
         type: 'number',
@@ -185,20 +185,20 @@ const DepartmentDataTable = () => {
         tableData.forEach((departmentData) => {
             rowData.push({
                 id: departmentData.inst,
-                publications: departmentData.totalPublications,
-                citations: departmentData.totalCitations,
-                count: departmentData.staffCount,
-                averagePublication: departmentData.avgPublicationsPerStaff,
-                averageCitation: departmentData.avgCitationsPerStaff,
-                averageH: departmentData.avgHIndex,
-                cvPublications: departmentData.cvPublications,
-                cvCitations: departmentData.cvCitations,
-                maxPublications: departmentData.maxPublicationsCount,
-                minPublications: departmentData.minPublicationsCount,
-                maxCitations: departmentData.maxCitationsCount,
-                minCitations: departmentData.minCitationsCount,
-                maxH: departmentData.maxHIndex,
-                minH: departmentData.minHIndex,
+                publications: departmentData.total_publications,
+                citations: departmentData.total_citations,
+                count: departmentData.staff_count,
+                average_publication: departmentData.avg_publications_per_staff,
+                average_citation: departmentData.avg_citations_per_staff,
+                averageH: departmentData.avg_h_index,
+                cv_publications: departmentData.cv_publications,
+                cv_citations: departmentData.cv_citations,
+                maxPublications: departmentData.max_publications_count,
+                minPublications: departmentData.min_publications_count,
+                maxCitations: departmentData.max_citations_count,
+                minCitations: departmentData.min_citations_count,
+                maxH: departmentData.max_h_index,
+                minH: departmentData.min_h_index,
             });
         });
         return rowData;
@@ -292,11 +292,11 @@ interface DepartmentRow {
     publications: number;
     citations: number;
     count: number;
-    averagePublication: number;
-    averageCitation: number;
+    average_publication: number;
+    average_citation: number;
     averageH: number;
-    cvPublications: number;
-    cvCitations: number;
+    cv_publications: number;
+    cv_citations: number;
     maxPublications: number;
     minPublications: number;
     maxCitations: number;

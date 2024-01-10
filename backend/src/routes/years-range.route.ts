@@ -6,7 +6,7 @@ const router = Router();
 
 /**
  * @openapi
- * /api/years-range/:
+ * /api/yearsRange:
  *   get: 
  *     description: Returns the years range of the database
  *     responses:  

@@ -7,7 +7,7 @@ const router = Router();
 
 /**
  * @openapi
- * /api/academic-staff/positions:
+ * /api/academicStaff/positions:
  *   get: 
  *     description: Returns all positions that an academic staff can be.
  *     responses:  
@@ -41,7 +41,7 @@ router.get('/positions', getCacheAllPositions, getPositions);
 
 /** 
  * @openapi
- * /api/academic-staff/positionsSumByDepartment:
+ * /api/academicStaff/positionsSumByDepartment:
  *   get: 
  *     description: Returns all positions sums for the every department.
  *     parameters:

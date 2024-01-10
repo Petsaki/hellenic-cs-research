@@ -24,7 +24,7 @@ export const dataTest = (
 ): ChartData<'pie'> => {
     const bgColorOpacity = theme === 'dark' ? '0.7' : '0.9';
     const labels = data.length
-        ? data[0]?.researchPerPosition?.map((research) => research.position)
+        ? data[0]?.research_per_position?.map((research) => research.position)
         : [];
 
     const colors = labels.map((position: string) => {
@@ -51,7 +51,7 @@ export const dataTest = (
         {
             label: '# of Academic Staff',
             data:
-                data[0]?.researchPerPosition?.map(
+                data[0]?.research_per_position?.map(
                     (research) => research[filter]
                 ) ?? 0,
             backgroundColor: colors,
@@ -152,7 +152,7 @@ const StaffsTotalResearchChart: React.FC<StaffsTotalResearchChartProp> = ({
             setLabelTest(data);
 
             const positionSums =
-                data[0]?.researchPerPosition?.reduce(
+                data[0]?.research_per_position?.reduce(
                     (total, research) => total + (research[filter] || 0),
                     0
                 ) || 0;

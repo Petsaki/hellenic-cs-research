@@ -409,11 +409,11 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
     return {
       ...data,
       publications: groupedPublicationData[positionId]?.data || [],
-      publicationTotal: groupedPublicationData[positionId]?.total || 0,
+      publication_total: groupedPublicationData[positionId]?.total || 0,
       citations: groupedCitationData[positionId]?.data || [],
-      citationTotal: groupedCitationData[positionId]?.total || 0,
-      averagePublication: Number(Math.round(parseFloat((groupedPublicationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
-      averageCitation: Number(Math.round(parseFloat((groupedCitationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
+      citation_total: groupedCitationData[positionId]?.total || 0,
+      average_publication: Number(Math.round(parseFloat((groupedPublicationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
+      average_citation: Number(Math.round(parseFloat((groupedCitationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
     };
   });
 
@@ -578,11 +578,11 @@ export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaC
     return {
       ...data,
       publications: groupedPublicationData[positionId]?.data || [],
-      publicationTotal: groupedPublicationData[positionId]?.total || 0,
+      publication_total: groupedPublicationData[positionId]?.total || 0,
       citations: groupedCitationData[positionId]?.data || [],
-      citationTotal: groupedCitationData[positionId]?.total || 0,
-      averagePublication: Number(Math.round(parseFloat((groupedPublicationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
-      averageCitation: Number(Math.round(parseFloat((groupedCitationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
+      citation_total: groupedCitationData[positionId]?.total || 0,
+      average_publication: Number(Math.round(parseFloat((groupedPublicationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
+      average_citation: Number(Math.round(parseFloat((groupedCitationData[positionId]?.total / uniqueYearsCount) + 'e' + decimalPlaces)) + 'e-' + decimalPlaces) || 0,
     };
   });
 
@@ -681,20 +681,20 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
                 // Combine the objects
                 const departmentStats: DepartmentsStats = {
                     inst: inst,
-                    totalCitations: dynamicData.totalCitations,
-                    totalPublications: dynamicData.totalPublications,
-                    staffCount: staticData.staffCount,
-                    avgPublicationsPerStaff: staticData.avgPublicationsPerStaff,
-                    avgCitationsPerStaff: staticData.avgCitationsPerStaff,
-                    maxPublicationsCount: dynamicData.maxPublicationsCount,
-                    minPublicationsCount: dynamicData.minPublicationsCount,
-                    maxCitationsCount: dynamicData.maxCitationsCount,
-                    minCitationsCount: dynamicData.minCitationsCount,
-                    cvPublications: staticData.cvPublications,
-                    cvCitations: staticData.cvCitations,
-                    avgHIndex: staticData.avgHIndex,
-                    minHIndex: staticData.minHIndex,
-                    maxHIndex: staticData.maxHIndex
+                    total_citations: dynamicData.total_citations,
+                    total_publications: dynamicData.total_publications,
+                    staff_count: staticData.staff_count,
+                    avg_publications_per_staff: staticData.avg_publications_per_staff,
+                    avg_citations_per_staff: staticData.avg_citations_per_staff,
+                    max_publications_count: dynamicData.max_publications_count,
+                    min_publications_count: dynamicData.min_publications_count,
+                    max_citations_count: dynamicData.max_citations_count,
+                    min_citations_count: dynamicData.min_citations_count,
+                    cv_publications: staticData.cv_publications,
+                    cv_citations: staticData.cv_citations,
+                    avg_h_index: staticData.avg_h_index,
+                    min_h_index: staticData.min_h_index,
+                    max_h_index: staticData.max_h_index
                 };
                 eachDepActiveYears.push(departmentStats);
             }
@@ -909,26 +909,26 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
     
                 // Create an object to store the aggregated data
                 const depStaticStats: DepartmentsStaticStatsCache = {
-                  staffCount,
-                  avgPublicationsPerStaff: roundNumberWithDecimalPlaces(avgPublicationsPerStaff, '1'),
-                  avgCitationsPerStaff: roundNumberWithDecimalPlaces(avgCitationsPerStaff, '1'),
-                  cvPublications: roundNumberWithDecimalPlaces(cvPublications, '1'),
-                  cvCitations: roundNumberWithDecimalPlaces(cvCitations, '1'),
-                  avgHIndex: roundNumberWithDecimalPlaces(avgHIndex),
-                  minHIndex,
-                  maxHIndex,
+                  staff_count: staffCount,
+                  avg_publications_per_staff: roundNumberWithDecimalPlaces(avgPublicationsPerStaff, '1'),
+                  avg_citations_per_staff: roundNumberWithDecimalPlaces(avgCitationsPerStaff, '1'),
+                  cv_publications: roundNumberWithDecimalPlaces(cvPublications, '1'),
+                  cv_citations: roundNumberWithDecimalPlaces(cvCitations, '1'),
+                  avg_h_index: roundNumberWithDecimalPlaces(avgHIndex),
+                  min_h_index: minHIndex,
+                  max_h_index: maxHIndex,
                   inst: dep
                 };
         
                 departmentsStaticStats.push(depStaticStats)
             } else {
                 const depDynamicStats: DepartmentsDynamicStatsIDs = {
-                    totalCitations,
-                    totalPublications,
-                    maxPublicationsCount,
-                    minPublicationsCount,
-                    maxCitationsCount,
-                    minCitationsCount,
+                    total_citations: totalCitations,
+                    total_publications: totalPublications,
+                    max_publications_count: maxPublicationsCount,
+                    min_publications_count: minPublicationsCount,
+                    max_citations_count: maxCitationsCount,
+                    min_citations_count: minCitationsCount,
                     inst: dep
                 }
                 departmentsDynamicStats.push(depDynamicStats);
@@ -1126,20 +1126,20 @@ export const getAcademicPositionTotals = tryCatch(async (req: omeaCitationsReqQu
 
             // Create an object to store the aggregated data
             const departmentStats = {
-              totalCitations,
-              totalPublications,
-              publicationsTotalPerStaff: publicationsPerStaff,
-              citationsTotalPerStaff: citationsPerStaff,
+                total_citations: totalCitations,
+                total_publications: totalPublications,
+                publications_total_per_staff: publicationsPerStaff,
+                citations_total_per_staff: citationsPerStaff,
             };
     
-            dataPerDep.push({inst: dep, departmentStats: departmentStats})
+            dataPerDep.push({inst: dep, department_stats: departmentStats})
             
         } else {
-            dataPerDep.push({inst: dep, departmentStats: {
-                publicationsTotalPerStaff: [],
-                citationsTotalPerStaff: [],
-                totalCitations: 0,
-                totalPublications: 0,
+            dataPerDep.push({inst: dep, department_stats: {
+                publications_total_per_staff: [],
+                citations_total_per_staff: [],
+                total_citations: 0,
+                total_publications: 0,
             }})
         }
         
@@ -1185,13 +1185,13 @@ export const groupAndSumData = (
             
             const researchValues = dataPerDep.find((entry) => entry.inst === inst);
             if (researchValues) {
-                researchValues.departmentStats.citationsTotalPerStaff.forEach((staffResearch) => {
+                researchValues.department_stats.citations_total_per_staff.forEach((staffResearch) => {
                     if (staffArray.some((id) => id === staffResearch.id)) {
                         researchPerPositions[positionIndex].citations += staffResearch.total;
                     }
                 });
 
-                researchValues.departmentStats.publicationsTotalPerStaff.forEach((staffResearch) => {
+                researchValues.department_stats.publications_total_per_staff.forEach((staffResearch) => {
                     if (staffArray.some((id) => id === staffResearch.id)) {
                         researchPerPositions[positionIndex].publications += staffResearch.total;
                     }
@@ -1199,7 +1199,7 @@ export const groupAndSumData = (
             }
         }
     
-        groupedData.push({ inst, researchPerPosition: researchPerPositions });
+        groupedData.push({ inst, research_per_position: researchPerPositions });
     }
     return groupedData;
 }
@@ -1338,20 +1338,20 @@ export const getScholarlyProfiles = tryCatch(async (req: omeaCitationsReqQuery<A
 
             // Create an object to store the aggregated data
             const departmentStats = {
-              totalCitations,
-              totalPublications,
-              publicationsTotalPerStaff: publicationsPerStaff,
-              citationsTotalPerStaff: citationsPerStaff,
+                total_citations: totalCitations,
+                total_publications: totalPublications,
+                publications_total_per_staff: publicationsPerStaff,
+                citations_total_per_staff: citationsPerStaff,
             };
     
-            dataPerDep.push({inst: dep, departmentStats: departmentStats})
+            dataPerDep.push({inst: dep, department_stats: departmentStats})
             
         } else {
-            dataPerDep.push({inst: dep, departmentStats: {
-                publicationsTotalPerStaff: [],
-                citationsTotalPerStaff: [],
-                totalCitations: 0,
-                totalPublications: 0,
+            dataPerDep.push({inst: dep, department_stats: {
+                publications_total_per_staff: [],
+                citations_total_per_staff: [],
+                total_citations: 0,
+                total_publications: 0,
             }})
         }
         
@@ -1556,16 +1556,16 @@ export interface IStaffResearch {
 }
 
 export interface IDepResearchStats<T> {
-    totalCitations: number;
-    totalPublications: number;
-    publicationsTotalPerStaff: T[];
-    citationsTotalPerStaff: T[];
+    total_citations: number;
+    total_publications: number;
+    publications_total_per_staff: T[];
+    citations_total_per_staff: T[];
 
 }
 
 export interface IResearchDataPerDep {
     inst: string;
-    departmentStats: IDepResearchStats<IStaffResearch>;
+    department_stats: IDepResearchStats<IStaffResearch>;
 }
 
 // -------------------------------------
@@ -1578,7 +1578,7 @@ export interface IStaffNamesResearch extends IStaffResearch {
 
 export interface IScholarlyProfilesPerDep {
     inst: string;
-    departmentStats: IDepResearchStats<IStaffNamesResearch>;
+    department_stats: IDepResearchStats<IStaffNamesResearch>;
 }
 
 // -------------------------------------

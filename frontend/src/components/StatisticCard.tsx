@@ -21,13 +21,31 @@ const container: SxProps = {
 };
 
 const cardContentStyle: SxProps = {
-    p: { xs: '8px 8px', sm: '16px 8px', lg: '16px' },
+    pt: {
+        xs: '20px',
+        lg: '24px',
+    },
+    px: {
+        xs: '8px',
+        lg: '16px',
+    },
     gap: { xs: '4px', sm: '12px' },
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    '&.MuiCardContent-root': {
+        pb: '0px',
+    },
+    '>:last-child': {
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        width: 'calc(100%)',
+        WebkitBoxOrient: 'vertical',
+        display: '-webkit-box',
+        WebkitLineClamp: '2',
+    },
 };
 
 const statisticsTitles = new Map<string, ICardTexts>([

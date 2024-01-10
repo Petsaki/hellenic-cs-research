@@ -9,7 +9,7 @@ const router = Router();
 
 /**
  * @openapi
- * /api/departments/:
+ * /api/departments:
  *   get: 
  *     description: Returns an array of Departments. Can modify the object that returns based on the filter query.
  *     parameters:
@@ -164,16 +164,16 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *                           publications5:
  *                             type: integer
  *                             nullable: true
- *                           publicationTotal:
+ *                           publication_total:
  *                             type: integer
  *                             nullable: true
- *                           citationTotal:
+ *                           citation_total:
  *                             type: integer
  *                             nullable: true
- *                           averagePublication:
+ *                           average_publication:
  *                             type: integer
  *                             nullable: true
- *                           averageCitation:
+ *                           average_citation:
  *                             type: integer
  *                             nullable: true
  *             example:
@@ -193,10 +193,10 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *                   hindex5: 5
  *                   citations5: 186
  *                   publications5: 14
- *                   publicationTotal: 3
- *                   citationTotal: 40
- *                   averagePublication: 3
- *                   averageCitation: 40
+ *                   publication_total: 3
+ *                   citation_total: 40
+ *                   average_publication: 3
+ *                   average_citation: 40
  *               description: "Success"
  *               success: true
  *     tags:
@@ -301,16 +301,16 @@ router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheY
  *                           publications5:
  *                             type: integer
  *                             nullable: true
- *                           publicationTotal:
+ *                           publication_total:
  *                             type: integer
  *                             nullable: true
- *                           citationTotal:
+ *                           citation_total:
  *                             type: integer
  *                             nullable: true
- *                           averagePublication:
+ *                           average_publication:
  *                             type: integer
  *                             nullable: true
- *                           averageCitation:
+ *                           average_citation:
  *                             type: integer
  *                             nullable: true
  *             example:
@@ -330,10 +330,10 @@ router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheY
  *                   hindex5: 5
  *                   citations5: 186
  *                   publications5: 14
- *                   publicationTotal: 3
- *                   citationTotal: 40
- *                   averagePublication: 3
- *                   averageCitation: 40
+ *                   publication_total: 3
+ *                   citation_total: 40
+ *                   average_publication: 3
+ *                   average_citation: 40
  *               description: "Success"
  *               success: true
  *     tags:
@@ -492,7 +492,7 @@ router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatis
 
 /**
  * @openapi
- * /api/departments/active-years:
+ * /api/departments/activeYears:
  *   get: 
  *     description: Returns the active years of selected departments. Active year is a year that will have at least 1 citation or publication.
  *     parameters:
@@ -565,7 +565,7 @@ router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatis
  *       - OMEA
  */
 // Active Years
-router.get('/active-years', getCacheAllPositions, getCacheDepartmentsID, getDepartmentsActiveYears);
+router.get('/activeYears', getCacheAllPositions, getCacheDepartmentsID, getDepartmentsActiveYears);
 
 /**
  * @openapi
@@ -614,52 +614,52 @@ router.get('/active-years', getCacheAllPositions, getCacheDepartmentsID, getDepa
  *                         properties:
  *                           inst:
  *                             type: string
- *                           totalCitations:
+ *                           total_citations:
  *                             type: integer
- *                           totalPublications:
+ *                           total_publications:
  *                             type: integer
- *                           staffCount:
+ *                           staff_count:
  *                             type: integer
- *                           avgPublicationsPerStaff:
+ *                           avg_publications_per_staff:
  *                             type: number
- *                           avgCitationsPerStaff:
+ *                           avg_citations_per_staff:
  *                             type: number
- *                           maxPublicationsCount:
+ *                           max_publications_count:
  *                             type: integer
- *                           minPublicationsCount:
+ *                           min_publications_count:
  *                             type: integer
- *                           maxCitationsCount:
+ *                           max_citations_count:
  *                             type: integer
- *                           minCitationsCount:
+ *                           min_citations_count:
  *                             type: integer
- *                           cvPublications:
+ *                           cv_publications:
  *                             type: number
- *                           cvCitations:
+ *                           cv_citations:
  *                             type: number
- *                           avgHIndex:
+ *                           avg_h_index:
  *                             type: integer
- *                           minHIndex:
+ *                           min_h_index:
  *                             type: integer
- *                           maxHIndex:
+ *                           max_h_index:
  *                             type: integer
  *             example:
  *               code: 200
  *               data:
  *                 - inst: "iee@ihu"
- *                   totalCitations: 1993
- *                   totalPublications: 59
- *                   staffCount: 30
- *                   avgPublicationsPerStaff: 51.2
- *                   avgCitationsPerStaff: 874.7
- *                   maxPublicationsCount: 14
- *                   minPublicationsCount: 1
- *                   maxCitationsCount: 475
- *                   minCitationsCount: 1
- *                   cvPublications: 103.3
- *                   cvCitations: 159.6
- *                   avgHIndex: 12
- *                   minHIndex: 2
- *                   maxHIndex: 29
+ *                   total_citations: 1993
+ *                   total_publications: 59
+ *                   staff_count: 30
+ *                   avg_publications_per_staff: 51.2
+ *                   avg_citations_per_staff: 874.7
+ *                   max_publications_count: 14
+ *                   min_publications_count: 1
+ *                   max_citations_count: 475
+ *                   min_citations_count: 1
+ *                   cv_publications: 103.3
+ *                   cv_citations: 159.6
+ *                   avg_h_index: 12
+ *                   min_h_index: 2
+ *                   max_h_index: 29
  *               description: "Success"
  *               success: true
  *     tags:
@@ -715,7 +715,7 @@ router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, get
  *                         properties:
  *                           inst:
  *                             type: string
- *                           researchPerPosition:
+ *                           research_per_position:
  *                             type: array
  *                             items:
  *                               type: object
@@ -730,7 +730,7 @@ router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, get
  *               code: 200
  *               data:
  *                 - inst: "iee@ihu"
- *                   researchPerPosition:
+ *                   research_per_position:
  *                     - position: "Professor"
  *                       citations: 1193
  *                       publications: 31
@@ -801,14 +801,14 @@ router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, 
  *                         properties:
  *                           inst:
  *                             type: string
- *                           departmentStats:
+ *                           department_stats:
  *                             type: object
  *                             properties:
- *                               totalCitations:
+ *                               total_citations:
  *                                 type: integer
- *                               totalPublications:
+ *                               total_publications:
  *                                 type: integer
- *                               publicationsTotalPerStaff:
+ *                               publications_total_per_staff:
  *                                 type: array
  *                                 items:
  *                                   type: object
@@ -819,7 +819,7 @@ router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, 
  *                                       type: integer
  *                                     name:
  *                                       type: string
- *                               citationsTotalPerStaff:
+ *                               citations_total_per_staff:
  *                                 type: array
  *                                 items:
  *                                   type: object
@@ -834,14 +834,14 @@ router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, 
  *               code: 200
  *               data:
  *                 - inst: "iee@ihu"
- *                   departmentStats:
- *                     totalCitations: 1993
- *                     totalPublications: 59
- *                     publicationsTotalPerStaff:
+ *                   department_stats:
+ *                     total_citations: 1993
+ *                     total_publications: 59
+ *                     publications_total_per_staff:
  *                       - id: "ABC123456789"
  *                         total: 3
  *                         name: "Academic Staff"
- *                     citationsTotalPerStaff:
+ *                     citations_total_per_staff:
  *                       - id: "ABC123456789"
  *                         total: 24
  *                         name: "Academic Staff"
