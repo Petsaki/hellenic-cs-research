@@ -12,7 +12,7 @@ import {
     useTheme,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
@@ -23,6 +23,8 @@ import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
 import { useGetAcademicStaffPositionsQuery } from '../services/academicStaffApi';
 import { useGetDepartmentsQuery } from '../services/departmentApi';
 import { RootState } from '../app/store';
+import Citations from '../containers/Citations';
+import DepartmentsStats from '../containers/DepartmentsStats';
 
 const speedDial: SxProps<Theme> = (theme) => ({
     position: 'fixed',
@@ -73,6 +75,7 @@ const FilterAndDataComponent = () => {
     const theme = useTheme();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const filtersSliceData = useSelector(
         (state: RootState) => state.filtersSlice
@@ -123,7 +126,7 @@ const FilterAndDataComponent = () => {
         ) {
             setChecked(true);
         }
-    }, [location, filtersSliceData]);
+    }, [location, filtersSliceData, navigate]);
 
     const handleChange = () => {
         setChecked((prev) => !prev);
@@ -233,7 +236,12 @@ const FilterAndDataComponent = () => {
                                 padding: '0',
                             }}
                         >
-                            <Outlet />
+                            {location.pathname === '/citations' && (
+                                <Citations />
+                            )}
+                            {location.pathname === '/departments' && (
+                                <DepartmentsStats />
+                            )}
                         </Grid2>
                     </Grid2>
                 </Grid2>

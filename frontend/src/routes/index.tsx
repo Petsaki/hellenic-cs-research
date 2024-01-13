@@ -6,23 +6,28 @@ import DepartmentsStats from '../containers/DepartmentsStats';
 import FilterAndDataComponent from '../pages/FilterAndDataComponent';
 
 function Paths() {
-    // Marios - I can do it with react-router inside FilterAndDataComponent and not using pure javascript
-    if (window.location.pathname === '/') {
-        window.history.replaceState({}, '', '/citations');
-        return <Navigate to="/citations" />;
-    }
-
     return (
         <BrowserRouter>
             <TheLayout>
                 <Routes>
-                    <Route path="/" element={<FilterAndDataComponent />}>
-                        <Route path="/citations" element={<Citations />} />
-                        <Route
-                            path="/departments"
-                            element={<DepartmentsStats />}
-                        />
-                    </Route>
+                    {/* Redirect from "/" to "/citations" without leaving "/" in history */}
+                    <Route
+                        path="/"
+                        element={
+                            <Navigate
+                                to="/citations"
+                                replace // Use replace to skip adding "/" to history
+                            />
+                        }
+                    />
+                    <Route
+                        path="/citations"
+                        element={<FilterAndDataComponent />}
+                    />
+                    <Route
+                        path="/departments"
+                        element={<FilterAndDataComponent />}
+                    />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </TheLayout>

@@ -34,12 +34,12 @@ export const dataTest = (
 
     const colors = labels.map((position: string) => {
         const colorInfo = colorMap.get(position);
-        return colorInfo!.backgroundColor.replace('opacity', bgColorOpacity);
+        return colorInfo?.backgroundColor.replace('opacity', bgColorOpacity);
     });
 
     const borderColors = labels.map((position: string) => {
         const colorInfo = colorMap.get(position);
-        return colorInfo!.borderColor;
+        return colorInfo?.borderColor;
     });
 
     ChartJS.register(
@@ -52,24 +52,6 @@ export const dataTest = (
         Legend
     );
 
-    // const datasets = data.length
-    //     ? Object.keys(data[0].positions).map((position, index) => ({
-    //           label: position,
-    //           data: [
-    //               data
-    //                   .map(
-    //                       (positionsByDepartment) =>
-    //                           positionsByDepartment.positions[position]
-    //                   )
-    //                   .reduce(
-    //                       (accumulator, currentValue) =>
-    //                           accumulator + currentValue,
-    //                       0
-    //                   ),
-    //           ],
-    //           backgroundColor: colors[index % colors.length],
-    //       }))
-    //     : [];
     const positionSums = labels.map((position) =>
         data.reduce(
             (total, department) =>
@@ -127,23 +109,6 @@ const PositionsPieChart = () => {
             // Where to display the labels (aka data 1, data 2..)
             legend: {
                 position: 'top' as const,
-                // onClick: (e, legendItem) => {
-                //     const { index, hidden, text } = legendItem;
-                //     const dataset = testData.datasets[0].data[index];
-                //     console.log(e);
-                //     const { chart } = e;
-                //     const meta = chart.getDatasetMeta(index);
-                //     console.log(chart);
-                //     console.log(meta);
-                //     meta.hidden = meta.hidden === null ? hidden : null;
-                //     legendItem.hidden = !hidden;
-                //     console.log(meta);
-
-                //     console.log(
-                //         `Legend item "${text}" clicked with value: ${dataset}. Disabled: ${hidden}`
-                //     );
-                //     chart.update();
-                // },
                 onClick: (e: any, legendItem: any, legend: any) => {
                     legend.chart.toggleDataVisibility(legendItem.index);
 
@@ -199,13 +164,6 @@ const PositionsPieChart = () => {
             });
             myPie.update();
         }
-        // It was to have all the departments positions by default
-        // else if (data && data.data) {
-        //     const transformedData = data.data.map(
-        //         (department) => department.id
-        //     );
-        //     departments({ departments: transformedData });
-        // }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data, selectedDeps]);
 
