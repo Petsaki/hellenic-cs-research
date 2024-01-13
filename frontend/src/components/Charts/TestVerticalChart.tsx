@@ -16,8 +16,8 @@ import Skeleton from '@mui/material/Skeleton/Skeleton';
 import { useTheme } from '@mui/material/styles';
 import { useGetDepartmentsQuery } from '../../services/departmentApi';
 import { RootState } from '../../app/store';
-import { useGetPositionsByDepartmentsMutation } from '../../services/academicStaffApi';
 import { PositionsByDepartment } from '../../models/api/response/academicStaff/academicStaff.data';
+import { useGetPositionsByDepartmentsMutation } from '../../services/academicStaffApi';
 
 export const dataTest = (
     data: PositionsByDepartment[],
