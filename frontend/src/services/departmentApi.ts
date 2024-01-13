@@ -18,8 +18,8 @@ import {
 } from '../models/api/request/filters.data';
 import constructQueryString from '../app/untils/queryConstructor';
 
-// Δεν έχω βάλει invalidatesTags, οπότε κάνει caching, δηλαδή ότι πρέπει για αυτήν την εφαρμογή γιατί
-// τα δεδομένα στην βάση δεν πρόκειτε να αλλάξουν
+// I haven't included invalidatesTags, so it performs caching, which is appropriate for this application because
+// the data in the database is not expected to change.
 export const departmentApi = createApi({
     reducerPath: 'departmentApi',
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
@@ -39,8 +39,8 @@ export const departmentApi = createApi({
             query: (departmentId: string) =>
                 Apis.GetDeparmentById(departmentId),
         }),
-        // Apo oti thimame auto einai pou thelw, anti gia mutation thelw kanoniko query
-        // Giati nomizw oti ithela na trexei me tin prwth. Me to mutation eprepe na to kalesw egw
+        // From what I remember, this is what I want instead of a mutation, I want a regular query.
+        // Because I wanted it to run with the first. With the mutation, I had to call it
         getDepartments: builder.query<
             ResponseData<DepartmentsData[]>,
             Partial<IFilter>
@@ -133,12 +133,6 @@ export const departmentApi = createApi({
         }),
     }),
 });
-
-// transformResponse?(
-//     baseQueryReturnValue: BaseQueryResult<BaseQuery>,
-//     meta: BaseQueryMeta<BaseQuery>,
-//     arg: QueryArg
-//   ): ResultType | Promise<ResultType>
 
 export const {
     useGetDepartmentMutation,

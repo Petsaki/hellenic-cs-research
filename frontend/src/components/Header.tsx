@@ -193,58 +193,6 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
                             OMEA Citations
                         </Typography>
                     </Box>
-                    {/* Search component for the feature */}
-                    {/* <Autocomplete
-                        disableClearable
-                        sx={{
-                            width: 300,
-                        }}
-                        open={open}
-                        onOpen={() => {
-                            setOpen(true);
-                        }}
-                        onClose={() => {
-                            setOpen(false);
-                        }}
-                        isOptionEqualToValue={(
-                            option: DepartmentsData,
-                            value: DepartmentsData
-                        ) => option.id === value.id}
-                        getOptionLabel={(option: DepartmentsData) => option.id}
-                        options={options}
-                        loading={isDepartmenentDataFetching}
-                        renderInput={(params) => (
-                            <TextField
-                                sx={{
-                                    '& .MuiInputBase-root': {
-                                        borderRadius: '8px',
-                                        '& .MuiInputBase-input': {
-                                            color: 'white',
-                                        },
-                                    },
-                                }}
-                                hiddenLabel
-                                variant="filled"
-                                {...params}
-                                placeholder="Search for Department"
-                                InputProps={{
-                                    ...params.InputProps,
-                                    endAdornment: (
-                                        <>
-                                            {isDepartmenentDataFetching ? (
-                                                <CircularProgress
-                                                    color="inherit"
-                                                    size={20}
-                                                />
-                                            ) : null}
-                                            {params.InputProps.endAdornment}
-                                        </>
-                                    ),
-                                    disableUnderline: true,
-                                }}
-                            />
-                        )}
-                    /> */}
                     <Box
                         sx={{
                             display: 'flex',
@@ -274,22 +222,6 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
                                 API Doc
                             </Button>
                         </Box>
-                        {/* <Button
-                            component={Link}
-                            to="/about"
-                            sx={{
-                                color: 'white',
-                                backgroundColor: 'transparent',
-                                ':hover': {
-                                    backgroundColor:
-                                        theme.palette.mode === 'dark'
-                                            ? '#383838'
-                                            : '#137cb8',
-                                },
-                            }}
-                        >
-                            About
-                        </Button> */}
                         <IconButton
                             sx={{ color: 'white' }}
                             onClick={colorMode.toggleColorMode}

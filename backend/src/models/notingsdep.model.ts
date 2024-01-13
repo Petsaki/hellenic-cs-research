@@ -3,7 +3,7 @@ import { DataTypes } from "sequelize";
 import Departments from "./department.model";
 import { INotingsdep } from "../types";
 
-// MARIOS: Maybe i dont need this table
+// TODO - I dont need this table
 const Notingsdep = db.define<INotingsdep>('notingsdep', {
     name: {
         field: 'name',

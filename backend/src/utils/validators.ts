@@ -1,5 +1,3 @@
-import { IDep } from "../types";
-
 export const departmentsValidation = async (departments: string[] | string, cacheDepartments: {id: string}[]): Promise<void> => {
     const targetDepartments = Array.isArray(departments) ? departments : [departments];
     if (!targetDepartments.every((targetDepartment) => cacheDepartments.some((obj) => obj.id === targetDepartment))) {

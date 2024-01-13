@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Dep from '../models/dep.model';
-import { IDep, omeaCitationsReqBody, omeaCitationsReqQuery, omeaCitationsRes } from '../types';
+import { omeaCitationsReqBody, omeaCitationsReqQuery, omeaCitationsRes } from '../types';
 import { tryCatch } from '../utils/tryCatch';
 import { Departments as DepartmentsReq, DepartmentsSchema, PositionsCountByDepsRequest, PositionsCountByDepsSchema } from '../types/request.types';
 import { IPositionsCountByDepartment } from '../types/response/academic-staff.type';
@@ -32,7 +32,6 @@ export const getPositionsCountByDepartment = tryCatch(async (req: omeaCitationsR
 
     // Validation - Check if departments exists in the database
     await departmentsValidation(departments, departmentsCache);
-    console.log(departments);
 
     let where = {};
     if (departments && departments.length > 0) {
@@ -66,7 +65,6 @@ export const getPositionsCountByDepartment = tryCatch(async (req: omeaCitationsR
       counts[position] = count!;
     }
     
-    // Add 0 counts for any missing positions for each inst
     for (const [inst, counts] of countsByInst) {
       for (const position of positionsCache) {
         if (!(position in counts)) {
@@ -75,7 +73,6 @@ export const getPositionsCountByDepartment = tryCatch(async (req: omeaCitationsR
       }
     }
       
-    console.log(countsByInst);
     const countByInstArr = Array.from(countsByInst, ([inst, positions]) => ({ inst, positions }));
     
     res.json(sendResponse<IPositionsCountByDepartment[]>(200,'All good.', countByInstArr));

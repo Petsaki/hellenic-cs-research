@@ -217,7 +217,6 @@ const PositionsPieChart = () => {
                 sx={{
                     display: 'flex',
                     justifyContent: 'center',
-                    // height: '700px',
                     width: { xs: '100%', lg: '55%' },
                     aspectRatio: { xs: '4/3', xl: '3/4' },
                     position: 'relative',

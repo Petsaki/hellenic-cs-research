@@ -10,15 +10,9 @@ function Paths() {
         <BrowserRouter>
             <TheLayout>
                 <Routes>
-                    {/* Redirect from "/" to "/citations" without leaving "/" in history */}
                     <Route
                         path="/"
-                        element={
-                            <Navigate
-                                to="/citations"
-                                replace // Use replace to skip adding "/" to history
-                            />
-                        }
+                        element={<Navigate to="/citations" replace />}
                     />
                     <Route
                         path="/citations"

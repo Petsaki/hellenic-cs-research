@@ -16,7 +16,6 @@ during the execution of this middleware. */
 export const getCacheDepartmentsID = tryCatch(async (req: omeaCitationsReqBody<Filter>, res: omeaCitationsRes<IDepartments[]>, next: NextFunction) => {
     const cachedData: IDepartments[] = cache.get(cacheKeysEnum.DepartmentsID);
     if (!cachedData) {
-        // It will only run if filter is id
         const result = await Departments.findAll({
             attributes: [
                 [Sequelize.fn('DISTINCT', Sequelize.col('id')), 'id'],

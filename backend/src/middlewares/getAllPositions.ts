@@ -1,7 +1,7 @@
 import { NextFunction } from 'express';
 import { getAllPositions } from '../controllers/academic-staff.controller';
 import cache from 'memory-cache';
-import { IDep, cacheData, cacheKeysEnum, omeaCitationsReqBody, omeaCitationsRes } from '../types';
+import { cacheKeysEnum, omeaCitationsReqBody, omeaCitationsRes } from '../types';
 import { tryCatch } from '../utils/tryCatch';
 import { cacheTime, reqCache } from '../server';
 

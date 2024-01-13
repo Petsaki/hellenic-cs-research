@@ -133,19 +133,10 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
         isPositionsDataLoading &&
         isDepartmenentDataFetching
     )
-        // return (
-        //     <Skeleton
-        //         animation="wave"
-        //         variant="rounded"
-        //         width="100%"
-        //         height={1000}
-        //     />
-        // );
         return null;
 
     return (
         <Drawer
-            // container={container}
             variant={large ? 'persistent' : 'temporary'}
             open={large ? true : mobileOpen}
             onClose={(event: Event, reason: string) => {

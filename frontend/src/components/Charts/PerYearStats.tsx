@@ -54,27 +54,6 @@ export const generateChartOptions = (staffName: string): any => {
     };
 };
 
-// export const test = {
-//     datasets: [
-//         {
-//             // Marios - remove that for the fill
-//             // fill: true,
-//             label: 'Dataset 1',
-//             data: labels.map(() => Math.floor(Math.random() * 1000)),
-//             borderColor: 'rgb(255, 99, 132)',
-//             backgroundColor: 'rgba(255, 99, 132, 0.5)',
-//         },
-//         {
-//             // Marios - remove that for the fill
-//             // fill: true,
-//             label: 'Dataset 2',
-//             data: labels.map(() => Math.floor(Math.random() * 1000)),
-//             borderColor: 'rgb(53, 162, 235)',
-//             backgroundColor: 'rgba(53, 162, 235, 0.5)',
-//         },
-//     ],
-// };
-
 export const generateChartData = (
     data: Record<string, string>,
     theme: string,
@@ -103,10 +82,6 @@ export const generateChartData = (
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: `rgba(255, 99, 132, ${bgColorOpacity})`,
     });
-    // const colors = [
-    //     `rgba(255, 99, 132,${bgColorOpacity})`,
-    //     `rgba(53, 162, 235,${bgColorOpacity})`,
-    // ];
 
     const sortedYearsArray = labels.sort((a, b) => {
         const numA = parseInt(a, 10);

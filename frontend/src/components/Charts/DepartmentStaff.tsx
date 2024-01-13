@@ -118,13 +118,6 @@ const DepartmentStaff = () => {
         if (selectedDeps.length) {
             departments({ departments: selectedDeps });
         }
-        // It was to have all the departments positions by default
-        // else if (data && data.data) {
-        //     const transformedData = data.data.map(
-        //         (department) => department.id
-        //     );
-        //     departments({ departments: transformedData });
-        // }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data, selectedDeps]);
 

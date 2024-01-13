@@ -1,15 +1,15 @@
-import { FindAttributeOptions, Op, QueryTypes, Sequelize, WhereOptions, or } from 'sequelize';
+import { Op, QueryTypes, Sequelize, WhereOptions } from 'sequelize';
 import { sendResponse } from '../api/common';
 import Departments from '../models/department.model';
-import { omeaCitationsRes, omeaCitationsReqBody, IDepartments, IDep, omeaCitationsReqQuery, omeaCitationsReqBodyQuery, DepartmentsStaticStatsCache, cacheKeysEnum, DepartmentsDynamicStatsIDs, ICitation } from '../types';
+import { omeaCitationsRes, IDepartments, IDep, omeaCitationsReqQuery, omeaCitationsReqBodyQuery, DepartmentsStaticStatsCache, cacheKeysEnum, DepartmentsDynamicStatsIDs, ICitation } from '../types';
 import { tryCatch } from '../utils/tryCatch';
-import { StatisticReq, StatisticReqSchema, Filter, FilterSchema, AcademicDataRequest, AcademicDataSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq, AcademicPositionTotalsSchema, AcademicPositionTotalsRequest, AcademicStaffResearchSummaryRequest, AcademicStaffResearchSummarySchema, AcademicDataPaginationSchema, AcademicDataPaginationRequest, DepartmentWithOptionalPositions, DepartmentWithOptionalPositionsSchema, AcademicDataAcademicStaffPaginationRequest, AcademicDataAcademicStaffPaginationSchema } from '../types/request.types';
+import { Filter, FilterSchema, DepartmentsAnalyticsReqSchema, DepartmentsAnalyticsReq, AcademicPositionTotalsSchema, AcademicPositionTotalsRequest, AcademicDataPaginationSchema, AcademicDataPaginationRequest, DepartmentWithOptionalPositions, DepartmentWithOptionalPositionsSchema, AcademicDataAcademicStaffPaginationRequest, AcademicDataAcademicStaffPaginationSchema } from '../types/request.types';
 import Dep from '../models/dep.model';
 import sequelize from '../db/connection';
 import Publications from '../models/publication.model';
 import Citations from '../models/citation.model';
 import { academicStaffValidation, departmentsValidation, positionsValidation, unknownYearValidation, yearsValidation } from '../utils/validators';
-import { AcademicData, DepartmentsDynamicStats, DepartmentsStats, IAcademicPositionTotals, IAcademicStaffData, IAcademicStaffResearchSummary, IStatistics, IStatisticsPerDepartment, StaffResearchSummary } from '../types/response/department.type';
+import { AcademicData, DepartmentsStats, IAcademicPositionTotals, IAcademicStaffData, IAcademicStaffResearchSummary, IStatistics, IStatisticsPerDepartment, StaffResearchSummary } from '../types/response/department.type';
 import cache from 'memory-cache';
 import { cacheTime, reqCache } from '../server';
 
@@ -19,9 +19,8 @@ const decimalPlaces = '2';
 export const getDepartments = tryCatch(async (req: omeaCitationsReqQuery<Filter>, res: omeaCitationsRes<IDepartments[]>) => {
     const {filter}: Filter = FilterSchema.parse(req.query);
     const filterArray = filter ? filter.trim().split(',').filter(Boolean) : undefined;
+
     if (filterArray && filterArray.length === 2 && ['id', 'url'].every((expectedValue) => filterArray.includes(expectedValue))) {
-        console.log('CACHE');
-        
         return res.json(sendResponse<IDepartments[]>(200, 'All good.', req.cache.departmentsID));
     }
     const deparmentsList = await getDepartmentsData(filterArray);
@@ -32,10 +31,7 @@ export const getDepartments = tryCatch(async (req: omeaCitationsReqQuery<Filter>
 export const getDepartment = tryCatch(async (req: omeaCitationsReqBodyQuery<{id:string}, {test: string, test2: string}>, res: omeaCitationsRes<IDepartments>) => {
     const {id} = req.params;
     const {test, test2} = req.query;
-    console.log(test);
-    console.log(test2);
     
-    // const department = await Departments.findByPk(id,{rejectOnEmpty: true});
     const department = await Departments.findByPk(id);
     if (!department) {
         throw new Error(`Deparment with this id: ${id}, does not exists.`);
@@ -46,7 +42,6 @@ export const getDepartment = tryCatch(async (req: omeaCitationsReqBodyQuery<{id:
 
 export const getDepartmentsData = async (filters: string[] | undefined): Promise<IDepartments[]> => {
     if (filters) {
-        console.log('MPHKA EDW');
         return await Departments.findAll({
             attributes: filters
         });
@@ -295,12 +290,8 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
         offset: +page * +size,
     });
 
-    //   console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',academicData);
-      
-
     // Extract the position IDs from the academicData result
     const positionIds = academicData.rows.map((data) => data.id);
-    // console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',positionIds);
 
     // Get the active years array
     const activeYearsData = await activeYears(departments, positions);
@@ -328,7 +319,7 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
         }
      ] ;
 
-      // Fetch the publication and citation data for the specified years and group them by year for each position ID
+    // Fetch the publication and citation data for the specified years and group them by year for each position ID
     const publicationData = await Publications.findAll({
         where: {
             id: {
@@ -375,8 +366,6 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
         return acc;
     }, {} as GroupedData);
 
-    console.log(groupedCitationData);
-
     if (unknownYear) {
         for (const [key, value] of Object.entries(groupedCitationData)) {
             const currentStaff = academicData.rows.find((dep) => dep.id === key);
@@ -397,7 +386,6 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
     // Extract unique years from citations and publications
     const uniqueYearsSet = new Set<number>();
     
-    // unknownYear && groupedCitationData[positionId]?.data.push({ year: -1, count: data.citations - groupedCitationData[positionId].total });
     groupedCitationData[positionId]?.data.forEach((citation) => uniqueYearsSet.add(citation.year));
     groupedPublicationData[positionId]?.data.forEach((publication) => uniqueYearsSet.add(publication.year));
 
@@ -428,8 +416,6 @@ export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaC
     const academic_staff = academic_staffZod.split(',');
     const positions = positionsZod && positionsZod.split(',');
     const unknownYear = unknownYearZod?.toLocaleLowerCase() === 'true' && unknownYearValidation(years, yearsCache);
-    console.log(academic_staff);
-    console.log(staffCache);
     
     // Validation - Check if academic staff exists in the database
     await academicStaffValidation(academic_staff, staffCache);
@@ -464,12 +450,8 @@ export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaC
         offset: +page * +size,
     });
 
-      console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',academicData);
-      
-
     // Extract the position IDs from the academicData result
     const positionIds = academicData.rows.map((data) => data.id);
-    // console.log('EDDDDDDDDDDDDDDDDDDDDDDDDDDDW',positionIds);
 
     // Get the active years array
     const activeYearsData = await activeYears('iee@ihu', positions);
@@ -497,7 +479,7 @@ export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaC
         }
      ] ;
 
-      // Fetch the publication and citation data for the specified years and group them by year for each position ID
+    // Fetch the publication and citation data for the specified years and group them by year for each position ID
     const publicationData = await Publications.findAll({
         where: {
             id: {
@@ -544,8 +526,6 @@ export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaC
         return acc;
     }, {} as GroupedData);
 
-    // console.log(groupedCitationData);
-
     if (unknownYear) {
         for (const [key, value] of Object.entries(groupedCitationData)) {
             const currentStaff = academicData.rows.find((dep) => dep.id === key);
@@ -566,7 +546,6 @@ export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaC
     // Extract unique years from citations and publications
     const uniqueYearsSet = new Set<number>();
     
-    // unknownYear && groupedCitationData[positionId]?.data.push({ year: -1, count: data.citations - groupedCitationData[positionId].total });
     groupedCitationData[positionId]?.data.forEach((citation) => uniqueYearsSet.add(citation.year));
     groupedPublicationData[positionId]?.data.forEach((publication) => uniqueYearsSet.add(publication.year));
 
@@ -629,7 +608,6 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
             [Op.in]: positionArray,
         };
     }
-    // console.log('where HERE',where)
     
     // Use the gsid values to retrieve all columns from the Dep table
     const academicData = await Dep.findAll({
@@ -648,29 +626,20 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
         groupedData[item.inst].push(item.id);
     });
 
-    // console.log('groupedData', groupedData);
-    
     const eachDepActiveYears: DepartmentsStats[] = [];
     
     const yearsArray = [yearsCache[0], yearsCache[yearsCache.length - 1]];
 
     if (!depStatsCache || !depStatsCache.length) {
-        // console.log(positionsCache);
-        // console.log(yearsArray);
-        // const departmentsIDs = departmentsCache.map((dep) => dep.id);
         await createDepartmentsAnalysis(departmentsCache.map((dep) => dep.id), positionsCache, yearsArray);
     }
 
     if (unknownYear && !depUnknownStatsCache || !depUnknownStatsCache.length) {
-        // console.log(yearsArray);
-        // const departmentsIDs = departmentsCache.map((dep) => dep.id);
         await createDepartmentsAnalysis(departmentsCache.map((dep) => dep.id), positionsCache, yearsArray, {}, unknownYear);
     }
 
-    // console.log(reqCache.departmentsStaticStats);
     const depsDynamicStats = await createDepartmentsAnalysis(departmentArray, positionArray, years, where, unknownYear);
     if (depsDynamicStats && reqCache?.departmentsStaticStats?.length) {
-        // console.log(depsDynamicStats);
 
         departmentArray.forEach((inst) => {
             // Find the objects with the same inst ID in both arrays
@@ -714,8 +683,6 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
         attributes: ['inst', 'id', 'position', 'citations']
     });
 
-    console.log(academicData);
-    
     const groupedData: {[inst: string]: string[]} = {};
 
     academicData.forEach((item) => {
@@ -734,8 +701,6 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
     for (const dep of departments) {
         // Get the active years array
         const activeYearsData = await activeYears(dep, positions, yearsRange);
-        // console.log(activeYearsData);
-
         const currentDepStaffsIDs = groupedData[dep];
 
         
@@ -801,7 +766,6 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
             });
 
             if (unknownYear) {
-                // console.log(citationsTotalPerStaff);
                 for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
                     const currentStaff = academicData.find((dep) => dep.id === key);
                     if (currentStaff) {
@@ -829,9 +793,6 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
                 }
             }
             
-        
-            // // console.log(publicationData);
-          
             // Calculate the sum of citations and publications
             const totalCitations = citationData.reduce((acc, item) => acc + item.counter, 0);
             const totalPublications = publicationData.reduce((acc, item) => acc + item.counter, 0);
@@ -840,14 +801,11 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
                 const staffCount = currentDepStaffsIDs.length;
               
                 // Calculate the average publications per year and citations per year
-                //                              totalPublications
                 const avgPublicationsPerStaff = totalPublications / staffCount;
-                //                           totalPublications
                 const avgCitationsPerStaff = totalCitations / staffCount;
     
                 // Calculate the CV for publications
                 // Calculate squared differences and sum them
-                //                                                           publicationsTotalPerStaff
                 const publicationsSquaredDifferencesSum: any = Object.values(publicationsTotalPerStaff).reduce((sum: any, publications: any) => {
                     const difference = publications - avgPublicationsPerStaff;
                     return sum + difference * difference;
@@ -862,7 +820,6 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
     
                 // Calculate the CV for citations
                 // Calculate squared differences and sum them
-                //                                                        citationsTotalPerStaff
                 const citationsSquaredDifferencesSum: any = Object.values(citationsTotalPerStaff).reduce((sum: any, citations: any) => {
                     const difference = citations - avgCitationsPerStaff;
                     return sum + difference * difference;
@@ -881,7 +838,6 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
                 //CALCULATE H INDEX
                 const dataByResearchers: ResearcherData = {};
     
-                //citationData 
                 citationData.forEach(citation => {
                   const { id, year, counter } = citation;
                   if (!dataByResearchers[id]) {
@@ -901,8 +857,6 @@ export const createDepartmentsAnalysis = async (departments: string[], positions
                 const totalHIndex = departmentHIndices.reduce((sum, hIndex) => sum + hIndex, 0);
                 const avgHIndex = totalHIndex / staffCount;
                 
-                // console.log(`Average H-index for the department: ${avgHIndex}`);
-    
                 // Calculate the minimum and maximum H-indices for the department
                 const minHIndex = Math.min(...departmentHIndices);
                 const maxHIndex = Math.max(...departmentHIndices);
@@ -1312,7 +1266,6 @@ export const getScholarlyProfiles = tryCatch(async (req: omeaCitationsReqQuery<A
             });
 
             if (unknownYear) {
-                // console.log(citationsTotalPerStaff);
                 for (const [key, value] of Object.entries(citationsTotalPerStaff)) {
                     const currentStaff = academicData.find((dep) => dep.id === key);
                     if (currentStaff) {
@@ -1397,9 +1350,6 @@ export const getAcademicStaffResearchSummary = tryCatch(async (req: omeaCitation
         attributes: ['inst', 'id', 'position', 'name', 'citations']
     });
 
-    // console.log(academicData);
-    
-
     const groupedData: {[inst: string]: string[]} = {};
 
     academicData.forEach((item) => {
@@ -1410,8 +1360,6 @@ export const getAcademicStaffResearchSummary = tryCatch(async (req: omeaCitation
         groupedData[item.inst].push(item.id);
     });
 
-    // console.log('groupedData', groupedData);
-    
     const academicStaffResearchSummary: IAcademicStaffResearchSummary[] = [];
     for (const dep of departmentArray) {
         // Get the active years array

@@ -5,8 +5,8 @@ import { ICitation } from "../types";
 
 export const Citations = db.define<ICitation>('citations', {
     id: {
-        // Ean den douleuei kati me to id auto tote ftaiei pou tou exw dwsei allo onoma
-        // kai den to briskei kapoio allo table pou to grafw me gsid
+        // If something is not working with this ID, then it's likely that I have assigned a different name to it,
+        // and it cannot find another table that I am referring to with the given identifier.
         field: 'gsid',
         type: DataTypes.STRING(255),
         allowNull: false,

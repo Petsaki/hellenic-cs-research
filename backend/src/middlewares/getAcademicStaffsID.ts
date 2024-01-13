@@ -1,6 +1,6 @@
 import { NextFunction } from 'express';
 import cache from 'memory-cache';
-import { cacheKeysEnum, omeaCitationsReqBody, omeaCitationsReqQuery, omeaCitationsRes } from '../types';
+import { cacheKeysEnum, omeaCitationsReqQuery, omeaCitationsRes } from '../types';
 import { tryCatch } from '../utils/tryCatch';
 import { Sequelize } from 'sequelize';
 import { cacheTime, reqCache } from '../server';

@@ -8,36 +8,11 @@ import {
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import {
-    AcademicData,
-    CountPerYear,
-    IAcademicStaffData,
-} from '../../models/api/response/departments/departments.data';
+import { IAcademicStaffData } from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
 import SectionTitle from '../SectionTitle';
 import { PaginationType } from '../CitationsTableGroup';
 import ResizableTable from '../ResizableTable';
-
-// Helper function to get the cell value for each dynamic column
-const getCellValue = (year: number, rowData: AcademicData) => {
-    const publicationCount = rowData.publications?.find(
-        (item: CountPerYear) => item.year === year
-    )?.count;
-    const citationCount = rowData.citations?.find(
-        (item: CountPerYear) => item.year === year
-    )?.count;
-
-    if (publicationCount) {
-        if (citationCount) {
-            return `${publicationCount}|${citationCount}`;
-        }
-        return `${publicationCount}|0`;
-    }
-    if (citationCount) {
-        return `0|${citationCount}`;
-    }
-    return '-';
-};
 
 const tableStyle: SxProps<Theme> = (theme) => ({
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',

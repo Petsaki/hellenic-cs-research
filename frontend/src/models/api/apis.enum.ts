@@ -43,5 +43,4 @@ export interface IApis {
     [property: string]: string | ApiResolverFn;
 }
 
-// TODO: Make a type when i will know the parameters that i will accept
 export type ApiResolverFn = (...args: any[]) => string;

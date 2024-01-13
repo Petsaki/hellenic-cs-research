@@ -134,11 +134,7 @@ const FilterAndDataComponent = () => {
 
     return (
         <>
-            <Container
-                // disableGutters
-                maxWidth="xl"
-                sx={mainContainer}
-            >
+            <Container maxWidth="xl" sx={mainContainer}>
                 <Grid2
                     container
                     columnSpacing={{ xs: 0, md: 3 }}

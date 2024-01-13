@@ -77,9 +77,6 @@ const useUrlParams = ({
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [paramValue, setParamValue] = useState<string | null>('');
-    const selectedYears = useSelector(
-        (state: RootState) => state.filtersSlice.yearsFilters.yearsRange
-    );
 
     const param = searchParams.get(name);
 
@@ -272,7 +269,7 @@ const useUrlParams = ({
             };
 
             setParamValue(JSON.stringify(createYearsFilterObject));
-            // setParamValue((prevValue) => (prevValue ? null : defaultyearData));
+
             updateYearsRangeSlice(
                 defaultyearData,
                 unknownYearUrl?.toLocaleLowerCase() === 'true'

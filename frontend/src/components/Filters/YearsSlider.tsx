@@ -16,7 +16,6 @@ import FormGroup from '@mui/material/FormGroup/FormGroup';
 import useUrlParams, { ParamNames } from '../../app/hooks/useUrlParams';
 import { YearsArray } from '../../models/api/response/departments/departments.data';
 
-// Style
 const slider: SxProps = {
     '& .MuiSlider-mark': {
         display: 'none',

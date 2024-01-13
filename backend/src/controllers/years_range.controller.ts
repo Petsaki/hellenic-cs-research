@@ -22,9 +22,7 @@ export const getYearsRangeQuery = async (): Promise<number[]> => {
         { 
             type: QueryTypes.SELECT,
     });
-
-    // Map the result to rename the 'cyear' property to 'year'
-    // MARIOS TODO - Change it to return only an array of number (You have to fix it at frontend too)
+    
     return uniqueYears.map((item) => item.cyear);
 };
 

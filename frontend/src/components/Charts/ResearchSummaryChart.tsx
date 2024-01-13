@@ -24,13 +24,6 @@ export const dataTest = (
     const bgColorOpacity = theme === 'dark' ? '0.7' : '0.9';
     const labels = data.map((researchPerStaff) => researchPerStaff.name);
 
-    const colors = [
-        `rgba(31, 119, 180,${bgColorOpacity})`,
-        `rgba(148, 103, 189,${bgColorOpacity})`,
-        `rgba(255, 127, 14,${bgColorOpacity})`,
-        `rgba(214, 39, 40,${bgColorOpacity})`,
-        `rgba(44, 160, 44,${bgColorOpacity})`,
-    ];
     ChartJS.register(
         CategoryScale,
         LinearScale,
@@ -40,16 +33,7 @@ export const dataTest = (
         Legend
     );
     const datasets: any = [];
-    // const datasets = data.length
-    //     ? Object.keys(data[0].positions).map((position, index) => ({
-    //           label: position,
-    //           data: data.map(
-    //               (positionsByDepartment) =>
-    //                   positionsByDepartment.positions[position]
-    //           ),
-    //           backgroundColor: colors[index % colors.length],
-    //       }))
-    //     : [];
+
     datasets.push({
         label: 'Citations',
         data: data.map((researchPerStaff) => researchPerStaff.citations),

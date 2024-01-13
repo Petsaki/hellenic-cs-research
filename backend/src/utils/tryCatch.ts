@@ -1,9 +1,7 @@
 import { NextFunction, Request } from "express";
-import { ErrorData, omeaCitationsRes } from "../types";
+import { omeaCitationsRes } from "../types";
 import errorHandler from "../middlewares/errorHandler";
 import { BaseError } from "sequelize";
-
-// TODO: Find better approach for req, res types or add all possible types that they can take
 
 /**
  * This function wraps a controller function in a try-catch block to handle errors.
