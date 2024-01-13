@@ -31,7 +31,9 @@
         "prettier/prettier": [ 
             "error",
           {"endOfLine": "auto"}
-        ]
+        ],
+        "react/function-component-definition": "off",
+        "react/jsx-props-no-spreading": "off"
     },
     "ignorePatterns": ["vite.config.ts"]
 }

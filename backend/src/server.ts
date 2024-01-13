@@ -1,9 +1,14 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import routesDepartment from './routes/department.route';
 import routesPublications from './routes/publications.route';
+import routesAcademicStaff from './routes/academic-staff.route';
+import routesyearsRange from './routes/years-range.route';
 import cors from 'cors';
 import db from './db/connection';
 import errorHandler from './middlewares/errorHandler';
+import { runAssociations } from './models/associations';
+import { cacheData } from './types';
+import swaggerDocs from './utils/swagger';
 
 class Server {
     private app = express();
@@ -18,12 +23,14 @@ class Server {
         this.dbConnect();
         // IMPORTANT: middlewares must be after routes!! Routes are middlewares too.
         this.middlewares();
+        runAssociations();
     }
 
     // Listens for a connection
     listen(): void {
         this.app.listen(this.port,this.host, (): void => {
             console.log(`Application runs at host: ${this.host} and port: ${this.port}`);
+            swaggerDocs(this.app);
         });
     }
 
@@ -43,6 +50,8 @@ class Server {
         });
         this.app.use('/api/departments', routesDepartment);
         this.app.use('/api/publications', routesPublications);
+        this.app.use('/api/academicStaff', routesAcademicStaff);
+        this.app.use('/api/yearsRange', routesyearsRange);
     }
 
     middlewares(): void {
@@ -64,3 +73,15 @@ class Server {
 }
 
 export default Server;
+
+// Cache
+export const cacheTime = 1_800_000 // cache for 30 minutes
+
+export const reqCache: cacheData = {
+    position: [],
+    yearsRange: [],
+    departmentsID: [],
+    departmentsStaticStats: [],
+    departmentsUnknownStaticStats: [],
+    academicStaffID: []
+};

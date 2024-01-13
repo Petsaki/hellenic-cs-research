@@ -1,9 +1,10 @@
 import { createContext, useMemo, useState } from 'react';
 import './App.css';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
-import { amber, deepOrange, grey } from '@mui/material/colors';
+import { CssBaseline, PaletteMode, ThemeProvider } from '@mui/material';
 import Paths from './routes';
+import TheAlert from './components/TheAlert';
+import useThemeConfiguration from './app/hooks/useThemeConfiguration';
 
 export const ColorModeContext = createContext({
     toggleColorMode: () => {},
@@ -11,58 +12,41 @@ export const ColorModeContext = createContext({
 
 function App() {
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const [mode, setMode] = useState<'light' | 'dark'>(
-        prefersDarkMode ? 'dark' : 'light'
+
+    const isDarkMode = () => {
+        const localTheme = localStorage.getItem('theme');
+        if (localTheme) {
+            return localTheme === 'dark';
+        }
+        return prefersDarkMode;
+    };
+
+    const [mode, setMode] = useState<PaletteMode>(
+        isDarkMode() ? 'dark' : 'light'
     );
 
     const colorMode = useMemo(
         () => ({
             toggleColorMode: () => {
-                setMode((prevMode) =>
-                    prevMode === 'light' ? 'dark' : 'light'
-                );
+                setMode((prevMode) => {
+                    const currentTheme =
+                        prevMode === 'light' ? 'dark' : 'light';
+                    localStorage.setItem('theme', currentTheme);
+                    return currentTheme;
+                });
             },
         }),
         []
     );
 
-    const theme = useMemo(
-        () =>
-            createTheme({
-                palette: {
-                    mode,
-                    // ...(mode === 'light'
-                    //     ? {
-                    //           // palette values for light mode
-                    //           primary: amber,
-                    //           divider: amber[200],
-                    //           text: {
-                    //               primary: grey[900],
-                    //               secondary: grey[800],
-                    //           },
-                    //       }
-                    //     : {
-                    //           // palette values for dark mode
-                    //           primary: deepOrange,
-                    //           divider: deepOrange[700],
-                    //           background: {
-                    //               default: deepOrange[900],
-                    //               paper: deepOrange[900],
-                    //           },
-                    //           text: {
-                    //               primary: '#fff',
-                    //               secondary: grey[500],
-                    //           },
-                    //       }),
-                },
-            }),
-        [mode]
-    );
+    const theme = useThemeConfiguration({ mode });
+
     return (
         <ColorModeContext.Provider value={colorMode}>
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <Paths />
+                <TheAlert />
             </ThemeProvider>
         </ColorModeContext.Provider>
     );
