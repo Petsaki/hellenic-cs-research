@@ -28,7 +28,7 @@ class Server {
 
     // Listens for a connection
     listen(): void {
-        this.app.listen(this.port,this.host, (): void => {
+        this.app.listen(this.port, this.host, (): void => {
             console.log(`Application runs at host: ${this.host} and port: ${this.port}`);
             swaggerDocs(this.app);
         });

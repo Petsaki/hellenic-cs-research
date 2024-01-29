@@ -62,7 +62,7 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
     const location = useLocation();
 
     // Check if the pathname is a specific value
-    const isRewritePath = location.pathname === '/citations';
+    const isCitations = location.pathname === '/citations';
 
     const firstRenderRef = useRef(true);
 
@@ -118,7 +118,7 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                 </Box>
                 <FixSlide data={yearsData.data} />
                 <Divider sx={filterDivider} />
-                {isRewritePath && (
+                {isCitations && (
                     <>
                         <DepartmentCheckboxes data={departmenentData.data} />
                         <Divider sx={filterDivider} />

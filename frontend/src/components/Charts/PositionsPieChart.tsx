@@ -23,7 +23,17 @@ import { useGetPositionsByDepartmentsMutation } from '../../services/academicSta
 import { PositionsByDepartment } from '../../models/api/response/academicStaff/academicStaff.data';
 import colorMap from '../../app/untils/chartPositionsColors';
 
-export const dataTest = (
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    ArcElement,
+    Title,
+    Tooltip,
+    Legend
+);
+
+export const createData = (
     data: PositionsByDepartment[],
     theme: string
 ): ChartData<'pie'> => {
@@ -41,16 +51,6 @@ export const dataTest = (
         const colorInfo = colorMap.get(position);
         return colorInfo?.borderColor;
     });
-
-    ChartJS.register(
-        CategoryScale,
-        LinearScale,
-        BarElement,
-        ArcElement,
-        Title,
-        Tooltip,
-        Legend
-    );
 
     const positionSums = labels.map((position) =>
         data.reduce(
@@ -81,10 +81,6 @@ const PositionsPieChart = () => {
     const myChartRef = useRef<ChartJSOrUndefined<'pie'>>();
     const [colorMode, setColorMode] = useState(theme.palette.mode);
     const [positionsSum, setpositionsSum] = useState<number>();
-    const { data, isLoading: isFetching } = useGetDepartmentsQuery({
-        filter: ['id', 'url'],
-    });
-
     const [
         departments,
         {
@@ -93,20 +89,19 @@ const PositionsPieChart = () => {
         },
     ] = useGetPositionsByDepartmentsMutation();
 
-    const [labelTest, setLabelTest] = useState<PositionsByDepartment[]>([]);
+    const [labels, setLabels] = useState<PositionsByDepartment[]>([]);
 
     const selectedDeps = useSelector(
         (state: RootState) => state.filtersSlice.departments
     );
 
-    const testData = useMemo(() => {
-        return dataTest(labelTest, colorMode);
-    }, [labelTest, colorMode]);
+    const chartsData = useMemo(() => {
+        return createData(labels, colorMode);
+    }, [labels, colorMode]);
 
     const options = {
         response: true,
         plugins: {
-            // Where to display the labels (aka data 1, data 2..)
             legend: {
                 position: 'top' as const,
                 onClick: (e: any, legendItem: any, legend: any) => {
@@ -116,7 +111,7 @@ const PositionsPieChart = () => {
                         return (
                             (prevSum || 0) +
                             (legendItem.hidden ? +1 : -1) *
-                                testData.datasets[0].data[legendItem.index]
+                                chartsData.datasets[0].data[legendItem.index]
                         );
                     });
                     legend.chart.update();
@@ -129,11 +124,6 @@ const PositionsPieChart = () => {
             tooltip: {
                 callbacks: {
                     label: (d: any) => {
-                        const total = d.dataset.data.reduce(
-                            (totalPositions: number, position: number) =>
-                                totalPositions + position || 0
-                        );
-
                         const percentage = ` ${(
                             +(d.raw / (positionsSum || 0)) * 100
                         ).toFixed(2)}% (${d.raw})`;
@@ -165,18 +155,18 @@ const PositionsPieChart = () => {
             myPie.update();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data, selectedDeps]);
+    }, [selectedDeps]);
 
     useEffect(() => {
         if (departmentsPositionData?.data) {
-            setLabelTest(departmentsPositionData?.data);
-            const labels = departmentsPositionData?.data.length
+            setLabels(departmentsPositionData?.data);
+            const newLabels = departmentsPositionData?.data.length
                 ? Object.keys(departmentsPositionData?.data[0].positions).map(
                       (position) => position
                   )
                 : [];
 
-            const positionSums = labels
+            const positionSums = newLabels
                 .map((position) =>
                     departmentsPositionData?.data.reduce(
                         (total, department) =>
@@ -195,9 +185,9 @@ const PositionsPieChart = () => {
     }, [departmentsPositionData]);
 
     if (
-        (isdepartmentsPositionLoading || !labelTest.length) &&
+        (isdepartmentsPositionLoading || !labels.length) &&
         !!selectedDeps.length &&
-        !labelTest.length
+        !labels.length
     )
         return (
             <Skeleton
@@ -224,7 +214,7 @@ const PositionsPieChart = () => {
                     p: { xs: '10px', md: '20px' },
                 }}
             >
-                <Pie ref={myChartRef} options={options} data={testData} />
+                <Pie ref={myChartRef} options={options} data={chartsData} />
             </Paper>
         );
 

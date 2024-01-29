@@ -193,12 +193,12 @@ const DepartmentDataTable = () => {
                 averageH: departmentData.avg_h_index,
                 cv_publications: departmentData.cv_publications,
                 cv_citations: departmentData.cv_citations,
-                maxPublications: departmentData.max_publications_count,
-                minPublications: departmentData.min_publications_count,
-                maxCitations: departmentData.max_citations_count,
-                minCitations: departmentData.min_citations_count,
-                maxH: departmentData.max_h_index,
-                minH: departmentData.min_h_index,
+                max_publications: departmentData.max_publications_count,
+                min_publications: departmentData.min_publications_count,
+                max_citations: departmentData.max_citations_count,
+                min_citations: departmentData.min_citations_count,
+                max_h: departmentData.max_h_index,
+                min_h: departmentData.min_h_index,
             });
         });
         return rowData;
@@ -297,10 +297,10 @@ interface DepartmentRow {
     averageH: number;
     cv_publications: number;
     cv_citations: number;
-    maxPublications: number;
-    minPublications: number;
-    maxCitations: number;
-    minCitations: number;
-    maxH: number;
-    minH: number;
+    max_publications: number;
+    min_publications: number;
+    max_citations: number;
+    min_citations: number;
+    max_h: number;
+    min_h: number;
 }
