@@ -79,13 +79,13 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *         required: true
  *         schema:
  *           type: string
- *         description: Department's ids. Accepts multi values with comma(,).
+ *         description: Department IDs. Accepts comma-separated values.
  *       - name: years
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Years range. Accepts multi values with comma(,). Max 2 values.
+ *         description: Range of years. Accepts up to two comma-separated values.
  *       - name: page
  *         in: query
  *         required: true
@@ -109,7 +109,7 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *         required: false
  *         schema:
  *           type: boolean
- *         description: If true then it will include the publications with unknown year.
+ *         description: If true, includes publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -222,7 +222,7 @@ router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheY
  *         required: true
  *         schema:
  *           type: string
- *         description: Years range. Accepts multi values with comma(,). Max 2 values.
+ *         description: Range of years. Accepts up to two comma-separated values.
  *       - name: page
  *         in: query
  *         required: true
@@ -246,7 +246,7 @@ router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheY
  *         required: false
  *         schema:
  *           type: boolean
- *         description: If true then it will include the publications with unknown year.
+ *         description: If true, includes publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -359,7 +359,7 @@ router.get('/academicStaffData/byStaffIds', getCacheAllPositions, getCacheYearsR
  *         required: false
  *         schema:
  *           type: string
- *         description: Academic positions. Accepts multi values with comma(,).
+ *         description: Academic positions. Accepts multi values with comma(,). If empty, returns all academic positions.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -436,7 +436,7 @@ router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartments
  *         required: false
  *         schema:
  *           type: string
- *         description: Academic positions. Accepts multi values with comma(,).
+ *         description: Academic positions. Accepts multi values with comma(,). If empty, returns all academic positions.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -507,7 +507,7 @@ router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatis
  *         required: false
  *         schema:
  *           type: string
- *         description: Academic positions. Accepts multi values with comma(,).
+ *         description: Academic positions. Accepts multi values with comma(,). If empty, returns all academic positions.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -578,25 +578,25 @@ router.get('/activeYears', getCacheAllPositions, getCacheDepartmentsID, getDepar
  *         required: false
  *         schema:
  *           type: string
- *         description: Department's ids. Accepts multi values with comma(,). If empty, it will return for all.
+ *         description: Department IDs. Accepts comma-separated values. If empty, returns all departments.
  *       - name: years
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Years range. Accepts multi values with comma(,). Max 2 values.
+ *         description: Range of years. Accepts up to two comma-separated values.
  *       - name: positions
  *         in: query
  *         required: false
  *         schema:
  *           type: string
- *         description: Academic positions. Accepts multi values with comma(,). If empty, it will return for all.
+ *         description: Academic positions. Accepts comma-separated values. If empty, returns all.
  *       - name: unknown_year
  *         in: query
  *         required: false
  *         schema:
  *           type: boolean
- *         description: If true then it will include the publications with unknown year.
+ *         description: If true, includes publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -672,32 +672,32 @@ router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, get
  * @openapi
  * /api/departments/academicPositionTotals:
  *   get: 
- *     description: Return an array of citations and publications by position by department.
+ *     description: Returns an array of citations and publications organized by position and department.
  *     parameters:
  *       - name: departments
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Department's ids. Accepts multi values with comma(,). If empty, it will return for all.
+ *         description: Department IDs. Accepts comma-separated values.
  *       - name: years
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Years range. Accepts multi values with comma(,). Max 2 values.
+ *         description: Range of years. Accepts up to two comma-separated values.
  *       - name: positions
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Academic positions. Accepts multi values with comma(,). If empty, it will return for all.
+ *         description: Academic positions. Accepts comma-separated values.
  *       - name: unknown_year
  *         in: query
  *         required: false
  *         schema:
  *           type: boolean
- *         description: If true then it will include the publications with unknown year.
+ *         description: If true, includes publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -765,25 +765,25 @@ router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, 
  *         required: true
  *         schema:
  *           type: string
- *         description: Department's ids. Accepts multi values with comma(,). If empty, it will return for all.
+ *         description: Department IDs. Accepts comma-separated values.
  *       - name: years
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Years range. Accepts multi values with comma(,). Max 2 values.
+ *         description: Range of years. Accepts up to two comma-separated values.
  *       - name: positions
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Academic positions. Accepts multi values with comma(,). If empty, it will return for all.
+ *         description: Academic positions. Accepts comma-separated values.
  *       - name: unknown_year
  *         in: query
  *         required: false
  *         schema:
  *           type: boolean
- *         description: If true then it will include the publications with unknown year.
+ *         description: If true, includes publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 
@@ -864,25 +864,25 @@ router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCa
  *         required: true
  *         schema:
  *           type: string
- *         description: Department's ids. Accepts multi values with comma(,). If empty, it will return for all.
+ *         description: Department IDs. Accepts comma-separated values.
  *       - name: years
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Years range. Accepts multi values with comma(,). Max 2 values.
+ *         description: Range of years. Accepts up to two comma-separated values.
  *       - name: positions
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Academic positions. Accepts multi values with comma(,). If empty, it will return for all.
+ *         description: Academic positions. Accepts comma-separated values.
  *       - name: unknown_year
  *         in: query
  *         required: false
  *         schema:
  *           type: boolean
- *         description: If true then it will include the publications with unknown year.
+ *         description: If true, includes publications with unknown year.
  *     responses:  
  *       200: 
  *         description: Success 

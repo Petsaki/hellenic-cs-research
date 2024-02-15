@@ -43,14 +43,14 @@ router.get('/positions', getCacheAllPositions, getPositions);
  * @openapi
  * /api/academicStaff/positionsSumByDepartment:
  *   get: 
- *     description: Returns all positions sums for the every department.
+ *     description: Returns all position sums for each department.
  *     parameters:
  *       - name: departments
  *         in: query
  *         required: true
  *         schema:
  *           type: string
- *         description: Department's ids. Accepts multi values with comma(,).
+ *         description: Department IDs. Accepts comma-separated values.
  *     responses:  
  *       200: 
  *         description: Success
