@@ -8,6 +8,7 @@ import {
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
+import { useMediaQuery } from '@mui/material';
 import { IAcademicStaffData } from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
 import SectionTitle from '../SectionTitle';
@@ -15,10 +16,16 @@ import { PaginationType } from '../CitationsTableGroup';
 import ResizableTable from '../ResizableTable';
 
 const tableStyle: SxProps<Theme> = (theme) => ({
+    fontSize: { xs: '.75rem', md: 'inherit' },
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',
     '& .MuiDataGrid-columnHeaders': {
         backgroundColor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
+        fontSize: { xs: '.75rem', md: 'inherit' },
         color: 'white',
+        '& .MuiDataGrid-columnHeaderTitleContainer .MuiDataGrid-iconButtonContainer':
+            {
+                display: { xs: 'none', md: 'flex' },
+            },
     },
     '& .MuiDataGrid-footerContainer .MuiDataGrid-selectedRowCount': {
         visibility: 'hidden',
@@ -47,6 +54,7 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
     setRowSelectionModel,
 }: AcademicStaffDataTableProp) => {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [rowCount, setRowCount] = useState<number>(0);
 
     const rows = useMemo(() => {
@@ -74,12 +82,13 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
     }, [data]);
 
     const columns: GridColDef[] = useMemo(() => {
+        const dynamicWidth = isMobile ? -50 : 0;
         // Define your columns based on academicStaffData
         const additionalColumns: GridColDef[] = [
             {
                 field: 'id',
                 headerName: 'Name',
-                width: 200,
+                width: 200 + dynamicWidth,
                 renderCell: (params) => {
                     const academicStaffID = data?.academic_data.find(
                         (staff) => staff.name === params.value
@@ -98,61 +107,69 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
                     );
                 },
             },
-            { field: 'position', headerName: 'Position', width: 180 },
-            { field: 'inst', headerName: 'Institute', width: 150 },
+            {
+                field: 'position',
+                headerName: 'Position',
+                width: 180 + dynamicWidth,
+            },
+            {
+                field: 'inst',
+                headerName: 'Institute',
+                width: 150 + dynamicWidth,
+            },
             {
                 field: 'hindex',
                 headerName: 'h-index',
-                width: 120,
+                width: 120 + dynamicWidth * 0.5,
                 type: 'number',
             },
             {
                 field: 'hindex5',
                 headerName: 'h-index5',
-                width: 120,
+                width: 120 + dynamicWidth * 0.5,
                 type: 'number',
             },
             {
                 field: 'citations5',
                 headerName: 'Citations5',
-                width: 180,
+                width: 180 + dynamicWidth,
                 type: 'number',
             },
             {
                 field: 'publications5',
                 headerName: 'Publications5',
-                width: 180,
+                width: 180 + dynamicWidth,
                 type: 'number',
             },
             {
                 field: 'citation_total',
                 headerName: 'Total Citation',
-                width: 150,
+                width: 150 + dynamicWidth,
                 type: 'number',
             },
             {
                 field: 'publication_total',
                 headerName: 'Total Publication',
-                width: 150,
+                width: 150 + dynamicWidth,
                 type: 'number',
             },
             {
                 field: 'average_publication',
                 headerName: 'Avg Publication',
-                width: 150,
+                width: 150 + dynamicWidth,
                 type: 'number',
             },
             {
                 field: 'average_citation',
                 headerName: 'Avg Citation',
-                width: 150,
+                width: 150 + dynamicWidth,
                 type: 'number',
             },
         ];
 
         return additionalColumns;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data]);
+    }, [data, isMobile]);
 
     useEffect(() => {
         if (data?.count) setRowCount(data.count);

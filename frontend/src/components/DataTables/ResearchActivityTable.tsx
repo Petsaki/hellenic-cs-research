@@ -13,6 +13,7 @@ import FormControl from '@mui/material/FormControl/FormControl';
 import FormLabel from '@mui/material/FormLabel/FormLabel';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton/ToggleButton';
+import { useMediaQuery } from '@mui/material';
 import EmptyData from './EmptyData';
 import {
     AcademicData,
@@ -59,10 +60,16 @@ const getCellValue = (
 };
 
 const tableStyle: SxProps<Theme> = (theme) => ({
+    fontSize: { xs: '.75rem', md: 'inherit' },
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',
     '& .MuiDataGrid-columnHeaders': {
         backgroundColor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
+        fontSize: { xs: '.75rem', md: 'inherit' },
         color: 'white',
+        '& .MuiDataGrid-columnHeaderTitleContainer .MuiDataGrid-iconButtonContainer':
+            {
+                display: { xs: 'none', md: 'flex' },
+            },
     },
     '& .MuiDataGrid-footerContainer .MuiDataGrid-selectedRowCount': {
         visibility: 'hidden',
@@ -92,6 +99,7 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
     setRowSelectionModel,
 }: ResearchActivityTableProp) => {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [rowCount, setRowCount] = useState<number>(0);
 
     const [researchFilterby, setresearchFilterby] = useState<ResearchFilterBy>(
@@ -126,24 +134,26 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
         if (!data || !data.years_range) {
             return [];
         }
+        const dynamicWidth = isMobile ? -30 : 0;
 
         // Map over the years_range array to generate dynamic columns
         return data.years_range
             .map((year) => ({
                 field: year.toString(),
                 headerName: year.toString(),
-                width: 100,
+                width: 100 + dynamicWidth,
                 type: 'number',
             }))
             .reverse();
-    }, [data]);
+    }, [data, isMobile]);
 
     const columns: GridColDef[] = useMemo(() => {
+        const dynamicWidth = isMobile ? -50 : 0;
         const additionalColumns: GridColDef[] = [
             {
                 field: 'id',
                 headerName: 'Name',
-                width: 200,
+                width: 200 + dynamicWidth,
                 renderCell: (params) => {
                     const academicStaffID = data?.academic_data.find(
                         (staff) => staff.name === params.value
@@ -254,7 +264,7 @@ const ResearchActivityTable: React.FC<ResearchActivityTableProp> = ({
                 </FormControl>
                 <SectionTitle
                     titleText="Research Activity"
-                    sxPropstest={{
+                    sxPropsCustom={{
                         position: { xs: 'relative', lg: 'absolute' },
                         margin: '0',
                         top: { xs: 'auto', lg: '50%' },

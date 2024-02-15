@@ -5,6 +5,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { useMediaQuery } from '@mui/material';
 import { RootState } from '../../app/store';
 import { useGetDepartmentsDataMutation } from '../../services/departmentApi';
 import { IDepartmentData } from '../../models/api/response/departments/departments.data';
@@ -14,10 +15,16 @@ import SectionTitle from '../SectionTitle';
 import ResizableTable from '../ResizableTable';
 
 const tableStyle: SxProps<Theme> = (theme) => ({
+    fontSize: { xs: '.75rem', md: 'inherit' },
     backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : 'white',
     '& .MuiDataGrid-columnHeaders': {
         backgroundColor: theme.palette.mode === 'dark' ? '#272727' : '#55a1e5',
+        fontSize: { xs: '.75rem', md: 'inherit' },
         color: 'white',
+        '& .MuiDataGrid-columnHeaderTitleContainer .MuiDataGrid-iconButtonContainer':
+            {
+                display: { xs: 'none', md: 'flex' },
+            },
     },
     '&.MuiDataGrid-custom': {
         '.dynamic-values--column': {
@@ -45,111 +52,130 @@ const tableStyle: SxProps<Theme> = (theme) => ({
     },
 });
 
-const columns: GridColDef[] = [
-    {
-        field: 'id',
-        headerName: 'Department',
-        width: 150,
-        renderCell: (params) => {
-            return (
-                <a
-                    href={`citations?departments=${params.value.toString()}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                        color: 'inherit',
-                    }}
-                >
-                    {params.value.toString()}
-                </a>
-            );
-        },
-    },
-    {
-        field: 'publications',
-        headerName: 'Total Publications*',
-        width: 150,
-        type: 'number',
-        cellClassName: 'dynamic-values--column',
-        description: 'Total Publications',
-    },
-    {
-        field: 'citations',
-        headerName: 'Total Citations*',
-        width: 150,
-        type: 'number',
-        cellClassName: 'dynamic-values--column',
-        description: 'Total Citations',
-    },
-    { field: 'count', headerName: 'Count', width: 150, type: 'number' },
-    {
-        field: 'average_publication',
-        headerName: 'Avg Publication Per Member',
-        width: 200,
-        type: 'number',
-    },
-    {
-        field: 'average_citation',
-        headerName: 'Avg Citation Per Member',
-        width: 180,
-        type: 'number',
-    },
-    {
-        field: 'averageH',
-        headerName: 'Ang H Per Member',
-        width: 150,
-        type: 'number',
-    },
-    {
-        field: 'cv_publications',
-        headerName: 'CV Publications',
-        width: 150,
-        type: 'number',
-    },
-    {
-        field: 'cv_citations',
-        headerName: 'CV Citations',
-        width: 150,
-        type: 'number',
-    },
-    {
-        field: 'max_publications',
-        headerName: 'Max Publications*',
-        width: 150,
-        type: 'number',
-        cellClassName: 'dynamic-values--column',
-        description: 'Max Publications',
-    },
-    {
-        field: 'min_publications',
-        headerName: 'Min Publications*',
-        width: 150,
-        type: 'number',
-        cellClassName: 'dynamic-values--column',
-        description: 'Min Publications',
-    },
-    {
-        field: 'max_citations',
-        headerName: 'Max Citations*',
-        width: 150,
-        type: 'number',
-        cellClassName: 'dynamic-values--column',
-        description: 'Max Citations',
-    },
-    {
-        field: 'min_citations',
-        headerName: 'Min Citations*',
-        width: 150,
-        type: 'number',
-        cellClassName: 'dynamic-values--column',
-        description: 'Min Citations',
-    },
-    { field: 'max_h', headerName: 'Max H', width: 150, type: 'number' },
-    { field: 'min_h', headerName: 'Min H', width: 150, type: 'number' },
-];
+const columns = (isMobile: boolean): GridColDef[] => {
+    const dynamicWidth = isMobile ? -50 : 0;
 
+    return [
+        {
+            field: 'id',
+            headerName: 'Department',
+            width: 170 + dynamicWidth,
+            renderCell: (params) => {
+                return (
+                    <a
+                        href={`citations?departments=${params.value.toString()}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                            color: 'inherit',
+                        }}
+                    >
+                        {params.value.toString()}
+                    </a>
+                );
+            },
+        },
+        {
+            field: 'publications',
+            headerName: 'Total Publications*',
+            width: 150 + dynamicWidth,
+            type: 'number',
+            cellClassName: 'dynamic-values--column',
+            description: 'Total Publications',
+        },
+        {
+            field: 'citations',
+            headerName: 'Total Citations*',
+            width: 150 + dynamicWidth,
+            type: 'number',
+            cellClassName: 'dynamic-values--column',
+            description: 'Total Citations',
+        },
+        {
+            field: 'count',
+            headerName: 'Count',
+            width: 100 + dynamicWidth * 0.4,
+            type: 'number',
+        },
+        {
+            field: 'average_publication',
+            headerName: 'Avg Publication Per Member',
+            width: 200 + dynamicWidth,
+            type: 'number',
+        },
+        {
+            field: 'average_citation',
+            headerName: 'Avg Citation Per Member',
+            width: 180 + dynamicWidth,
+            type: 'number',
+        },
+        {
+            field: 'averageH',
+            headerName: 'Ang H Per Member',
+            width: 150 + dynamicWidth,
+            type: 'number',
+        },
+        {
+            field: 'cv_publications',
+            headerName: 'CV Publications',
+            width: 150 + dynamicWidth,
+            type: 'number',
+        },
+        {
+            field: 'cv_citations',
+            headerName: 'CV Citations',
+            width: 150 + dynamicWidth,
+            type: 'number',
+        },
+        {
+            field: 'max_publications',
+            headerName: 'Max Publications*',
+            width: 150 + dynamicWidth,
+            type: 'number',
+            cellClassName: 'dynamic-values--column',
+            description: 'Max Publications',
+        },
+        {
+            field: 'min_publications',
+            headerName: 'Min Publications*',
+            width: 150 + dynamicWidth,
+            type: 'number',
+            cellClassName: 'dynamic-values--column',
+            description: 'Min Publications',
+        },
+        {
+            field: 'max_citations',
+            headerName: 'Max Citations*',
+            width: 150 + dynamicWidth,
+            type: 'number',
+            cellClassName: 'dynamic-values--column',
+            description: 'Max Citations',
+        },
+        {
+            field: 'min_citations',
+            headerName: 'Min Citations*',
+            width: 150 + dynamicWidth,
+            type: 'number',
+            cellClassName: 'dynamic-values--column',
+            description: 'Min Citations',
+        },
+        {
+            field: 'max_h',
+            headerName: 'Max H',
+            width: 100 + dynamicWidth * 0.4,
+            type: 'number',
+        },
+        {
+            field: 'min_h',
+            headerName: 'Min H',
+            width: 100 + dynamicWidth * 0.4,
+            type: 'number',
+        },
+    ];
+};
 const DepartmentDataTable = () => {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [
         departmentsDataReq,
         { data: departmentsData, isLoading: isDepartmentDataLoading },
@@ -267,7 +293,7 @@ const DepartmentDataTable = () => {
                                 sx={tableStyle(theme)}
                                 loading={isDepartmentDataLoading}
                                 rows={rows}
-                                columns={columns}
+                                columns={columns(isMobile)}
                                 initialState={{
                                     pagination: {
                                         paginationModel: { pageSize: 100 },
