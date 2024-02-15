@@ -113,7 +113,7 @@ const columns: GridColDef[] = [
         type: 'number',
     },
     {
-        field: 'maxPublications',
+        field: 'max_publications',
         headerName: 'Max Publications*',
         width: 150,
         type: 'number',
@@ -121,7 +121,7 @@ const columns: GridColDef[] = [
         description: 'Max Publications',
     },
     {
-        field: 'minPublications',
+        field: 'min_publications',
         headerName: 'Min Publications*',
         width: 150,
         type: 'number',
@@ -129,7 +129,7 @@ const columns: GridColDef[] = [
         description: 'Min Publications',
     },
     {
-        field: 'maxCitations',
+        field: 'max_citations',
         headerName: 'Max Citations*',
         width: 150,
         type: 'number',
@@ -137,15 +137,15 @@ const columns: GridColDef[] = [
         description: 'Max Citations',
     },
     {
-        field: 'minCitations',
+        field: 'min_citations',
         headerName: 'Min Citations*',
         width: 150,
         type: 'number',
         cellClassName: 'dynamic-values--column',
         description: 'Min Citations',
     },
-    { field: 'maxH', headerName: 'Max H', width: 150, type: 'number' },
-    { field: 'minH', headerName: 'Min H', width: 150, type: 'number' },
+    { field: 'max_h', headerName: 'Max H', width: 150, type: 'number' },
+    { field: 'min_h', headerName: 'Min H', width: 150, type: 'number' },
 ];
 
 const DepartmentDataTable = () => {
