@@ -145,7 +145,7 @@ const StaffsTotalResearchChart: React.FC<StaffsTotalResearchChartProp> = ({
             myPie.update();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
+    }, [id, data]);
 
     useEffect(() => {
         if (data) {
