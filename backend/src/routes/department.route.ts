@@ -64,7 +64,7 @@ const router = Router();
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 router.get('/', getCacheDepartmentsID, getDepartments);
 
@@ -200,7 +200,7 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 // Academic-staff data by Department IDs
 router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAcademicStaffData);
@@ -337,7 +337,7 @@ router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheY
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 // Academic-staff data by Academic Staff IDs
 router.get('/academicStaffData/byStaffIds', getCacheAllPositions, getCacheYearsRange, getCacheAcademicStaffID, getDepartmentsAcademicStaffByStaffData);
@@ -414,7 +414,7 @@ router.get('/academicStaffData/byStaffIds', getCacheAllPositions, getCacheYearsR
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 // statistics
 router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartmentsID, getStatisticsPerDepartments);
@@ -486,7 +486,7 @@ router.get('/statisticsPerDepartment', getCacheAllPositions, getCacheDepartments
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatistics);
 
@@ -562,7 +562,7 @@ router.get('/statistics', getCacheAllPositions, getCacheDepartmentsID, getStatis
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 // Active Years
 router.get('/activeYears', getCacheAllPositions, getCacheDepartmentsID, getDepartmentsActiveYears);
@@ -663,7 +663,7 @@ router.get('/activeYears', getCacheAllPositions, getCacheDepartmentsID, getDepar
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 // department-analytics
 router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getDepartmentsAnalyticsData);
@@ -749,7 +749,7 @@ router.get('/departmentAnalytics', getCacheAllPositions, getCacheYearsRange, get
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 // citations and publications per academic position per department
 router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getAcademicPositionTotals);
@@ -848,7 +848,7 @@ router.get('/academicPositionTotals', getCacheAllPositions, getCacheYearsRange, 
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 // citations and publicattions per staff per department
 router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCacheDepartmentsID, getScholarlyProfiles);
@@ -925,7 +925,7 @@ router.get('/scholarlyProfiles', getCacheAllPositions, getCacheYearsRange, getCa
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 //  Academic staff's citations and publications per academic position per department
 // IS THE SAME DATA AS /scholarlyProfiles BUT DIFFERENT STRUCTURE AT DATA

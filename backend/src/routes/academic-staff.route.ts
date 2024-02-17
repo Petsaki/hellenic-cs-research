@@ -35,7 +35,7 @@ const router = Router();
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 router.get('/positions', getCacheAllPositions, getPositions);
 
@@ -94,7 +94,7 @@ router.get('/positions', getCacheAllPositions, getPositions);
  *               description: "All good."
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  *   
  */
 router.get('/positionsSumByDepartment', getCacheAllPositions, getCacheDepartmentsID, getPositionsCountByDepartment);

@@ -70,7 +70,7 @@ const router = Router();
  *               description: "Success"
  *               success: true
  *     tags:
- *       - OMEA
+ *       - HellenicCSResearch
  */
 router.get('/', getCacheYearsRange, getYearsRange);
 

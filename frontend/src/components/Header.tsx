@@ -190,7 +190,7 @@ const Header: ForwardRefRenderFunction<HTMLDivElement> = (
                                 color: 'white',
                             }}
                         >
-                            OMEA Citations
+                            HellenicCSResearch
                         </Typography>
                     </Box>
                     <Box
