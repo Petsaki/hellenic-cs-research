@@ -27,7 +27,10 @@ ChartJS.register(
     Legend
 );
 
-export const generateChartOptions = (staffName: string): any => {
+export const generateChartOptions = (
+    staffName: string,
+    filterby: ResearchFilterBy
+): any => {
     return {
         maintainAspectRatio: false,
         plugins: {
@@ -38,18 +41,34 @@ export const generateChartOptions = (staffName: string): any => {
                 display: true,
                 text: `${staffName} Research Per Year`,
             },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+            },
         },
         scales: {
-            y: {
-                ticks: {
-                    callback(val: number): number | undefined {
-                        if (val % 1 === 0) {
-                            return val;
-                        }
-                        return undefined;
+            ...((filterby === ResearchFilterBy.Citations || !filterby) && {
+                C: {
+                    position: 'left',
+                    ticks: {
+                        beginAtZero: true,
+                        color: 'rgb(53, 162, 235)',
+                        precision: 0,
                     },
+                    grid: { display: false },
                 },
-            },
+            }),
+            ...((filterby === ResearchFilterBy.Publications || !filterby) && {
+                P: {
+                    position: 'right',
+                    ticks: {
+                        beginAtZero: true,
+                        color: 'rgb(255, 99, 132)',
+                        precision: 0,
+                    },
+                    grid: { display: false },
+                },
+            }),
         },
     };
 };
@@ -76,7 +95,9 @@ export const generateChartData = (
     >();
     colorMap.set(ResearchFilterBy.Citations, {
         borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: `rgba(53, 162, 235, ${bgColorOpacity})`,
+        backgroundColor: `rgba(53, 162, 235, ${
+            filterby ? bgColorOpacity : '0.3'
+        })`,
     });
     colorMap.set(ResearchFilterBy.Publications, {
         borderColor: 'rgb(255, 99, 132)',
@@ -114,10 +135,19 @@ export const generateChartData = (
                     data: Object.values(newObject).map((value: string) => {
                         if (value === '-') return 0;
 
-                        return Number(value?.split('/')[index]) ?? 0;
+                        return (
+                            Number(
+                                value?.split('/')[
+                                    filter === ResearchFilterBy.Citations
+                                        ? 1
+                                        : 0
+                                ]
+                            ) ?? 0
+                        );
                     }),
                     borderColor: colors?.borderColor,
                     backgroundColor: colors?.backgroundColor,
+                    yAxisID: filter === ResearchFilterBy.Citations ? 'C' : 'P',
                 });
             }
         );
@@ -133,6 +163,7 @@ export const generateChartData = (
             }),
             borderColor: colors?.borderColor,
             backgroundColor: colors?.backgroundColor,
+            yAxisID: filterby === ResearchFilterBy.Citations ? 'C' : 'P',
         });
     }
 
@@ -161,7 +192,8 @@ const PerYearStats: React.FC<PerYearStatsProp> = ({
     }, [data, colorMode]);
 
     const chartoptions = useMemo(() => {
-        return generateChartOptions(data?.id);
+        return generateChartOptions(data?.id, filterby);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
     useEffect(() => {

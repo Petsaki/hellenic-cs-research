@@ -38,12 +38,14 @@ export const dataTest = (
         label: 'Citations',
         data: data.map((researchPerStaff) => researchPerStaff.citations),
         backgroundColor: `rgba(53, 162, 235, ${bgColorOpacity})`,
+        xAxisID: 'C',
     });
 
     datasets.push({
         label: 'Publications',
         data: data.map((researchPerStaff) => researchPerStaff.publications),
         backgroundColor: `rgba(255, 99, 132, ${bgColorOpacity})`,
+        xAxisID: 'P',
     });
 
     return {
@@ -98,6 +100,25 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
                         autoSkip: false,
                     },
                 },
+                C: {
+                    position: 'top',
+                    ticks: {
+                        beginAtZero: true,
+                        color: 'rgb(53, 162, 235)',
+                        precision: 0,
+                    },
+                    grid: { display: false },
+                },
+
+                P: {
+                    position: 'bottom',
+                    ticks: {
+                        beginAtZero: true,
+                        color: 'rgb(255, 99, 132)',
+                        precision: 0,
+                    },
+                    grid: { display: false },
+                },
             },
             plugins: {
                 // Where to display the labels (aka data 1, data 2..)
@@ -107,6 +128,10 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
                 title: {
                     display: true,
                     text: `${id} Research`,
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: true,
                 },
             },
         };
