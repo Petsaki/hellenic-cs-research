@@ -42,14 +42,14 @@ export const generateChartOptions = (
                 text: `${staffName} Research Per Year`,
             },
             tooltip: {
-                mode: 'index',
+                mode: 'index' as const,
                 intersect: false,
             },
         },
         scales: {
             ...((filterby === ResearchFilterBy.Citations || !filterby) && {
                 C: {
-                    position: 'left',
+                    position: 'left' as const,
                     ticks: {
                         beginAtZero: true,
                         color: 'rgb(53, 162, 235)',
@@ -60,7 +60,7 @@ export const generateChartOptions = (
             }),
             ...((filterby === ResearchFilterBy.Publications || !filterby) && {
                 P: {
-                    position: 'right',
+                    position: 'right' as const,
                     ticks: {
                         beginAtZero: true,
                         color: 'rgb(255, 99, 132)',

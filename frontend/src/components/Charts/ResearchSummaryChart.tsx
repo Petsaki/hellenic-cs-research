@@ -106,7 +106,7 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
                     },
                 },
                 C: {
-                    position: 'top',
+                    position: 'top' as const,
                     ticks: {
                         beginAtZero: true,
                         color: 'rgb(53, 162, 235)',
@@ -116,7 +116,7 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
                 },
 
                 P: {
-                    position: 'bottom',
+                    position: 'bottom' as const,
                     ticks: {
                         beginAtZero: true,
                         color: 'rgb(255, 99, 132)',
@@ -141,7 +141,7 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
                         : `${selectedDepInfo?.id} Research`,
                 },
                 tooltip: {
-                    mode: 'index',
+                    mode: 'index' as const,
                     intersect: true,
                 },
             },
