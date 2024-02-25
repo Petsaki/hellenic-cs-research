@@ -2,7 +2,7 @@ import  {Express, Request, Response } from 'express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUI from 'swagger-ui-express';
 // I have to use require because can't find it, probably because of the file's path
-const pjson = require('../package.json');
+const pjson = require('../../package.json');
 
 const options: swaggerJSDoc.Options = {
     definition: {
