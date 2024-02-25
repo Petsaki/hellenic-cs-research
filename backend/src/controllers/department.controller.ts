@@ -43,7 +43,8 @@ export const getDepartment = tryCatch(async (req: omeaCitationsReqBodyQuery<{id:
 export const getDepartmentsData = async (filters: string[] | undefined): Promise<IDepartments[]> => {
     if (filters) {
         return await Departments.findAll({
-            attributes: filters
+            attributes: filters,
+            raw: true,
         });
     }
     
@@ -256,7 +257,7 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
     const departments = departmentsZod.split(',');
     const positions = positionsZod && positionsZod.split(',');
     const unknownYear = unknownYearZod?.toLocaleLowerCase() === 'true' && unknownYearValidation(years, yearsCache);
-
+    
     // Validation - Check if departments exists in the database
     await departmentsValidation(departments, departmentsCache);
     // Validation - Check if years exists in the database
@@ -382,7 +383,7 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
     // Combine the academicData with the grouped publication and citation data
     const academicDataWithStats: AcademicData[] = academicData.rows.map((data) => {
     const positionId = data.id;
-    
+    const currentDep = departmentsCache.find((dep) => dep.id === data.inst);
     // Extract unique years from citations and publications
     const uniqueYearsSet = new Set<number>();
     
@@ -396,6 +397,8 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
 
     return {
       ...data,
+      deptname: currentDep?.deptname || '',
+      university: currentDep?.university || '',
       publications: groupedPublicationData[positionId]?.data || [],
       publication_total: groupedPublicationData[positionId]?.total || 0,
       citations: groupedCitationData[positionId]?.data || [],
@@ -410,7 +413,7 @@ export const getDepartmentsAcademicStaffData = tryCatch(async (req: omeaCitation
 
 // Departments academic staff data by academic staff
 export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaCitationsReqQuery<AcademicDataAcademicStaffPaginationRequest>, res: omeaCitationsRes<IAcademicStaffData>) => {
-    const {position: positionsCache, yearsRange: yearsCache, academicStaffID: staffCache} = req.cache;
+    const {position: positionsCache, yearsRange: yearsCache, academicStaffID: staffCache, departmentsID: departmentsCache} = req.cache;
     const {academic_staff: academic_staffZod, positions: positionsZod, years: yearsString, page, size, unknown_year: unknownYearZod}: AcademicDataAcademicStaffPaginationRequest = AcademicDataAcademicStaffPaginationSchema.parse(req.query);
     const years = yearsString.split(',').map((item) => parseInt(item, 10));
     const academic_staff = academic_staffZod.split(',');
@@ -542,6 +545,7 @@ export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaC
     // Combine the academicData with the grouped publication and citation data
     const academicDataWithStats: AcademicData[] = academicData.rows.map((data) => {
     const positionId = data.id;
+    const currentDep = departmentsCache.find((dep) => dep.id === data.inst);
     
     // Extract unique years from citations and publications
     const uniqueYearsSet = new Set<number>();
@@ -556,6 +560,8 @@ export const getDepartmentsAcademicStaffByStaffData = tryCatch(async (req: omeaC
 
     return {
       ...data,
+      deptname: currentDep?.deptname || '',
+      university: currentDep?.university || '',
       publications: groupedPublicationData[positionId]?.data || [],
       publication_total: groupedPublicationData[positionId]?.total || 0,
       citations: groupedCitationData[positionId]?.data || [],
@@ -645,11 +651,14 @@ export const getDepartmentsAnalyticsData = tryCatch(async (req: omeaCitationsReq
             // Find the objects with the same inst ID in both arrays
             const dynamicData = depsDynamicStats?.find(obj => obj.inst === inst);
             const staticData = reqCache?.[unknownYear ? cacheKeysEnum.DepartmentsUnknownStaticStats : cacheKeysEnum.DepartmentsStaticStats]?.find(obj => obj.inst === inst);
+            const currentDep = departmentsCache.find((dep) => dep.id === inst);
 
             if (dynamicData && staticData) {
                 // Combine the objects
                 const departmentStats: DepartmentsStats = {
                     inst: inst,
+                    deptname: currentDep?.deptname || '',
+                    university: currentDep?.university || '',
                     total_citations: dynamicData.total_citations,
                     total_publications: dynamicData.total_publications,
                     staff_count: staticData.staff_count,

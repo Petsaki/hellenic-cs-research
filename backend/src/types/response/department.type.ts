@@ -9,6 +9,8 @@ export interface AcademicData {
     name: string;
     position: string;
     inst: string;
+    deptname: string;
+    university: string;
     hindex: number;
     publications: CountPerYear[];
     citations: CountPerYear[];
@@ -91,4 +93,7 @@ export interface DepartmentsDynamicStats {
     min_citations_count: number
 }
 
-export interface DepartmentsStats extends DepartmentsStaticStats, DepartmentsDynamicStats { }
+export interface DepartmentsStats extends DepartmentsStaticStats, DepartmentsDynamicStats {
+    deptname: string;
+    university: string;
+}

@@ -20,6 +20,8 @@ export const getCacheDepartmentsID = tryCatch(async (req: omeaCitationsReqBody<F
             attributes: [
                 [Sequelize.fn('DISTINCT', Sequelize.col('id')), 'id'],
                 'url',
+                'deptname',
+                'university',
             ],
             raw: true,
         });

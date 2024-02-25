@@ -133,6 +133,10 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *                             type: string
  *                           inst:
  *                             type: string
+ *                           deptname:
+ *                             type: string
+ *                           university:
+ *                             type: string
  *                           hindex:
  *                             type: integer
  *                           publications:
@@ -183,6 +187,8 @@ router.get('/', getCacheDepartmentsID, getDepartments);
  *                   name: "Academic Staff"
  *                   position: "Assistant Professor"
  *                   inst: "iee@ihu"
+ *                   deptname: "Τμήμα Μηχανικών Πληροφορικής και Ηλεκτρονικών Συστημάτων"
+ *                   university: "Διεθνές Πανεπιστήμιο της Ελλάδος"
  *                   hindex: 10
  *                   publications:
  *                     - year: 2022
@@ -270,6 +276,10 @@ router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheY
  *                             type: string
  *                           inst:
  *                             type: string
+ *                           deptname:
+ *                             type: string
+ *                           university:
+ *                             type: string
  *                           hindex:
  *                             type: integer
  *                           publications:
@@ -320,6 +330,8 @@ router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheY
  *                   name: "Academic Staff"
  *                   position: "Assistant Professor"
  *                   inst: "iee@ihu"
+ *                   deptname: "Τμήμα Μηχανικών Πληροφορικής και Ηλεκτρονικών Συστημάτων"
+ *                   university: "Διεθνές Πανεπιστήμιο της Ελλάδος"
  *                   hindex: 10
  *                   publications:
  *                     - year: 2022
@@ -340,7 +352,7 @@ router.get('/academicStaffData/byDepartmentIds', getCacheAllPositions, getCacheY
  *       - HellenicCSResearch
  */
 // Academic-staff data by Academic Staff IDs
-router.get('/academicStaffData/byStaffIds', getCacheAllPositions, getCacheYearsRange, getCacheAcademicStaffID, getDepartmentsAcademicStaffByStaffData);
+router.get('/academicStaffData/byStaffIds', getCacheAllPositions, getCacheYearsRange, getCacheAcademicStaffID, getCacheDepartmentsID, getDepartmentsAcademicStaffByStaffData);
 
 /**
  * @openapi
@@ -614,6 +626,10 @@ router.get('/activeYears', getCacheAllPositions, getCacheDepartmentsID, getDepar
  *                         properties:
  *                           inst:
  *                             type: string
+ *                           deptname:
+ *                             type: string
+ *                           university:
+ *                             type: string
  *                           total_citations:
  *                             type: integer
  *                           total_publications:
@@ -646,6 +662,8 @@ router.get('/activeYears', getCacheAllPositions, getCacheDepartmentsID, getDepar
  *               code: 200
  *               data:
  *                 - inst: "iee@ihu"
+ *                   deptname: "Τμήμα Μηχανικών Πληροφορικής και Ηλεκτρονικών Συστημάτων"
+ *                   university: "Διεθνές Πανεπιστήμιο της Ελλάδος"
  *                   total_citations: 1993
  *                   total_publications: 59
  *                   staff_count: 30
