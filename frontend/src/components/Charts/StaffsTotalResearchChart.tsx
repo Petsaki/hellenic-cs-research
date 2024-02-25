@@ -14,8 +14,11 @@ import {
 import { Pie } from 'react-chartjs-2';
 import { useTheme } from '@mui/material/styles';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
+import { useSelector } from 'react-redux';
 import { IAcademicPositionTotals } from '../../models/api/response/departments/departments.data';
 import colorMap from '../../app/untils/chartPositionsColors';
+import { SelectedDepInfo } from '../DataTables/DepartmentDataTable';
+import { RootState } from '../../app/store';
 
 export const dataTest = (
     data: IAcademicPositionTotals[],
@@ -68,13 +71,13 @@ export const dataTest = (
 export type TotalResearchFilter = 'citations' | 'publications';
 
 export interface StaffsTotalResearchChartProp {
-    id: string | undefined;
+    selectedDepInfo: SelectedDepInfo;
     data: IAcademicPositionTotals[] | undefined;
     filter: TotalResearchFilter;
 }
 
 const StaffsTotalResearchChart: React.FC<StaffsTotalResearchChartProp> = ({
-    id,
+    selectedDepInfo,
     data,
     filter,
 }: StaffsTotalResearchChartProp) => {
@@ -83,6 +86,10 @@ const StaffsTotalResearchChart: React.FC<StaffsTotalResearchChartProp> = ({
     const [colorMode, setColorMode] = useState(theme.palette.mode);
     const [positionsSum, setpositionsSum] = useState<number>();
     const myChartRef = useRef<ChartJSOrUndefined<'pie'>>();
+
+    const sliceShowFullName = useSelector(
+        (state: RootState) => state.filtersSlice.showDepFullName
+    );
 
     const [labelTest, setLabelTest] = useState<IAcademicPositionTotals[]>([]);
 
@@ -111,9 +118,17 @@ const StaffsTotalResearchChart: React.FC<StaffsTotalResearchChartProp> = ({
             },
             title: {
                 display: true,
-                text: `${id}: ${
-                    filter.charAt(0).toUpperCase() + filter.slice(1)
-                } Per Academic Position Chart`,
+                text: sliceShowFullName
+                    ? [
+                          `${selectedDepInfo?.deptname}, `,
+                          selectedDepInfo?.university,
+                          `${
+                              filter.charAt(0).toUpperCase() + filter.slice(1)
+                          } Per Academic Position Chart`,
+                      ]
+                    : `${selectedDepInfo?.id} ${
+                          filter.charAt(0).toUpperCase() + filter.slice(1)
+                      } Per Academic Position Chart`,
             },
             tooltip: {
                 callbacks: {
@@ -145,7 +160,7 @@ const StaffsTotalResearchChart: React.FC<StaffsTotalResearchChartProp> = ({
             myPie.update();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id, data]);
+    }, [selectedDepInfo, data]);
 
     useEffect(() => {
         if (data) {

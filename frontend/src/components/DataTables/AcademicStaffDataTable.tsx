@@ -8,12 +8,14 @@ import {
 import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import { useMediaQuery } from '@mui/material';
+import { Tooltip, useMediaQuery } from '@mui/material';
+import { useSelector } from 'react-redux';
 import { IAcademicStaffData } from '../../models/api/response/departments/departments.data';
 import EmptyData from './EmptyData';
 import SectionTitle from '../SectionTitle';
 import { PaginationType } from '../CitationsTableGroup';
 import ResizableTable from '../ResizableTable';
+import { RootState } from '../../app/store';
 
 const tableStyle: SxProps<Theme> = (theme) => ({
     fontSize: { xs: '.75rem', md: 'inherit' },
@@ -34,6 +36,15 @@ const tableStyle: SxProps<Theme> = (theme) => ({
     },
     '& .MuiDataGrid-row.Mui-selected': {
         backgroundColor: 'rgba(85, 161, 229, 0.25)',
+    },
+    '.full-name--column .MuiDataGrid-cellContent': {
+        fontSize: '0.675rem',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        WebkitLineClamp: '3',
+        WebkitBoxOrient: 'vertical',
+        display: '-webkit-box',
+        whiteSpace: 'normal',
     },
 });
 export interface AcademicStaffDataTableProp extends PaginationType {
@@ -56,6 +67,9 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [rowCount, setRowCount] = useState<number>(0);
+    const sliceShowFullName = useSelector(
+        (state: RootState) => state.filtersSlice.showDepFullName
+    );
 
     const rows = useMemo(() => {
         if (!data) {
@@ -66,7 +80,9 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
             const rowData: any = {
                 id: item.name,
                 position: item.position,
-                inst: item.inst,
+                inst: sliceShowFullName
+                    ? `${item.deptname}, ${item.university}`
+                    : item.inst,
                 hindex: item.hindex,
                 hindex5: item.hindex5,
                 citations5: item.citations5,
@@ -79,7 +95,7 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
 
             return rowData;
         });
-    }, [data]);
+    }, [data, sliceShowFullName]);
 
     const columns: GridColDef[] = useMemo(() => {
         const dynamicWidth = isMobile ? -50 : 0;
@@ -114,8 +130,45 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
             },
             {
                 field: 'inst',
+                cellClassName: sliceShowFullName ? 'full-name--column' : '',
                 headerName: 'Institute',
                 width: 150 + dynamicWidth,
+                renderCell: (params) => {
+                    const currentAcademicStaff = data?.academic_data.find(
+                        (staff) => staff.name === params.id
+                    );
+
+                    return (
+                        <Tooltip
+                            title={
+                                <>
+                                    {sliceShowFullName && (
+                                        <strong>
+                                            {currentAcademicStaff?.inst}
+                                            <br />
+                                        </strong>
+                                    )}
+                                    {currentAcademicStaff?.deptname.replace(
+                                        'Τμήμα ',
+                                        ''
+                                    )}
+                                    ,&nbsp;
+                                    <strong>
+                                        {currentAcademicStaff?.university}
+                                    </strong>
+                                </>
+                            }
+                            disableInteractive
+                            enterTouchDelay={50}
+                            enterDelay={300}
+                            enterNextDelay={150}
+                        >
+                            <div className="MuiDataGrid-cellContent">
+                                {params.value.replace('Τμήμα ', '')}
+                            </div>
+                        </Tooltip>
+                    );
+                },
             },
             {
                 field: 'hindex',
@@ -169,7 +222,7 @@ const AcademicStaffDataTable: React.FC<AcademicStaffDataTableProp> = ({
 
         return additionalColumns;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data, isMobile]);
+    }, [data, isMobile, sliceShowFullName]);
 
     useEffect(() => {
         if (data?.count) setRowCount(data.count);

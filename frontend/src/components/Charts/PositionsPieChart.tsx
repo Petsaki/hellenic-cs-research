@@ -17,7 +17,6 @@ import { useSelector } from 'react-redux';
 import Skeleton from '@mui/material/Skeleton/Skeleton';
 import { useTheme } from '@mui/material/styles';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
-import { useGetDepartmentsQuery } from '../../services/departmentApi';
 import { RootState } from '../../app/store';
 import { useGetPositionsByDepartmentsMutation } from '../../services/academicStaffApi';
 import { PositionsByDepartment } from '../../models/api/response/academicStaff/academicStaff.data';

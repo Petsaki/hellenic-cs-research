@@ -56,7 +56,7 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
 
     const { data: departmenentData, isLoading: isDepartmenentDataFetching } =
         useGetDepartmentsQuery({
-            filter: ['id', 'url'],
+            filter: ['id', 'url', 'deptname', 'university'],
         });
 
     const location = useLocation();
@@ -118,12 +118,13 @@ const Filters: React.FC<FiltersProp> = ({ drawerStatus }: FiltersProp) => {
                 </Box>
                 <FixSlide data={yearsData.data} />
                 <Divider sx={filterDivider} />
-                {isCitations && (
-                    <>
-                        <DepartmentCheckboxes data={departmenentData.data} />
-                        <Divider sx={filterDivider} />
-                    </>
-                )}
+                <>
+                    <DepartmentCheckboxes
+                        data={departmenentData.data}
+                        isCitations={isCitations}
+                    />
+                    <Divider sx={filterDivider} />
+                </>
                 <PositionCheckboxes data={positionsData.data} />
             </Box>
         );

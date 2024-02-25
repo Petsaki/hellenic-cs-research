@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import TheChipArray from '../components/TheChipArray';
 import Filters from '../components/Filters';
 import { useGetYearsRangeQuery } from '../services/yearsRangeApi';
@@ -25,6 +25,7 @@ import { useGetDepartmentsQuery } from '../services/departmentApi';
 import { RootState } from '../app/store';
 import Citations from '../containers/Citations';
 import DepartmentsStats from '../containers/DepartmentsStats';
+import { setShowDepFullName } from '../app/slices/filtersSlice';
 
 const speedDial: SxProps<Theme> = (theme) => ({
     position: 'fixed',
@@ -73,6 +74,7 @@ const collapseLineContainer: SxProps = {
 
 const FilterAndDataComponent = () => {
     const theme = useTheme();
+    const dispatch = useDispatch();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
@@ -95,10 +97,15 @@ const FilterAndDataComponent = () => {
         isLoading: isDepartmenentDataFetching,
         isError: isDepartmenentDataError,
     } = useGetDepartmentsQuery({
-        filter: ['id', 'url'],
+        filter: ['id', 'url', 'deptname', 'university'],
     });
 
     useEffect(() => {
+        const localShowDepFullName = localStorage.getItem('ShowDepFullName');
+        dispatch(
+            setShowDepFullName(localShowDepFullName?.toLowerCase() === 'true')
+        );
+
         const resizeObserver = new ResizeObserver((entries) => {
             entries.filter((entry) => {
                 return setHeight(entry.contentRect.height);
@@ -117,6 +124,7 @@ const FilterAndDataComponent = () => {
                 resizeObserver.unobserve(node);
             }
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {

@@ -68,7 +68,7 @@ const MessageComponent: React.FC<MessageComponentProp> = ({
         isLoading: isDepartmenentDataLoading,
         isError: isDepartmenentDataError,
     } = useGetDepartmentsQuery({
-        filter: ['id', 'url'],
+        filter: ['id', 'url', 'deptname', 'university'],
     });
 
     const { isLoading: isYearsDataLoading, isError: isYearsDataError } =

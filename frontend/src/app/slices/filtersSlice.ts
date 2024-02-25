@@ -6,6 +6,7 @@ export interface IFilterSlice {
     academicPos: string[];
     departments: string[];
     maxYearsRange: number[];
+    showDepFullName: boolean;
 }
 
 const initialState: IFilterSlice = {
@@ -13,6 +14,7 @@ const initialState: IFilterSlice = {
     academicPos: [],
     departments: [],
     maxYearsRange: [],
+    showDepFullName: false,
 };
 
 const resetState = (yearsRange: number[]): IFilterSlice => {
@@ -45,6 +47,16 @@ export const filtersSlice = createSlice({
         addDepartment: (state, departments: PayloadAction<Array<string>>) => {
             state.departments = departments.payload;
         },
+        setShowDepFullName: (
+            state,
+            showDepFullName: PayloadAction<boolean>
+        ) => {
+            state.showDepFullName = showDepFullName.payload;
+            localStorage.setItem(
+                'ShowDepFullName',
+                showDepFullName.payload.toString()
+            );
+        },
     },
 });
 
@@ -54,6 +66,7 @@ export const {
     setMaxYearsRange,
     setAcademicPos,
     addDepartment,
+    setShowDepFullName,
 } = filtersSlice.actions;
 
 export default filtersSlice.reducer;

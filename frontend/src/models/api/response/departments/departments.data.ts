@@ -10,6 +10,8 @@ export interface DepartmentsData {
 export interface DepartmentId {
     id: string;
     url: string;
+    deptname: string;
+    university: string;
 }
 
 export interface IStatistics {
@@ -37,6 +39,8 @@ export interface AcademicData {
     name: string;
     position: string;
     inst: string;
+    deptname: string;
+    university: string;
     hindex: number;
     publications: CountPerYear[];
     citations: CountPerYear[];
@@ -58,6 +62,8 @@ export interface IAcademicStaffData {
 // Departments Data Analytics
 export interface IDepartmentData {
     inst: string;
+    deptname: string;
+    university: string;
     total_citations: number;
     total_publications: number;
     staff_count: number;

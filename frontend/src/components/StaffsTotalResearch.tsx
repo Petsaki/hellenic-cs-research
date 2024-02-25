@@ -8,6 +8,7 @@ import { useGetAcademicPositionTotalsQuery } from '../services/departmentApi';
 import { RootState } from '../app/store';
 import SectionTitle from './SectionTitle';
 import ResearchSummaryChart from './Charts/ResearchSummaryChart';
+import { SelectedDepInfo } from './DataTables/DepartmentDataTable';
 
 const cardStyle: SxProps = {
     display: 'flex',
@@ -20,11 +21,11 @@ const cardStyle: SxProps = {
 };
 
 export interface StaffsTotalResearchProp {
-    id: string | undefined;
+    selectedDepInfo: SelectedDepInfo;
 }
 
 const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
-    id,
+    selectedDepInfo,
 }: StaffsTotalResearchProp) => {
     const [runQuery, setRunQuery] = useState(false);
 
@@ -43,7 +44,7 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
     const { data: academicPositionTotalsData } =
         useGetAcademicPositionTotalsQuery(
             {
-                departments: id ?? '',
+                departments: selectedDepInfo?.id ?? '',
                 positions: selectedPositions,
                 years: selectedyears,
                 unknown_year: selectedUnknownYear,
@@ -54,10 +55,10 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
         );
 
     useEffect(() => {
-        setRunQuery(!!id);
-    }, [id]);
+        setRunQuery(!!selectedDepInfo?.id);
+    }, [selectedDepInfo]);
 
-    if (!id) return null;
+    if (!selectedDepInfo?.id) return null;
 
     return (
         <>
@@ -75,7 +76,7 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
                     <SectionTitle titleText="Citations Research" />
                     <Paper sx={cardStyle}>
                         <StaffsTotalResearchChart
-                            id={id}
+                            selectedDepInfo={selectedDepInfo}
                             data={academicPositionTotalsData?.data}
                             filter="citations"
                         />
@@ -85,7 +86,7 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
                     <SectionTitle titleText="Publications Research" />
                     <Paper sx={cardStyle}>
                         <StaffsTotalResearchChart
-                            id={id}
+                            selectedDepInfo={selectedDepInfo}
                             data={academicPositionTotalsData?.data}
                             filter="publications"
                         />
@@ -100,7 +101,7 @@ const StaffsTotalResearch: React.FC<StaffsTotalResearchProp> = ({
                 }}
             >
                 <SectionTitle titleText="Department Research" />
-                <ResearchSummaryChart id={id} />
+                <ResearchSummaryChart selectedDepInfo={selectedDepInfo} />
             </Grid2>
         </>
     );

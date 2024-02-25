@@ -16,6 +16,7 @@ import { useTheme } from '@mui/material/styles';
 import { useGetResearchSummaryQuery } from '../../services/departmentApi';
 import { RootState } from '../../app/store';
 import { StaffResearchSummary } from '../../models/api/response/departments/departments.data';
+import { SelectedDepInfo } from '../DataTables/DepartmentDataTable';
 
 export const dataTest = (
     data: StaffResearchSummary[],
@@ -55,11 +56,11 @@ export const dataTest = (
 };
 
 export interface ResearchSummaryChartProp {
-    id: string | undefined;
+    selectedDepInfo: SelectedDepInfo;
 }
 
 const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
-    id,
+    selectedDepInfo,
 }: ResearchSummaryChartProp) => {
     const theme = useTheme();
     const [colorMode, setColorMode] = useState(theme.palette.mode);
@@ -77,9 +78,13 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
         (state: RootState) => state.filtersSlice.yearsFilters.unknownYear
     );
 
+    const sliceShowFullName = useSelector(
+        (state: RootState) => state.filtersSlice.showDepFullName
+    );
+
     const { data: depResearchSummary } = useGetResearchSummaryQuery(
         {
-            departments: id ?? '',
+            departments: selectedDepInfo?.id ?? '',
             positions: selectedPositions,
             years: selectedyears,
             unknown_year: selectedUnknownYear,
@@ -127,7 +132,13 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
                 },
                 title: {
                     display: true,
-                    text: `${id} Research`,
+                    text: sliceShowFullName
+                        ? [
+                              `${selectedDepInfo?.deptname}, `,
+                              selectedDepInfo?.university,
+                              'Research',
+                          ]
+                        : `${selectedDepInfo?.id} Research`,
                 },
                 tooltip: {
                     mode: 'index',
@@ -135,11 +146,12 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
                 },
             },
         };
-    }, [id]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedDepInfo, sliceShowFullName]);
 
     useEffect(() => {
-        setRunQuery(!!id);
-    }, [id]);
+        setRunQuery(!!selectedDepInfo?.id);
+    }, [selectedDepInfo]);
 
     const [labelTest, setLabelTest] = useState<StaffResearchSummary[]>([]);
 
@@ -157,7 +169,7 @@ const ResearchSummaryChart: React.FC<ResearchSummaryChartProp> = ({
         }
     }, [depResearchSummary]);
 
-    if (!id) return null;
+    if (!selectedDepInfo?.id) return null;
 
     if (selectedPositions.length)
         return (

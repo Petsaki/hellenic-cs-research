@@ -34,7 +34,7 @@ const TheProgressBar = () => {
         isLoading: isDepartmenentDataLoading,
         isError: isDepartmenentDataError,
     } = useGetDepartmentsQuery({
-        filter: ['id', 'url'],
+        filter: ['id', 'url', 'deptname', 'university'],
     });
 
     useEffect(() => {

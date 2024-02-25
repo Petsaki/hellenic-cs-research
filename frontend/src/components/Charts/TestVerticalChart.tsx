@@ -96,7 +96,7 @@ const TestVerticalChart = () => {
     const theme = useTheme();
     const [colorMode, setColorMode] = useState(theme.palette.mode);
     const { data, isLoading: isFetching } = useGetDepartmentsQuery({
-        filter: ['id', 'url'],
+        filter: ['id', 'url', 'deptname', 'university'],
     });
 
     const [

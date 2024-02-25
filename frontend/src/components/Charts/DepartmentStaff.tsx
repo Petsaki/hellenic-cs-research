@@ -89,7 +89,7 @@ const DepartmentStaff = () => {
     const theme = useTheme();
     const [colorMode, setColorMode] = useState(theme.palette.mode);
     const { data } = useGetDepartmentsQuery({
-        filter: ['id', 'url'],
+        filter: ['id', 'url', 'deptname', 'university'],
     });
 
     const [

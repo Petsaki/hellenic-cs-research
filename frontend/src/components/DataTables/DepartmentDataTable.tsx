@@ -5,7 +5,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { useMediaQuery } from '@mui/material';
+import { Tooltip, useMediaQuery } from '@mui/material';
 import { RootState } from '../../app/store';
 import { useGetDepartmentsDataMutation } from '../../services/departmentApi';
 import { IDepartmentData } from '../../models/api/response/departments/departments.data';
@@ -50,28 +50,79 @@ const tableStyle: SxProps<Theme> = (theme) => ({
     '& .MuiDataGrid-row.Mui-selected': {
         backgroundColor: 'rgba(85, 161, 229, 0.25)',
     },
+    '.full-name--column .MuiDataGrid-cellContent': {
+        fontSize: '0.675rem',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        WebkitLineClamp: '3',
+        WebkitBoxOrient: 'vertical',
+        display: '-webkit-box',
+        whiteSpace: 'normal',
+    },
 });
 
-const columns = (isMobile: boolean): GridColDef[] => {
+const columns = (
+    isMobile: boolean,
+    sliceShowFullName: boolean,
+    departmentsData?: IDepartmentData[]
+): GridColDef[] => {
     const dynamicWidth = isMobile ? -50 : 0;
 
     return [
         {
-            field: 'id',
+            field: 'inst',
             headerName: 'Department',
             width: 170 + dynamicWidth,
+            cellClassName: sliceShowFullName ? 'full-name--column' : '',
             renderCell: (params) => {
+                const currentDep = departmentsData?.find((dep) => {
+                    if (sliceShowFullName) {
+                        return (
+                            `${dep?.deptname?.replace('Τμήμα ', '')}, ${
+                                dep?.university
+                            }` === params.value
+                        );
+                    }
+                    return dep.inst === params.value.toString();
+                });
+
                 return (
-                    <a
-                        href={`citations?departments=${params.value.toString()}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                            color: 'inherit',
-                        }}
+                    <Tooltip
+                        title={
+                            <>
+                                {sliceShowFullName && (
+                                    <strong>
+                                        {currentDep?.inst}
+                                        <br />
+                                    </strong>
+                                )}
+                                {currentDep?.deptname.replace('Τμήμα ', '')}
+                                ,&nbsp;
+                                <strong>{currentDep?.university}</strong>
+                            </>
+                        }
+                        disableInteractive
+                        enterTouchDelay={50}
+                        enterDelay={300}
+                        enterNextDelay={150}
                     >
-                        {params.value.toString()}
-                    </a>
+                        <a
+                            href={`citations?departments=${currentDep?.inst}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                                color: 'inherit',
+                            }}
+                            className="MuiDataGrid-cellContent"
+                        >
+                            {sliceShowFullName
+                                ? `${currentDep?.deptname.replace(
+                                      'Τμήμα ',
+                                      ''
+                                  )}, ${currentDep?.university}`
+                                : currentDep?.inst}
+                        </a>
+                    </Tooltip>
                 );
             },
         },
@@ -173,6 +224,13 @@ const columns = (isMobile: boolean): GridColDef[] => {
         },
     ];
 };
+
+export interface SelectedDepInfo {
+    id: string;
+    deptname: string;
+    university: string;
+}
+
 const DepartmentDataTable = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -181,7 +239,11 @@ const DepartmentDataTable = () => {
         { data: departmentsData, isLoading: isDepartmentDataLoading },
     ] = useGetDepartmentsDataMutation();
 
-    const [selectedDep, setSelectedDep] = useState<string>();
+    const [selectedDep, setSelectedDep] = useState<SelectedDepInfo>({
+        id: '',
+        deptname: '',
+        university: '',
+    });
 
     const [tableData, setTableData] = useState<IDepartmentData[] | undefined>(
         undefined
@@ -198,6 +260,10 @@ const DepartmentDataTable = () => {
         (state: RootState) => state.filtersSlice.yearsFilters.unknownYear
     );
 
+    const sliceShowFullName = useSelector(
+        (state: RootState) => state.filtersSlice.showDepFullName
+    );
+
     const rows = useMemo(() => {
         if (!tableData) {
             return [];
@@ -211,6 +277,11 @@ const DepartmentDataTable = () => {
         tableData.forEach((departmentData) => {
             rowData.push({
                 id: departmentData.inst,
+                inst: sliceShowFullName
+                    ? `${departmentData.deptname.replace('Τμήμα ', '')}, ${
+                          departmentData.university
+                      }`
+                    : departmentData.inst,
                 publications: departmentData.total_publications,
                 citations: departmentData.total_citations,
                 count: departmentData.staff_count,
@@ -228,26 +299,43 @@ const DepartmentDataTable = () => {
             });
         });
         return rowData;
-    }, [tableData, selectedPositions, selectedYears]);
+    }, [tableData, selectedPositions, selectedYears, sliceShowFullName]);
 
     useEffect(() => {
         if (!isDepartmentDataLoading && departmentsData?.data?.length) {
             setTableData(departmentsData.data);
             if (
                 !departmentsData?.data.some((department) => {
-                    return department.inst === selectedDep;
+                    return department.inst === selectedDep?.id;
                 })
             ) {
-                setSelectedDep(undefined);
+                setSelectedDep({
+                    id: '',
+                    deptname: '',
+                    university: '',
+                });
             }
         } else if (!isDepartmentDataLoading && !departmentsData?.data?.length) {
-            setSelectedDep(undefined);
+            setSelectedDep({
+                id: '',
+                deptname: '',
+                university: '',
+            });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isDepartmentDataLoading, departmentsData]);
 
     const handleRowClick = (params: GridRowParams) => {
-        setSelectedDep(params.id as string);
+        const currentDep = departmentsData?.data?.find(
+            (dep) => dep.inst === params.id
+        );
+
+        setSelectedDep((prevState) => ({
+            ...prevState,
+            id: currentDep?.inst || '',
+            deptname: currentDep?.deptname.replace('Τμήμα ', '') || '',
+            university: currentDep?.university || '',
+        }));
     };
 
     useEffect(() => {
@@ -293,7 +381,11 @@ const DepartmentDataTable = () => {
                                 sx={tableStyle(theme)}
                                 loading={isDepartmentDataLoading}
                                 rows={rows}
-                                columns={columns(isMobile)}
+                                columns={columns(
+                                    isMobile,
+                                    sliceShowFullName,
+                                    departmentsData?.data
+                                )}
                                 initialState={{
                                     pagination: {
                                         paginationModel: { pageSize: 100 },
@@ -306,7 +398,7 @@ const DepartmentDataTable = () => {
                     )}
                 </ResizableTable>
             </Grid2>
-            <StaffsTotalResearch id={selectedDep} />
+            <StaffsTotalResearch selectedDepInfo={selectedDep} />
         </>
     );
 };
@@ -315,6 +407,7 @@ export default DepartmentDataTable;
 
 interface DepartmentRow {
     id: string;
+    inst: string;
     publications: number;
     citations: number;
     count: number;
