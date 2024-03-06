@@ -4,7 +4,7 @@ import { IDepartments } from "../types";
 
 // I can put type on define but i am not using it on department controller
 // const Departments: departmentsModelDefined = db.define('departments', {
-const Departments = db.define<IDepartments>('departments', {
+const Departments = db.define<IDepartments>('Departments', {
     id: {
         field: 'id',
         type: DataTypes.STRING(30),
