@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-dotenv.config({path:'./src/env/.env'});
+dotenv.config({path:'.env'});
 import Server from "./server";
 
 new Server();
